@@ -1,12 +1,14 @@
-import { Phone, Mail, MapPin, Clock, Send } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, Send, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 
 const ContactSection = () => {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -15,13 +17,19 @@ const ContactSection = () => {
     message: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    
+    // Simulate form submission
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
     toast({
-      title: "Inquiry Submitted!",
-      description: "Thank you for your interest. We will contact you shortly.",
+      title: "✅ Inquiry Submitted Successfully!",
+      description: "Thank you for your interest. Our team will contact you within 24 hours.",
     });
     setFormData({ name: "", email: "", phone: "", package: "", message: "" });
+    setIsSubmitting(false);
   };
 
   const contactInfo = [
@@ -29,11 +37,13 @@ const ContactSection = () => {
       icon: Phone,
       title: "Call Us",
       details: ["+880 1234-567890", "+880 9876-543210"],
+      action: "tel:+8801234567890",
     },
     {
       icon: Mail,
       title: "Email Us",
       details: ["info@smelitehajj.com", "support@smelitehajj.com"],
+      action: "mailto:info@smelitehajj.com",
     },
     {
       icon: MapPin,
@@ -48,34 +58,54 @@ const ContactSection = () => {
   ];
 
   return (
-    <section id="contact" className="py-24 bg-muted geometric-pattern">
-      <div className="container">
-        <div className="text-center mb-16">
-          <span className="text-secondary font-semibold uppercase tracking-wider">
+    <section id="contact" className="py-24 bg-muted geometric-pattern relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-72 h-72 bg-secondary/5 rounded-full blur-3xl" />
+      
+      <div className="container relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <span className="inline-flex items-center gap-2 text-secondary font-semibold uppercase tracking-wider">
+            <MessageSquare className="w-4 h-4" />
             Get In Touch
           </span>
-          <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mt-3 mb-6">
+          <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mt-3 mb-6">
             Contact Us
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
             Have questions about our packages or need assistance? 
             Reach out to us and our team will be happy to help.
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Contact Info */}
-          <div>
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
             <div className="grid sm:grid-cols-2 gap-6 mb-8">
-              {contactInfo.map((info) => (
-                <div
+              {contactInfo.map((info, index) => (
+                <motion.div
                   key={info.title}
-                  className="bg-card rounded-xl p-6 shadow-elegant hover:shadow-lg transition-all duration-300"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ y: -5 }}
+                  className="bg-card rounded-2xl p-6 shadow-elegant hover:shadow-lg transition-all duration-300 group"
                 >
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                    <info.icon className="w-6 h-6 text-primary" />
+                  <div className="w-14 h-14 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-elegant">
+                    <info.icon className="w-7 h-7 text-primary-foreground" />
                   </div>
-                  <h3 className="font-heading font-semibold text-foreground mb-2">
+                  <h3 className="font-heading font-bold text-lg text-foreground mb-3">
                     {info.title}
                   </h3>
                   {info.details.map((detail, idx) => (
@@ -83,12 +113,18 @@ const ContactSection = () => {
                       {detail}
                     </p>
                   ))}
-                </div>
+                </motion.div>
               ))}
             </div>
 
-            {/* Map Placeholder */}
-            <div className="bg-card rounded-xl overflow-hidden shadow-elegant h-64">
+            {/* Map */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="bg-card rounded-2xl overflow-hidden shadow-elegant h-72"
+            >
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d58399.55577816851!2d90.2227881!3d23.8584712!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755eb3a0a09f5b3%3A0x7dfcceb1c4cc3cbb!2sSavar%2C%20Bangladesh!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus"
                 width="100%"
@@ -99,18 +135,27 @@ const ContactSection = () => {
                 referrerPolicy="no-referrer-when-downgrade"
                 title="SM Elite Hajj Location"
               />
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Contact Form */}
-          <div className="bg-card rounded-2xl p-8 shadow-elegant">
-            <h3 className="font-heading text-2xl font-bold text-foreground mb-6">
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="bg-card rounded-3xl p-8 md:p-10 shadow-elegant relative overflow-hidden"
+          >
+            {/* Decorative */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-full" />
+            
+            <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-8 relative z-10">
               Send Us a Message
             </h3>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label className="block text-sm font-semibold text-foreground mb-2">
                     Full Name *
                   </label>
                   <Input
@@ -118,10 +163,11 @@ const ContactSection = () => {
                     placeholder="Your Name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="h-12"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label className="block text-sm font-semibold text-foreground mb-2">
                     Phone Number *
                   </label>
                   <Input
@@ -130,12 +176,13 @@ const ContactSection = () => {
                     placeholder="+880 1XXX-XXXXXX"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="h-12"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label className="block text-sm font-semibold text-foreground mb-2">
                   Email Address
                 </label>
                 <Input
@@ -143,52 +190,70 @@ const ContactSection = () => {
                   placeholder="you@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="h-12"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label className="block text-sm font-semibold text-foreground mb-2">
                   Interested Package
                 </label>
                 <select
-                  className="w-full rounded-lg border border-input bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full h-12 rounded-lg border border-input bg-background px-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-all"
                   value={formData.package}
                   onChange={(e) => setFormData({ ...formData, package: e.target.value })}
                 >
                   <option value="">Select a package</option>
-                  <option value="hajj-economy">Hajj - Super Economy</option>
-                  <option value="hajj-classic">Hajj - Classic</option>
-                  <option value="hajj-premium">Hajj - Premium</option>
-                  <option value="hajj-vip">Hajj - VIP</option>
-                  <option value="umrah-economy">Umrah - Economy</option>
-                  <option value="umrah-etekaf">Umrah - Etekaf</option>
-                  <option value="umrah-vip">Umrah - VIP</option>
-                  <option value="visa">Visa Services</option>
+                  <optgroup label="Hajj Packages">
+                    <option value="hajj-economy">Hajj - Super Economy</option>
+                    <option value="hajj-classic">Hajj - Classic</option>
+                    <option value="hajj-premium">Hajj - Premium (Popular)</option>
+                    <option value="hajj-vip">Hajj - VIP</option>
+                  </optgroup>
+                  <optgroup label="Umrah Packages">
+                    <option value="umrah-economy">Umrah - Economy</option>
+                    <option value="umrah-etekaf">Umrah - Etekaf (Popular)</option>
+                    <option value="umrah-vip">Umrah - VIP</option>
+                  </optgroup>
+                  <optgroup label="Other Services">
+                    <option value="visa">Visa Processing</option>
+                  </optgroup>
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label className="block text-sm font-semibold text-foreground mb-2">
                   Your Message
                 </label>
                 <Textarea
-                  placeholder="Tell us about your requirements..."
+                  placeholder="Tell us about your requirements, preferred travel dates, number of travelers..."
                   rows={4}
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  className="resize-none"
                 />
               </div>
 
               <Button
                 type="submit"
                 size="lg"
-                className="w-full bg-gradient-primary hover:opacity-90 shadow-gold"
+                disabled={isSubmitting}
+                className="w-full h-14 bg-gradient-primary hover:opacity-90 shadow-gold text-lg group"
               >
-                <Send className="w-5 h-5 mr-2" />
-                Send Inquiry
+                {isSubmitting ? (
+                  <span className="flex items-center gap-2">
+                    <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                    Sending...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    Send Inquiry
+                  </span>
+                )}
               </Button>
             </form>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
