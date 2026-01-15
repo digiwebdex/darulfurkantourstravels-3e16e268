@@ -47,6 +47,76 @@ const VisaServices = () => {
     setLoading(false);
   };
 
+  // Convert country name to ISO 3166-1 alpha-2 code for flag images
+  const getCountryCode = (countryName: string): string => {
+    const countryCodeMap: Record<string, string> = {
+      "Thailand": "th",
+      "France": "fr",
+      "Italy": "it",
+      "United States": "us",
+      "Cuba": "cu",
+      "Japan": "jp",
+      "Australia": "au",
+      "Malaysia": "my",
+      "United Kingdom": "gb",
+      "Canada": "ca",
+      "Germany": "de",
+      "Spain": "es",
+      "China": "cn",
+      "India": "in",
+      "Singapore": "sg",
+      "UAE": "ae",
+      "United Arab Emirates": "ae",
+      "Saudi Arabia": "sa",
+      "Turkey": "tr",
+      "Egypt": "eg",
+      "Indonesia": "id",
+      "South Korea": "kr",
+      "Brazil": "br",
+      "South Africa": "za",
+      "Russia": "ru",
+      "Netherlands": "nl",
+      "Switzerland": "ch",
+      "Belgium": "be",
+      "Austria": "at",
+      "Greece": "gr",
+      "Portugal": "pt",
+      "New Zealand": "nz",
+      "Sweden": "se",
+      "Norway": "no",
+      "Denmark": "dk",
+      "Finland": "fi",
+      "Ireland": "ie",
+      "Poland": "pl",
+      "Czech Republic": "cz",
+      "Hungary": "hu",
+      "Vietnam": "vn",
+      "Philippines": "ph",
+      "Bangladesh": "bd",
+      "Pakistan": "pk",
+      "Sri Lanka": "lk",
+      "Nepal": "np",
+      "Maldives": "mv",
+      "Qatar": "qa",
+      "Kuwait": "kw",
+      "Bahrain": "bh",
+      "Oman": "om",
+      "Jordan": "jo",
+      "Lebanon": "lb",
+      "Morocco": "ma",
+      "Tunisia": "tn",
+      "Kenya": "ke",
+      "Nigeria": "ng",
+      "Ghana": "gh",
+      "Mexico": "mx",
+      "Argentina": "ar",
+      "Chile": "cl",
+      "Colombia": "co",
+      "Peru": "pe",
+    };
+    return countryCodeMap[countryName] || "xx";
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -121,7 +191,17 @@ const VisaServices = () => {
               
               <div className="relative z-10">
                 <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                  {country.flag_emoji}
+                  <img 
+                    src={`https://flagcdn.com/w80/${getCountryCode(country.country_name)}.png`}
+                    alt={`${country.country_name} flag`}
+                    className="w-12 h-8 object-cover rounded shadow-sm"
+                    onError={(e) => {
+                      // Fallback to emoji if flag image fails
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      target.parentElement!.innerHTML = country.flag_emoji;
+                    }}
+                  />
                 </div>
                 <h3 className="font-heading font-semibold text-lg text-foreground mb-1 group-hover:text-primary transition-colors">
                   {country.country_name}
