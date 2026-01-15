@@ -89,9 +89,10 @@ const FAQSection = () => {
           <span className="text-secondary font-semibold uppercase tracking-wider">
             FAQ
           </span>
-          <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mt-3 mb-6">
+          <h2 className="font-calligraphy text-4xl md:text-5xl font-bold text-foreground mt-3 mb-2">
             Frequently Asked Questions
           </h2>
+          <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">أسئلة شائعة</span>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Find answers to common questions about Hajj, Umrah, and our services.
             Can't find what you're looking for? Contact us directly.

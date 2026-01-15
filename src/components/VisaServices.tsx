@@ -90,9 +90,10 @@ const VisaServices = () => {
             <Globe className="w-4 h-4" />
             Global Services
           </span>
-          <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mt-3 mb-6">
+          <h2 className="font-calligraphy text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mt-3 mb-2">
             Visa Processing Services
           </h2>
+          <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">خدمات التأشيرة</span>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
             We provide hassle-free visa processing services for various countries. 
             Our experienced team ensures smooth documentation and timely processing.

@@ -21,9 +21,10 @@ const HajjPackages = () => {
             <Calendar className="w-4 h-4" />
             Our Packages
           </span>
-          <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mt-3 mb-6">
+          <h2 className="font-calligraphy text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mt-3 mb-2">
             Hajj Packages 2026
           </h2>
+          <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">حَجّ</span>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
             Choose from our carefully curated Hajj packages designed to provide you with a comfortable 
             and spiritually enriching experience on this sacred journey.

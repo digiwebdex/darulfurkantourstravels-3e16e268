@@ -91,9 +91,10 @@ const TestimonialsSection = () => {
           <span className="text-secondary font-semibold uppercase tracking-wider">
             Testimonials
           </span>
-          <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mt-3 mb-6">
+          <h2 className="font-calligraphy text-4xl md:text-5xl font-bold text-foreground mt-3 mb-2">
             What Our Pilgrims Say
           </h2>
+          <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">شهادات</span>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Read authentic experiences from our valued pilgrims who trusted us 
             with their sacred journey.

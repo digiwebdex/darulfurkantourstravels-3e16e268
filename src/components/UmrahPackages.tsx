@@ -23,9 +23,10 @@ const UmrahPackages = () => {
               <Sparkles className="w-4 h-4" />
               Spiritual Journey
             </span>
-            <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mt-3 mb-6">
+            <h2 className="font-calligraphy text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mt-3 mb-2">
               Umrah Packages
             </h2>
+            <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">عُمْرَة</span>
             <p className="text-muted-foreground mb-8 leading-relaxed text-lg">
               Embark on your spiritual journey with our exclusive Umrah packages. 
               We provide premium accommodation, transportation, and guidance to ensure 
