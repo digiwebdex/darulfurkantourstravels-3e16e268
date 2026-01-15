@@ -17,6 +17,9 @@ export type Database = {
       bookings: {
         Row: {
           created_at: string
+          guest_email: string | null
+          guest_name: string | null
+          guest_phone: string | null
           id: string
           notes: string | null
           package_id: string
@@ -26,10 +29,13 @@ export type Database = {
           total_price: number
           travel_date: string | null
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
+          guest_email?: string | null
+          guest_name?: string | null
+          guest_phone?: string | null
           id?: string
           notes?: string | null
           package_id: string
@@ -39,10 +45,13 @@ export type Database = {
           total_price: number
           travel_date?: string | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
+          guest_email?: string | null
+          guest_name?: string | null
+          guest_phone?: string | null
           id?: string
           notes?: string | null
           package_id?: string
@@ -52,7 +61,7 @@ export type Database = {
           total_price?: number
           travel_date?: string | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
