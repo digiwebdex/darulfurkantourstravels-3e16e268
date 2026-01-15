@@ -18,6 +18,8 @@ export default {
         body: ['Inter', 'sans-serif'],
         arabic: ['Amiri', 'serif'],
         kufi: ['Reem Kufi', 'sans-serif'],
+        calligraphy: ['Aref Ruqaa', 'serif'],
+        thuluth: ['Scheherazade New', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",

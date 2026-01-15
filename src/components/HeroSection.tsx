@@ -107,18 +107,20 @@ const HeroSection = () => {
         </div>
       </motion.div>
 
-      {/* Arabic Calligraphy Decorative Elements - Right Side */}
+      {/* Arabic Calligraphy Decorative Elements - Right Side - Allah & Muhammad */}
       <motion.div
         initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 0.12, x: 0 }}
+        animate={{ opacity: 0.2, x: 0 }}
         transition={{ duration: 1.2, delay: 0.7 }}
-        className="absolute right-0 top-1/4 hidden lg:flex flex-col items-end pointer-events-none pr-4"
+        className="absolute right-4 top-1/4 hidden lg:flex flex-col items-center pointer-events-none"
       >
-        <div className="font-arabic text-secondary text-5xl lg:text-7xl leading-none select-none">
-          ٱللَّٰه
+        {/* Allah in ornate calligraphy */}
+        <div className="font-thuluth text-secondary text-6xl lg:text-8xl leading-none select-none drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
+          ﷲ
         </div>
-        <div className="font-arabic text-secondary/60 text-3xl lg:text-5xl leading-none mt-4 select-none">
-          أَكْبَر
+        {/* Muhammad in ornate calligraphy */}
+        <div className="font-calligraphy text-secondary/80 text-4xl lg:text-6xl leading-none mt-6 select-none drop-shadow-md" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.2)' }}>
+          ﷴ
         </div>
       </motion.div>
 
