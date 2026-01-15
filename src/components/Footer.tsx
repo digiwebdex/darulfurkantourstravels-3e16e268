@@ -1,5 +1,6 @@
 import { Phone, Mail, MapPin, Facebook, Instagram, Youtube, ArrowUp } from "lucide-react";
 import { motion } from "framer-motion";
+import companyLogo from "@/assets/company-logo.jpeg";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -30,13 +31,11 @@ const Footer = () => {
           {/* About */}
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-14 h-14 bg-secondary rounded-xl flex items-center justify-center shadow-gold">
-                <span className="text-secondary-foreground font-heading font-bold text-2xl">SM</span>
-              </div>
-              <div>
-                <h3 className="font-heading font-bold text-xl">SM Elite Hajj</h3>
-                <p className="text-xs text-primary-foreground/70">Govt. Approved Agency</p>
-              </div>
+              <img 
+                src={companyLogo} 
+                alt="S.M. Elite Hajj Limited" 
+                className="h-16 w-auto object-contain bg-white/10 rounded-xl p-1"
+              />
             </div>
             <p className="text-primary-foreground/80 text-sm leading-relaxed mb-6">
               Your trusted partner for Hajj & Umrah journeys. We provide comprehensive 

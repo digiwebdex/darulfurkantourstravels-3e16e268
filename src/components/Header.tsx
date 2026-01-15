@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import companyLogo from "@/assets/company-logo.jpeg";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -55,13 +56,11 @@ const Header = () => {
       <nav className="container py-4">
         <div className="flex items-center justify-between">
           <a href="#home" className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-heading font-bold text-xl">SM</span>
-            </div>
-            <div>
-              <h1 className="font-heading font-bold text-xl text-foreground">SM Elite Hajj</h1>
-              <p className="text-xs text-muted-foreground">Your Trusted Journey Partner</p>
-            </div>
+            <img 
+              src={companyLogo} 
+              alt="S.M. Elite Hajj Limited" 
+              className="h-12 w-auto object-contain"
+            />
           </a>
 
           {/* Desktop Navigation */}
