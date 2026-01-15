@@ -22,9 +22,19 @@ interface MenuItem {
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { user, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     fetchMenuItems();
@@ -77,9 +87,9 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md shadow-elegant">
-      {/* Top Bar */}
-      <div className="bg-primary text-primary-foreground py-2">
+    <header className={`fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md shadow-elegant transition-all duration-300 ${isScrolled ? 'shadow-lg' : ''}`}>
+      {/* Top Bar - Hide when scrolled */}
+      <div className={`bg-primary text-primary-foreground overflow-hidden transition-all duration-300 ${isScrolled ? 'h-0 py-0' : 'h-auto py-2'}`}>
         <div className="container flex justify-between items-center text-sm">
           <div className="flex items-center gap-6">
             <a href="tel:+8801234567890" className="flex items-center gap-2 hover:text-secondary transition-colors">
@@ -98,7 +108,7 @@ const Header = () => {
       </div>
 
       {/* Main Nav */}
-      <nav className="container py-4">
+      <nav className={`container transition-all duration-300 ${isScrolled ? 'py-2' : 'py-4'}`}>
         <div className="flex items-center justify-between">
           <button 
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
@@ -107,9 +117,9 @@ const Header = () => {
             <img 
               src={companyLogo} 
               alt="S.M. Elite Hajj Limited" 
-              className="h-14 w-auto object-contain ring-2 ring-primary/20 rounded-lg p-1 bg-white shadow-elegant group-hover:ring-primary/40 transition-all"
+              className={`object-contain ring-2 ring-primary/20 rounded-lg p-1 bg-white shadow-elegant group-hover:ring-primary/40 transition-all duration-300 ${isScrolled ? 'h-10 w-auto' : 'h-14 w-auto'}`}
             />
-            <span className="font-calligraphy font-bold text-2xl text-primary hidden sm:inline group-hover:text-primary/80 transition-colors">S. M. Elite Hajj</span>
+            <span className={`font-calligraphy font-bold text-primary hidden sm:inline group-hover:text-primary/80 transition-all duration-300 ${isScrolled ? 'text-xl' : 'text-2xl'}`}>S. M. Elite Hajj</span>
           </button>
 
           {/* Desktop Navigation */}
