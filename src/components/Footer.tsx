@@ -9,6 +9,11 @@ interface FooterLink {
   href: string;
 }
 
+interface ServiceLink {
+  label: string;
+  href: string;
+}
+
 interface SocialLink {
   platform: string;
   href: string;
@@ -18,7 +23,7 @@ interface FooterContent {
   company_description?: string;
   copyright_text?: string;
   quick_links: FooterLink[];
-  services_links: string[];
+  services_links: ServiceLink[];
   social_links: SocialLink[];
 }
 
@@ -36,12 +41,12 @@ const Footer = () => {
       { name: "Contact", href: "#contact" },
     ],
     services_links: [
-      "Hajj Packages",
-      "Umrah Packages",
-      "Visa Processing",
-      "Air Tickets",
-      "Hotel Booking",
-      "Travel Insurance",
+      { label: "Hajj Packages", href: "#hajj" },
+      { label: "Umrah Packages", href: "#umrah" },
+      { label: "Visa Processing", href: "#visa" },
+      { label: "Air Tickets", href: "#" },
+      { label: "Hotel Booking", href: "#" },
+      { label: "Travel Insurance", href: "#" },
     ],
     social_links: [
       { platform: "Facebook", href: "#" },
@@ -66,7 +71,7 @@ const Footer = () => {
         company_description: data.company_description || content.company_description,
         copyright_text: data.copyright_text || content.copyright_text,
         quick_links: Array.isArray(data.quick_links) ? (data.quick_links as unknown as FooterLink[]) : content.quick_links,
-        services_links: Array.isArray(data.services_links) ? (data.services_links as unknown as string[]) : content.services_links,
+        services_links: Array.isArray(data.services_links) ? (data.services_links as unknown as ServiceLink[]) : content.services_links,
         social_links: Array.isArray(data.social_links) ? (data.social_links as unknown as SocialLink[]) : content.social_links,
       });
     }
@@ -167,11 +172,14 @@ const Footer = () => {
             </h4>
             <ul className="space-y-3">
               {content.services_links.map((service) => (
-                <li key={service}>
-                  <span className="text-primary-foreground/80 text-sm flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-secondary/50 rounded-full" />
-                    {service}
-                  </span>
+                <li key={service.label}>
+                  <a
+                    href={service.href}
+                    className="text-primary-foreground/80 hover:text-secondary transition-colors text-sm flex items-center gap-2 group"
+                  >
+                    <span className="w-1.5 h-1.5 bg-secondary/50 rounded-full group-hover:bg-secondary transition-colors" />
+                    {service.label}
+                  </a>
                 </li>
               ))}
             </ul>
