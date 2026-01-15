@@ -108,7 +108,7 @@ const Footer = () => {
           <source src="/videos/footer-bg.mp4" type="video/mp4" />
         </video>
         {/* Dark overlay for better text readability */}
-        <div className="absolute inset-0 bg-primary/50" />
+        <div className="absolute inset-0 bg-primary/30" />
       </div>
       
       {/* Floating Islamic Pattern Animation */}
