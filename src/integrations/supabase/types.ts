@@ -64,6 +64,186 @@ export type Database = {
           },
         ]
       }
+      contact_info: {
+        Row: {
+          created_at: string
+          details: Json
+          icon_name: string
+          id: string
+          is_active: boolean
+          order_index: number
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json
+          icon_name: string
+          id?: string
+          is_active?: boolean
+          order_index?: number
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          icon_name?: string
+          id?: string
+          is_active?: boolean
+          order_index?: number
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      faq_items: {
+        Row: {
+          answer: string
+          created_at: string
+          id: string
+          is_active: boolean
+          order_index: number
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          order_index?: number
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          order_index?: number
+          question?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      footer_content: {
+        Row: {
+          company_description: string | null
+          copyright_text: string | null
+          created_at: string
+          id: string
+          quick_links: Json | null
+          services_links: Json | null
+          social_links: Json | null
+          updated_at: string
+        }
+        Insert: {
+          company_description?: string | null
+          copyright_text?: string | null
+          created_at?: string
+          id?: string
+          quick_links?: Json | null
+          services_links?: Json | null
+          social_links?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          company_description?: string | null
+          copyright_text?: string | null
+          created_at?: string
+          id?: string
+          quick_links?: Json | null
+          services_links?: Json | null
+          social_links?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      hero_content: {
+        Row: {
+          background_image_url: string | null
+          badge_text: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          primary_button_link: string | null
+          primary_button_text: string | null
+          secondary_button_link: string | null
+          secondary_button_text: string | null
+          stats: Json | null
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          background_image_url?: string | null
+          badge_text?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          primary_button_link?: string | null
+          primary_button_text?: string | null
+          secondary_button_link?: string | null
+          secondary_button_text?: string | null
+          stats?: Json | null
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          background_image_url?: string | null
+          badge_text?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          primary_button_link?: string | null
+          primary_button_text?: string | null
+          secondary_button_link?: string | null
+          secondary_button_text?: string | null
+          stats?: Json | null
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      menu_items: {
+        Row: {
+          created_at: string
+          href: string
+          id: string
+          is_active: boolean
+          label: string
+          order_index: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          href: string
+          id?: string
+          is_active?: boolean
+          label: string
+          order_index?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          href?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          order_index?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       packages: {
         Row: {
           created_at: string
@@ -138,6 +318,189 @@ export type Database = {
           id?: string
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      section_settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          section_key: string
+          subtitle: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          section_key: string
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          section_key?: string
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          created_at: string
+          description: string
+          icon_name: string
+          id: string
+          is_active: boolean
+          order_index: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          icon_name: string
+          id?: string
+          is_active?: boolean
+          order_index?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          icon_name?: string
+          id?: string
+          is_active?: boolean
+          order_index?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      team_members: {
+        Row: {
+          avatar_url: string | null
+          board_type: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          order_index: number
+          qualifications: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          board_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          order_index?: number
+          qualifications?: string | null
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          board_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          order_index?: number
+          qualifications?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          location: string | null
+          name: string
+          order_index: number
+          package_name: string | null
+          quote: string
+          rating: number
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          name: string
+          order_index?: number
+          package_name?: string | null
+          quote: string
+          rating?: number
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          name?: string
+          order_index?: number
+          package_name?: string | null
+          quote?: string
+          rating?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      visa_countries: {
+        Row: {
+          country_name: string
+          created_at: string
+          flag_emoji: string
+          id: string
+          is_active: boolean
+          order_index: number
+          price: number
+          processing_time: string
+          updated_at: string
+        }
+        Insert: {
+          country_name: string
+          created_at?: string
+          flag_emoji: string
+          id?: string
+          is_active?: boolean
+          order_index?: number
+          price: number
+          processing_time: string
+          updated_at?: string
+        }
+        Update: {
+          country_name?: string
+          created_at?: string
+          flag_emoji?: string
+          id?: string
+          is_active?: boolean
+          order_index?: number
+          price?: number
+          processing_time?: string
           updated_at?: string
         }
         Relationships: []

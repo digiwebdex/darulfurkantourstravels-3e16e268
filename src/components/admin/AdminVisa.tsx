@@ -1,0 +1,166 @@
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
+import { Plus, Edit, Trash2 } from "lucide-react";
+
+interface VisaCountry {
+  id: string;
+  country_name: string;
+  flag_emoji: string;
+  processing_time: string;
+  price: number;
+  order_index: number;
+  is_active: boolean;
+}
+
+const AdminVisa = () => {
+  const { toast } = useToast();
+  const [countries, setCountries] = useState<VisaCountry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<VisaCountry | null>(null);
+  const [formData, setFormData] = useState({
+    country_name: "", flag_emoji: "", processing_time: "", price: 0
+  });
+
+  useEffect(() => {
+    fetchCountries();
+  }, []);
+
+  const fetchCountries = async () => {
+    const { data, error } = await supabase.from("visa_countries").select("*").order("order_index");
+    if (!error && data) setCountries(data);
+    setLoading(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (editingItem) {
+      const { error } = await supabase.from("visa_countries").update(formData).eq("id", editingItem.id);
+      if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+      else toast({ title: "Success", description: "Country updated" });
+    } else {
+      const maxOrder = Math.max(...countries.map(c => c.order_index), 0);
+      const { error } = await supabase.from("visa_countries").insert({ ...formData, order_index: maxOrder + 1 });
+      if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+      else toast({ title: "Success", description: "Country created" });
+    }
+    
+    setIsDialogOpen(false);
+    setEditingItem(null);
+    resetForm();
+    fetchCountries();
+  };
+
+  const resetForm = () => {
+    setFormData({ country_name: "", flag_emoji: "", processing_time: "", price: 0 });
+  };
+
+  const handleEdit = (item: VisaCountry) => {
+    setEditingItem(item);
+    setFormData({
+      country_name: item.country_name, flag_emoji: item.flag_emoji,
+      processing_time: item.processing_time, price: item.price
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure?")) return;
+    await supabase.from("visa_countries").delete().eq("id", id);
+    toast({ title: "Success", description: "Country deleted" });
+    fetchCountries();
+  };
+
+  const toggleActive = async (item: VisaCountry) => {
+    await supabase.from("visa_countries").update({ is_active: !item.is_active }).eq("id", item.id);
+    fetchCountries();
+  };
+
+  if (loading) return <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>;
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Visa Countries</CardTitle>
+          <CardDescription>Manage visa processing countries and prices</CardDescription>
+        </div>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) { setEditingItem(null); resetForm(); } }}>
+          <DialogTrigger asChild>
+            <Button><Plus className="w-4 h-4 mr-2" />Add Country</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{editingItem ? "Edit Country" : "Add Country"}</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Country Name *</label>
+                  <Input value={formData.country_name} onChange={(e) => setFormData({ ...formData, country_name: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Flag Emoji *</label>
+                  <Input value={formData.flag_emoji} onChange={(e) => setFormData({ ...formData, flag_emoji: e.target.value })} placeholder="🇧🇩" required />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Processing Time *</label>
+                  <Input value={formData.processing_time} onChange={(e) => setFormData({ ...formData, processing_time: e.target.value })} placeholder="e.g., 5-7 days" required />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Price (BDT) *</label>
+                  <Input type="number" value={formData.price} onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })} required />
+                </div>
+              </div>
+              <Button type="submit" className="w-full">{editingItem ? "Update" : "Create"}</Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Flag</TableHead>
+              <TableHead>Country</TableHead>
+              <TableHead>Processing Time</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Active</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {countries.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell className="text-2xl">{item.flag_emoji}</TableCell>
+                <TableCell className="font-medium">{item.country_name}</TableCell>
+                <TableCell>{item.processing_time}</TableCell>
+                <TableCell>৳{item.price.toLocaleString()}</TableCell>
+                <TableCell><Switch checked={item.is_active} onCheckedChange={() => toggleActive(item)} /></TableCell>
+                <TableCell>
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}><Edit className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        {countries.length === 0 && <p className="text-center text-muted-foreground py-8">No countries yet.</p>}
+      </CardContent>
+    </Card>
+  );
+};
+
+export default AdminVisa;
