@@ -83,13 +83,13 @@ const Header = () => {
       {/* Main Nav */}
       <nav className="container py-4">
         <div className="flex items-center justify-between">
-          <a href="#home" className="flex items-center gap-3">
+          <a href="#home" className="flex items-center gap-3 group">
             <img 
               src={companyLogo} 
               alt="S.M. Elite Hajj Limited" 
-              className="h-12 w-auto object-contain"
+              className="h-14 w-auto object-contain ring-2 ring-primary/20 rounded-lg p-1 bg-white shadow-elegant group-hover:ring-primary/40 transition-all"
             />
-            <span className="font-calligraphy font-bold text-xl text-foreground hidden sm:inline">S. M. Elite Hajj</span>
+            <span className="font-calligraphy font-bold text-2xl text-primary hidden sm:inline group-hover:text-primary/80 transition-colors">S. M. Elite Hajj</span>
           </a>
 
           {/* Desktop Navigation */}

@@ -70,7 +70,7 @@ const ServicesOverview = () => {
 
   return (
     <IslamicBorder>
-      <section className="py-20 bg-card relative overflow-hidden">
+      <section id="services" className="py-20 bg-card relative overflow-hidden">
         {/* Decorative Elements */}
         <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full -translate-x-1/2 -translate-y-1/2" />
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/5 rounded-full translate-x-1/2 translate-y-1/2" />
