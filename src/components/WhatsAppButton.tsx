@@ -6,7 +6,8 @@ const WhatsAppButton = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [message, setMessage] = useState("");
-  const phoneNumber = "8801234567890";
+  const [chatMessages, setChatMessages] = useState<{text: string; isUser: boolean; time: string}[]>([]);
+  const phoneNumber = "8801619959626";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,10 +23,50 @@ const WhatsAppButton = () => {
   };
 
   const handleSendMessage = () => {
-    const encodedMessage = encodeURIComponent(message || "Hello! I'm interested in your Hajj/Umrah packages. Please provide more information.");
-    window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, "_blank");
+    if (!message.trim()) return;
+    
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    // Add user message to chat
+    setChatMessages(prev => [...prev, { text: message, isUser: true, time: timeStr }]);
+    
+    // Simulate auto-reply after a short delay
+    setTimeout(() => {
+      const replyTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      setChatMessages(prev => [...prev, { 
+        text: "Thank you for your message! Our team will respond shortly. For immediate assistance, you can also call us at +880 1619 959626.", 
+        isUser: false, 
+        time: replyTime 
+      }]);
+    }, 1000);
+    
     setMessage("");
-    setIsChatOpen(false);
+  };
+
+  const handleQuickMessage = (msg: string) => {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    setChatMessages(prev => [...prev, { text: msg, isUser: true, time: timeStr }]);
+    
+    // Simulate auto-reply
+    setTimeout(() => {
+      const replyTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      let reply = "Thank you for your interest! Our team will get back to you shortly.";
+      
+      if (msg.includes("Hajj")) {
+        reply = "Our Hajj packages start from ৳850,000. We offer Economy, Standard, and Premium options. Would you like more details about any specific package?";
+      } else if (msg.includes("Umrah")) {
+        reply = "We have various Umrah packages available year-round. Prices start from ৳125,000. Shall I share the available dates?";
+      } else if (msg.includes("visa")) {
+        reply = "We process visas for Saudi Arabia, UAE, Malaysia, and more. Processing time is typically 5-15 working days. Which country are you interested in?";
+      } else if (msg.includes("booking")) {
+        reply = "I'd be happy to help with your booking! Please share your preferred travel dates and number of passengers.";
+      }
+      
+      setChatMessages(prev => [...prev, { text: reply, isUser: false, time: replyTime }]);
+    }, 1200);
   };
 
   const quickMessages = [
@@ -61,7 +102,7 @@ const WhatsAppButton = () => {
         </div>
 
         {/* Chat Body */}
-        <div className="p-4 bg-muted/30 min-h-[200px]">
+        <div className="p-4 bg-muted/30 min-h-[250px] max-h-[300px] overflow-y-auto">
           {/* Welcome Message */}
           <div className="bg-card rounded-lg p-3 shadow-sm max-w-[85%] mb-4">
             <p className="text-sm text-foreground">
@@ -73,18 +114,34 @@ const WhatsAppButton = () => {
             <span className="text-xs text-muted-foreground mt-1 block">Just now</span>
           </div>
 
-          {/* Quick Reply Buttons */}
-          <div className="space-y-2">
-            {quickMessages.map((msg, index) => (
-              <button
-                key={index}
-                onClick={() => setMessage(msg)}
-                className="w-full text-left text-sm bg-card hover:bg-primary/5 border border-border rounded-lg px-3 py-2 transition-colors"
-              >
-                {msg}
-              </button>
-            ))}
-          </div>
+          {/* Chat Messages */}
+          {chatMessages.map((msg, index) => (
+            <div key={index} className={`mb-3 ${msg.isUser ? 'flex justify-end' : ''}`}>
+              <div className={`rounded-lg p-3 shadow-sm max-w-[85%] ${
+                msg.isUser 
+                  ? 'bg-[#DCF8C6] text-foreground' 
+                  : 'bg-card text-foreground'
+              }`}>
+                <p className="text-sm">{msg.text}</p>
+                <span className="text-xs text-muted-foreground mt-1 block text-right">{msg.time}</span>
+              </div>
+            </div>
+          ))}
+
+          {/* Quick Reply Buttons - only show if no messages yet */}
+          {chatMessages.length === 0 && (
+            <div className="space-y-2">
+              {quickMessages.map((msg, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleQuickMessage(msg)}
+                  className="w-full text-left text-sm bg-card hover:bg-primary/5 border border-border rounded-lg px-3 py-2 transition-colors"
+                >
+                  {msg}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Input Area */}
@@ -107,7 +164,7 @@ const WhatsAppButton = () => {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground text-center mt-2">
-            Powered by WhatsApp
+            Live Chat Support • +880 1619 959626
           </p>
         </div>
       </div>
