@@ -136,15 +136,16 @@ const ContactSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-12">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Contact Info */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
+            className="space-y-6"
           >
-            <div className="grid sm:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-2 gap-4">
               {contactInfo.map((info, index) => {
                 const Icon = getIcon(info.icon_name);
                 return (
@@ -154,17 +155,17 @@ const ContactSection = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.1 }}
-                    whileHover={{ y: -5 }}
-                    className="bg-card rounded-2xl p-6 shadow-elegant hover:shadow-lg transition-all duration-300 group"
+                    whileHover={{ y: -3 }}
+                    className="bg-card rounded-xl p-4 shadow-elegant hover:shadow-lg transition-all duration-300 group"
                   >
-                    <div className="w-14 h-14 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-elegant">
-                      <Icon className="w-7 h-7 text-primary-foreground" />
+                    <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-elegant">
+                      <Icon className="w-5 h-5 text-primary-foreground" />
                     </div>
-                    <h3 className="font-heading font-bold text-lg text-foreground mb-3">
+                    <h3 className="font-heading font-bold text-sm text-foreground mb-2">
                       {info.title}
                     </h3>
                     {info.details.map((detail, idx) => (
-                      <p key={idx} className="text-muted-foreground text-sm">
+                      <p key={idx} className="text-muted-foreground text-xs leading-relaxed">
                         {detail}
                       </p>
                     ))}
@@ -180,28 +181,28 @@ const ContactSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.3 }}
-                className="grid sm:grid-cols-2 gap-6 mb-8"
+                className="grid grid-cols-2 gap-4"
               >
                 {officeLocations.map((office) => (
                   <div 
                     key={office.id}
-                    className="bg-card rounded-2xl p-6 shadow-elegant hover:shadow-lg transition-all duration-300 group"
+                    className="bg-card rounded-xl p-4 shadow-elegant hover:shadow-lg transition-all duration-300 group"
                   >
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-elegant">
-                        <Building2 className="w-6 h-6 text-primary-foreground" />
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-elegant">
+                        <Building2 className="w-5 h-5 text-primary-foreground" />
                       </div>
-                      <h3 className="font-heading font-bold text-lg text-secondary">{office.name}</h3>
+                      <h3 className="font-heading font-bold text-sm text-secondary">{office.name}</h3>
                     </div>
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       <a 
                         href={`https://maps.google.com/?q=${office.map_query || encodeURIComponent(office.address)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-start gap-2 text-muted-foreground hover:text-primary transition-colors group/link"
                       >
-                        <MapPin className="w-4 h-4 mt-1 flex-shrink-0 group-hover/link:text-secondary" />
-                        <span className="text-sm">{office.address}</span>
+                        <MapPin className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 group-hover/link:text-secondary" />
+                        <span className="text-xs leading-relaxed">{office.address}</span>
                       </a>
                       {office.phones.map((phone, idx) => (
                         <a 
@@ -209,8 +210,8 @@ const ContactSection = () => {
                           href={`tel:${phone}`}
                           className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
                         >
-                          <Phone className="w-4 h-4 flex-shrink-0" />
-                          <span className="text-sm">{phone}</span>
+                          <Phone className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span className="text-xs">{phone}</span>
                         </a>
                       ))}
                       {office.email && (
@@ -218,8 +219,8 @@ const ContactSection = () => {
                           href={`mailto:${office.email}`}
                           className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
                         >
-                          <Mail className="w-4 h-4 flex-shrink-0" />
-                          <span className="text-sm">{office.email}</span>
+                          <Mail className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span className="text-xs">{office.email}</span>
                         </a>
                       )}
                     </div>
@@ -227,26 +228,6 @@ const ContactSection = () => {
                 ))}
               </motion.div>
             )}
-
-            {/* Map */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
-              className="bg-card rounded-2xl overflow-hidden shadow-elegant h-48"
-            >
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3650.5484611458387!2d90.39729221498282!3d23.79416879319868!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c709be6be7b5%3A0x7e53f4e8b8be1a24!2sBanani%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1700000000000!5m2!1sen!2sbd"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="SM Elite Hajj Head Office Location - Banani, Dhaka"
-              />
-            </motion.div>
           </motion.div>
 
           {/* Contact Form */}
@@ -255,18 +236,18 @@ const ContactSection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="bg-card rounded-3xl p-8 md:p-10 shadow-elegant relative overflow-hidden h-fit"
+            className="bg-card rounded-2xl p-6 md:p-8 shadow-elegant relative overflow-hidden h-fit"
           >
             {/* Decorative */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-full" />
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-full" />
             
-            <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-8 relative z-10">
+            <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground mb-6 relative z-10">
               Send Us a Message
             </h3>
-            <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+            <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-foreground mb-2">
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">
                     Full Name *
                   </label>
                   <Input
@@ -274,11 +255,11 @@ const ContactSection = () => {
                     placeholder="Your Name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="h-12"
+                    className="h-10"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-foreground mb-2">
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">
                     Phone Number *
                   </label>
                   <Input
@@ -287,13 +268,13 @@ const ContactSection = () => {
                     placeholder="+880 1XXX-XXXXXX"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="h-12"
+                    className="h-10"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">
+                <label className="block text-sm font-semibold text-foreground mb-1.5">
                   Email Address
                 </label>
                 <Input
@@ -301,16 +282,16 @@ const ContactSection = () => {
                   placeholder="you@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="h-12"
+                  className="h-10"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">
+                <label className="block text-sm font-semibold text-foreground mb-1.5">
                   Interested Package
                 </label>
                 <select
-                  className="w-full h-12 rounded-lg border border-input bg-background px-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+                  className="w-full h-10 rounded-lg border border-input bg-background px-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-all"
                   value={formData.package}
                   onChange={(e) => setFormData({ ...formData, package: e.target.value })}
                 >
@@ -333,12 +314,12 @@ const ContactSection = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">
+                <label className="block text-sm font-semibold text-foreground mb-1.5">
                   Your Message
                 </label>
                 <Textarea
                   placeholder="Tell us about your requirements, preferred travel dates, number of travelers..."
-                  rows={4}
+                  rows={3}
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   className="resize-none"
@@ -349,16 +330,16 @@ const ContactSection = () => {
                 type="submit"
                 size="lg"
                 disabled={isSubmitting}
-                className="w-full h-14 bg-gradient-primary hover:opacity-90 shadow-gold text-lg group"
+                className="w-full h-12 bg-gradient-primary hover:opacity-90 shadow-gold text-base group"
               >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
-                    <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                     Sending...
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     Send Inquiry
                   </span>
                 )}
@@ -366,6 +347,27 @@ const ContactSection = () => {
             </form>
           </motion.div>
         </div>
+
+        {/* Full-width Map */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4 }}
+          className="mt-12 bg-card rounded-2xl overflow-hidden shadow-elegant"
+        >
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3650.5484611458387!2d90.39729221498282!3d23.79416879319868!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c709be6be7b5%3A0x7e53f4e8b8be1a24!2sBanani%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1700000000000!5m2!1sen!2sbd"
+            width="100%"
+            height="300"
+            style={{ border: 0 }}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title="SM Elite Hajj Head Office Location - Banani, Dhaka"
+            className="w-full"
+          />
+        </motion.div>
       </div>
       </section>
     </IslamicBorder>
