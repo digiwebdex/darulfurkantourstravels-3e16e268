@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import companyLogo from "@/assets/company-logo.jpeg";
 import FloatingIslamicPattern from "./FloatingIslamicPattern";
+import { useLanguage } from "@/contexts/LanguageContext";
+
 interface FooterLink {
   label: string;
   href: string;
@@ -32,6 +34,7 @@ interface FooterContent {
 }
 
 const Footer = () => {
+  const { t, isRTL } = useLanguage();
   const currentYear = new Date().getFullYear();
   const [content, setContent] = useState<FooterContent>({
     company_description: "Your trusted partner for Hajj & Umrah journeys. We provide comprehensive packages with premium services to ensure a spiritually fulfilling experience.",
@@ -139,10 +142,10 @@ const Footer = () => {
       </motion.button>
 
       <div className="container py-20 relative z-10">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div className={`grid md:grid-cols-2 lg:grid-cols-4 gap-12 ${isRTL ? 'text-right' : ''}`}>
           {/* About */}
           <div>
-            <div className="flex items-center gap-3 mb-6">
+            <div className={`flex items-center gap-3 mb-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <img 
                 src={companyLogo} 
                 alt="S.M. Elite Hajj Limited" 
@@ -152,7 +155,7 @@ const Footer = () => {
             <p className="text-primary-foreground/80 text-sm leading-relaxed mb-6">
               {content.company_description}
             </p>
-            <div className="flex gap-3">
+            <div className={`flex gap-3 ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
               {content.social_links.map((social) => {
                 const Icon = getSocialIcon(social.platform);
                 return (
@@ -172,9 +175,9 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-heading font-semibold text-lg mb-6 flex items-center gap-2">
+            <h4 className={`font-heading font-semibold text-lg mb-6 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <span className="w-8 h-0.5 bg-secondary" />
-              Quick Links
+              {t('footer.quickLinks')}
             </h4>
             <ul className="space-y-3">
               {content.quick_links.map((link, index) => (
@@ -183,7 +186,7 @@ const Footer = () => {
                     href={link.href}
                     target={link.href.startsWith('http') ? '_blank' : undefined}
                     rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="text-primary-foreground/80 hover:text-secondary transition-colors text-sm flex items-center gap-2 group"
+                    className={`text-primary-foreground/80 hover:text-secondary transition-colors text-sm flex items-center gap-2 group ${isRTL ? 'flex-row-reverse' : ''}`}
                   >
                     <span className="w-0 group-hover:w-2 h-0.5 bg-secondary transition-all duration-300" />
                     {link.label}
@@ -195,16 +198,16 @@ const Footer = () => {
 
           {/* Our Services */}
           <div>
-            <h4 className="font-heading font-semibold text-lg mb-6 flex items-center gap-2">
+            <h4 className={`font-heading font-semibold text-lg mb-6 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <span className="w-8 h-0.5 bg-secondary" />
-              Our Services
+              {t('footer.services')}
             </h4>
             <ul className="space-y-3">
               {content.services_links.map((service) => (
                 <li key={service.label}>
                   <a
                     href={service.href}
-                    className="text-primary-foreground/80 hover:text-secondary transition-colors text-sm flex items-center gap-2 group"
+                    className={`text-primary-foreground/80 hover:text-secondary transition-colors text-sm flex items-center gap-2 group ${isRTL ? 'flex-row-reverse' : ''}`}
                   >
                     <span className="w-1.5 h-1.5 bg-secondary/50 rounded-full group-hover:bg-secondary transition-colors" />
                     {service.label}
@@ -216,12 +219,12 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div>
-            <h4 className="font-heading font-semibold text-lg mb-6 flex items-center gap-2">
+            <h4 className={`font-heading font-semibold text-lg mb-6 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <span className="w-8 h-0.5 bg-secondary" />
-              Contact Info
+              {t('footer.contact')}
             </h4>
             <ul className="space-y-4">
-              <li className="flex items-start gap-3">
+              <li className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <div className="w-10 h-10 bg-primary-foreground/10 rounded-lg flex items-center justify-center flex-shrink-0">
                   <MapPin className="w-5 h-5 text-secondary" />
                 </div>
@@ -229,7 +232,7 @@ const Footer = () => {
                   {content.contact_address}
                 </span>
               </li>
-              <li className="flex items-start gap-3">
+              <li className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <div className="w-10 h-10 bg-primary-foreground/10 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Phone className="w-5 h-5 text-secondary" />
                 </div>
@@ -239,7 +242,7 @@ const Footer = () => {
                   ))}
                 </div>
               </li>
-              <li className="flex items-start gap-3">
+              <li className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <div className="w-10 h-10 bg-primary-foreground/10 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Mail className="w-5 h-5 text-secondary" />
                 </div>
@@ -254,11 +257,11 @@ const Footer = () => {
 
       {/* Bottom Bar */}
       <div className="border-t border-primary-foreground/10 relative z-10">
-        <div className="container py-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-primary-foreground/70 text-sm text-center md:text-left">
+        <div className={`container py-6 flex flex-col md:flex-row justify-between items-center gap-4 ${isRTL ? 'md:flex-row-reverse' : ''}`}>
+          <p className={`text-primary-foreground/70 text-sm text-center ${isRTL ? 'md:text-right' : 'md:text-left'}`}>
             {content.copyright_text}
           </p>
-          <div className="flex gap-6 text-sm">
+          <div className={`flex gap-6 text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
             <Link to="/legal/privacy-policy" className="text-primary-foreground/70 hover:text-secondary transition-colors">
               Privacy Policy
             </Link>

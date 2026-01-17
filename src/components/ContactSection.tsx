@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import IslamicBorder from "./IslamicBorder";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ContactInfo {
   id: string;
@@ -37,6 +38,7 @@ const iconMap: Record<string, LucideIcon> = {
 };
 
 const ContactSection = () => {
+  const { t, isRTL } = useLanguage();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [contactInfo, setContactInfo] = useState<ContactInfo[]>([]);
@@ -101,8 +103,8 @@ const ContactSection = () => {
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     toast({
-      title: "✅ Inquiry Submitted Successfully!",
-      description: "Thank you for your interest. Our team will contact you within 24 hours.",
+      title: "✅ " + t('common.success'),
+      description: t('contact.description'),
     });
     setFormData({ name: "", email: "", phone: "", package: "", message: "" });
     setIsSubmitting(false);
@@ -112,38 +114,37 @@ const ContactSection = () => {
     <IslamicBorder variant="top">
       <section id="contact" className="py-24 bg-muted geometric-pattern relative overflow-hidden">
         {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-secondary/5 rounded-full blur-3xl" />
+        <div className={`absolute top-0 ${isRTL ? 'left-0' : 'right-0'} w-96 h-96 bg-primary/5 rounded-full blur-3xl`} />
+        <div className={`absolute bottom-0 ${isRTL ? 'right-0' : 'left-0'} w-72 h-72 bg-secondary/5 rounded-full blur-3xl`} />
       
       <div className="container relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className={`text-center mb-16 ${isRTL ? 'text-right' : ''}`}
         >
-          <span className="inline-flex items-center gap-2 text-secondary font-semibold uppercase tracking-wider">
+          <span className={`inline-flex items-center gap-2 text-secondary font-semibold uppercase tracking-wider ${isRTL ? 'flex-row-reverse' : ''}`}>
             <MessageSquare className="w-4 h-4" />
-            Get In Touch
+            {t('contact.subtitle')}
           </span>
           <h2 className="font-calligraphy text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mt-3 mb-2">
-            Contact Us
+            {t('contact.title')}
           </h2>
           <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">اتصل بنا</span>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Have questions about our packages or need assistance? 
-            Reach out to us and our team will be happy to help.
+            {t('contact.description')}
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
+        <div className={`grid lg:grid-cols-2 gap-8 lg:gap-12 items-stretch ${isRTL ? 'lg:grid-flow-col-dense' : ''}`}>
           {/* Contact Info */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
+            initial={{ opacity: 0, x: isRTL ? 50 : -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="flex flex-col gap-4"
+            className={`flex flex-col gap-4 ${isRTL ? 'lg:col-start-2' : ''}`}
           >
             <div className="grid grid-cols-2 gap-4">
               {contactInfo.map((info, index) => {
@@ -156,9 +157,9 @@ const ContactSection = () => {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.1 }}
                     whileHover={{ y: -3 }}
-                    className="bg-card rounded-xl p-4 shadow-elegant hover:shadow-lg transition-all duration-300 group"
+                    className={`bg-card rounded-xl p-4 shadow-elegant hover:shadow-lg transition-all duration-300 group ${isRTL ? 'text-right' : ''}`}
                   >
-                    <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-elegant">
+                    <div className={`w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-elegant ${isRTL ? 'ml-auto' : ''}`}>
                       <Icon className="w-5 h-5 text-primary-foreground" />
                     </div>
                     <h3 className="font-heading font-bold text-sm text-foreground mb-2">
@@ -186,9 +187,9 @@ const ContactSection = () => {
                 {officeLocations.map((office) => (
                   <div 
                     key={office.id}
-                    className="bg-card rounded-xl p-4 shadow-elegant hover:shadow-lg transition-all duration-300 group"
+                    className={`bg-card rounded-xl p-4 shadow-elegant hover:shadow-lg transition-all duration-300 group ${isRTL ? 'text-right' : ''}`}
                   >
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className={`flex items-center gap-2 mb-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-elegant">
                         <Building2 className="w-5 h-5 text-primary-foreground" />
                       </div>
@@ -199,7 +200,7 @@ const ContactSection = () => {
                         href={`https://maps.google.com/?q=${office.map_query || encodeURIComponent(office.address)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-start gap-2 text-muted-foreground hover:text-primary transition-colors group/link"
+                        className={`flex items-start gap-2 text-muted-foreground hover:text-primary transition-colors group/link ${isRTL ? 'flex-row-reverse' : ''}`}
                       >
                         <MapPin className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 group-hover/link:text-secondary" />
                         <span className="text-xs leading-relaxed">{office.address}</span>
@@ -208,7 +209,7 @@ const ContactSection = () => {
                         <a 
                           key={idx}
                           href={`tel:${phone}`}
-                          className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
+                          className={`flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors ${isRTL ? 'flex-row-reverse' : ''}`}
                         >
                           <Phone className="w-3.5 h-3.5 flex-shrink-0" />
                           <span className="text-xs">{phone}</span>
@@ -217,7 +218,7 @@ const ContactSection = () => {
                       {office.email && (
                         <a 
                           href={`mailto:${office.email}`}
-                          className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
+                          className={`flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors ${isRTL ? 'flex-row-reverse' : ''}`}
                         >
                           <Mail className="w-3.5 h-3.5 flex-shrink-0" />
                           <span className="text-xs">{office.email}</span>
@@ -232,35 +233,36 @@ const ContactSection = () => {
 
           {/* Contact Form */}
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
+            initial={{ opacity: 0, x: isRTL ? -50 : 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="bg-card rounded-2xl p-6 md:p-8 shadow-elegant relative overflow-hidden h-fit"
+            className={`bg-card rounded-2xl p-6 md:p-8 shadow-elegant relative overflow-hidden h-fit ${isRTL ? 'lg:col-start-1 text-right' : ''}`}
           >
             {/* Decorative */}
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-full" />
+            <div className={`absolute top-0 ${isRTL ? 'left-0' : 'right-0'} w-24 h-24 bg-gradient-to-br from-primary/10 to-transparent ${isRTL ? 'rounded-br-full' : 'rounded-bl-full'}`} />
             
             <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground mb-6 relative z-10">
-              Send Us a Message
+              {t('contact.sendMessage')}
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-1.5">
-                    Full Name *
+                    {t('contact.fullName')} *
                   </label>
                   <Input
                     required
-                    placeholder="Your Name"
+                    placeholder={t('contact.fullName')}
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="h-10"
+                    className={`h-10 ${isRTL ? 'text-right' : ''}`}
+                    dir={isRTL ? 'rtl' : 'ltr'}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-1.5">
-                    Phone Number *
+                    {t('contact.phone')} *
                   </label>
                   <Input
                     required
@@ -269,13 +271,14 @@ const ContactSection = () => {
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="h-10"
+                    dir="ltr"
                   />
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-1.5">
-                  Email Address
+                  {t('contact.email')}
                 </label>
                 <Input
                   type="email"
@@ -283,46 +286,49 @@ const ContactSection = () => {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="h-10"
+                  dir="ltr"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-1.5">
-                  Interested Package
+                  {t('packages.hajj')} / {t('packages.umrah')}
                 </label>
                 <select
-                  className="w-full h-10 rounded-lg border border-input bg-background px-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+                  className={`w-full h-10 rounded-lg border border-input bg-background px-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-all ${isRTL ? 'text-right' : ''}`}
                   value={formData.package}
                   onChange={(e) => setFormData({ ...formData, package: e.target.value })}
+                  dir={isRTL ? 'rtl' : 'ltr'}
                 >
-                  <option value="">Select a package</option>
-                  <optgroup label="Hajj Packages">
+                  <option value="">{t('packages.hajj')} / {t('packages.umrah')}</option>
+                  <optgroup label={t('packages.hajj')}>
                     <option value="hajj-economy">Hajj - Super Economy</option>
                     <option value="hajj-classic">Hajj - Classic</option>
-                    <option value="hajj-premium">Hajj - Premium (Popular)</option>
+                    <option value="hajj-premium">Hajj - Premium</option>
                     <option value="hajj-vip">Hajj - VIP</option>
                   </optgroup>
-                  <optgroup label="Umrah Packages">
+                  <optgroup label={t('packages.umrah')}>
                     <option value="umrah-economy">Umrah - Economy</option>
-                    <option value="umrah-etekaf">Umrah - Etekaf (Popular)</option>
+                    <option value="umrah-etekaf">Umrah - Etekaf</option>
                     <option value="umrah-vip">Umrah - VIP</option>
                   </optgroup>
-                  <optgroup label="Other Services">
-                    <option value="visa">Visa Processing</option>
+                  <optgroup label={t('visa.title')}>
+                    <option value="visa">{t('visa.title')}</option>
                   </optgroup>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-1.5">
-                  Your Message
+                  {t('contact.message')}
                 </label>
                 <Textarea
-                  placeholder="Tell us about your requirements, preferred travel dates, number of travelers..."
+                  placeholder={t('contact.message')}
                   rows={3}
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="resize-none"
+                  className={`resize-none ${isRTL ? 'text-right' : ''}`}
+                  dir={isRTL ? 'rtl' : 'ltr'}
                 />
               </div>
 
@@ -330,17 +336,17 @@ const ContactSection = () => {
                 type="submit"
                 size="lg"
                 disabled={isSubmitting}
-                className="w-full h-12 bg-gradient-primary hover:opacity-90 shadow-gold text-base group"
+                className={`w-full h-12 bg-gradient-primary hover:opacity-90 shadow-gold text-base group ${isRTL ? 'flex-row-reverse' : ''}`}
               >
                 {isSubmitting ? (
-                  <span className="flex items-center gap-2">
+                  <span className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                    Sending...
+                    {t('contact.sending')}
                   </span>
                 ) : (
-                  <span className="flex items-center gap-2">
-                    <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    Send Inquiry
+                  <span className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <Send className={`w-4 h-4 group-hover:translate-x-1 transition-transform ${isRTL ? 'group-hover:-translate-x-1' : ''}`} />
+                    {t('contact.send')}
                   </span>
                 )}
               </Button>

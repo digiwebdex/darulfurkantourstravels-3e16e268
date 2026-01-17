@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/accordion";
 import { HelpCircle } from "lucide-react";
 import IslamicBorder from "./IslamicBorder";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface FAQItem {
   id: string;
@@ -17,6 +18,7 @@ interface FAQItem {
 }
 
 const FAQSection = () => {
+  const { t, isRTL } = useLanguage();
   const [faqs, setFaqs] = useState<FAQItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -87,17 +89,16 @@ const FAQSection = () => {
     <IslamicBorder>
       <section className="py-24 bg-background">
       <div className="container">
-        <div className="text-center mb-16">
+        <div className={`text-center mb-16 ${isRTL ? 'text-right' : ''}`}>
           <span className="text-secondary font-semibold uppercase tracking-wider">
-            FAQ
+            {t('faq.subtitle')}
           </span>
           <h2 className="font-calligraphy text-4xl md:text-5xl font-bold text-foreground mt-3 mb-2">
-            Frequently Asked Questions
+            {t('faq.title')}
           </h2>
           <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">أسئلة شائعة</span>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Find answers to common questions about Hajj, Umrah, and our services.
-            Can't find what you're looking for? Contact us directly.
+            {t('faq.title')}
           </p>
         </div>
 
@@ -109,15 +110,15 @@ const FAQSection = () => {
                 value={`item-${index}`}
                 className="bg-card rounded-xl px-6 shadow-elegant border-none data-[state=open]:shadow-lg transition-shadow"
               >
-                <AccordionTrigger className="hover:no-underline py-6 text-left">
-                  <div className="flex items-start gap-4">
+                <AccordionTrigger className={`hover:no-underline py-6 ${isRTL ? 'text-right flex-row-reverse' : 'text-left'}`}>
+                  <div className={`flex items-start gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <HelpCircle className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
                     <span className="font-heading font-semibold text-foreground">
                       {faq.question}
                     </span>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="pb-6 pl-9 text-muted-foreground leading-relaxed">
+                <AccordionContent className={`pb-6 ${isRTL ? 'pr-9 text-right' : 'pl-9'} text-muted-foreground leading-relaxed`}>
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

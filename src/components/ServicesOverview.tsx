@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Plane, Hotel, Shield, Users, Clock, HeartHandshake, LucideIcon } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import IslamicBorder from "./IslamicBorder";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Service {
   id: string;
@@ -22,6 +23,7 @@ const iconMap: Record<string, LucideIcon> = {
 };
 
 const ServicesOverview = () => {
+  const { t, isRTL } = useLanguage();
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -56,6 +58,31 @@ const ServicesOverview = () => {
     return iconMap[iconName] || Plane;
   };
 
+  // Map service titles to translation keys
+  const getTranslatedTitle = (title: string): string => {
+    const titleMap: Record<string, string> = {
+      'Flight Booking': t('services.flightBooking'),
+      'Hotel Accommodation': t('services.hotelAccommodation'),
+      'Visa Processing': t('services.visaProcessing'),
+      'Expert Guides': t('services.expertGuides'),
+      '24/7 Support': t('services.support'),
+      'Complete Care': t('services.completeCare'),
+    };
+    return titleMap[title] || title;
+  };
+
+  const getTranslatedDesc = (title: string, desc: string): string => {
+    const descMap: Record<string, string> = {
+      'Flight Booking': t('services.flightDesc'),
+      'Hotel Accommodation': t('services.hotelDesc'),
+      'Visa Processing': t('services.visaDesc'),
+      'Expert Guides': t('services.guidesDesc'),
+      '24/7 Support': t('services.supportDesc'),
+      'Complete Care': t('services.careDesc'),
+    };
+    return descMap[title] || desc;
+  };
+
   if (loading) {
     return (
       <section className="py-20 bg-card relative overflow-hidden">
@@ -72,16 +99,16 @@ const ServicesOverview = () => {
     <IslamicBorder>
       <section id="services" className="py-20 bg-card relative overflow-hidden">
         {/* Decorative Elements */}
-        <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full -translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/5 rounded-full translate-x-1/2 translate-y-1/2" />
+        <div className={`absolute top-0 ${isRTL ? 'right-0' : 'left-0'} w-64 h-64 bg-primary/5 rounded-full -translate-x-1/2 -translate-y-1/2`} />
+        <div className={`absolute bottom-0 ${isRTL ? 'left-0' : 'right-0'} w-96 h-96 bg-secondary/5 rounded-full translate-x-1/2 translate-y-1/2`} />
       
       <div className="container relative z-10">
         <div className="text-center mb-12">
           <span className="text-secondary font-semibold uppercase tracking-wider">
-            Why Choose Us
+            {t('services.subtitle')}
           </span>
           <h2 className="font-calligraphy text-4xl md:text-5xl font-bold text-foreground mt-3">
-            Complete Hajj & Umrah Services
+            {t('services.title')}
           </h2>
           <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mt-2">خدماتنا</span>
         </div>
@@ -92,7 +119,7 @@ const ServicesOverview = () => {
             return (
               <div
                 key={service.id}
-                className="group flex items-start gap-4 p-6 rounded-xl hover:bg-muted/50 transition-all duration-300"
+                className={`group flex items-start gap-4 p-6 rounded-xl hover:bg-muted/50 transition-all duration-300 ${isRTL ? 'flex-row-reverse text-right' : ''}`}
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className="w-14 h-14 bg-gradient-primary rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-elegant">
@@ -100,10 +127,10 @@ const ServicesOverview = () => {
                 </div>
                 <div>
                   <h3 className="font-heading font-semibold text-lg text-foreground mb-2 group-hover:text-primary transition-colors">
-                    {service.title}
+                    {getTranslatedTitle(service.title)}
                   </h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
-                    {service.description}
+                    {getTranslatedDesc(service.title, service.description)}
                   </p>
                 </div>
               </div>
