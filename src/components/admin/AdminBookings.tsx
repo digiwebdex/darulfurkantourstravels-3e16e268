@@ -33,7 +33,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Search, Eye, CheckCircle, XCircle, Clock, AlertCircle, Download, CalendarIcon, X } from "lucide-react";
+import { Search, Eye, CheckCircle, XCircle, Clock, AlertCircle, Download, CalendarIcon, X, CreditCard, Banknote, Wallet } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatCurrency } from "@/lib/currency";
 import { format } from "date-fns";
@@ -42,6 +42,9 @@ import { cn } from "@/lib/utils";
 interface Booking {
   id: string;
   status: "pending" | "confirmed" | "cancelled" | "completed";
+  payment_status: string;
+  payment_method: string | null;
+  transaction_id: string | null;
   total_price: number;
   passenger_count: number;
   travel_date: string | null;
@@ -62,6 +65,14 @@ interface Booking {
     type: string;
   };
 }
+
+const paymentStatusOptions = [
+  { value: "pending", label: "Pending", icon: Clock, color: "bg-yellow-500" },
+  { value: "pending_cash", label: "Cash Pending", icon: Banknote, color: "bg-orange-500" },
+  { value: "paid", label: "Paid", icon: CheckCircle, color: "bg-green-500" },
+  { value: "failed", label: "Failed", icon: XCircle, color: "bg-red-500" },
+  { value: "refunded", label: "Refunded", icon: Wallet, color: "bg-purple-500" },
+];
 
 const statusOptions = [
   { value: "pending", label: "Pending", icon: Clock, color: "bg-yellow-500" },
@@ -94,6 +105,9 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
       .select(`
         id,
         status,
+        payment_status,
+        payment_method,
+        transaction_id,
         total_price,
         passenger_count,
         travel_date,
@@ -171,6 +185,78 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
       fetchBookings();
       onUpdate();
     }
+  };
+
+  const updatePaymentStatus = async (bookingId: string, newStatus: string) => {
+    const { error } = await supabase
+      .from("bookings")
+      .update({ payment_status: newStatus })
+      .eq("id", bookingId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update payment status",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: `Payment status updated to ${newStatus}`,
+      });
+      fetchBookings();
+      onUpdate();
+    }
+  };
+
+  const markCashAsPaid = async (bookingId: string) => {
+    const { error } = await supabase
+      .from("bookings")
+      .update({ 
+        payment_status: "paid",
+        transaction_id: `CASH-${Date.now()}`
+      })
+      .eq("id", bookingId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to mark payment as received",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Payment Received",
+        description: "Cash payment has been marked as received",
+      });
+      fetchBookings();
+      onUpdate();
+    }
+  };
+
+  const getPaymentStatusBadge = (status: string, paymentMethod: string | null) => {
+    const config = paymentStatusOptions.find((s) => s.value === status);
+    if (!config) {
+      return (
+        <Badge className="bg-muted text-muted-foreground gap-1">
+          <CreditCard className="w-3 h-3" />
+          {status || "Unknown"}
+        </Badge>
+      );
+    }
+    return (
+      <div className="flex flex-col gap-1">
+        <Badge className={`${config.color} text-white gap-1`}>
+          <config.icon className="w-3 h-3" />
+          {config.label}
+        </Badge>
+        {paymentMethod && (
+          <span className="text-xs text-muted-foreground capitalize">
+            {paymentMethod.replace(/_/g, " ")}
+          </span>
+        )}
+      </div>
+    );
   };
 
   const clearDateFilter = () => {
@@ -421,6 +507,7 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
                   <TableHead>Package</TableHead>
                   <TableHead>Passengers</TableHead>
                   <TableHead>Amount</TableHead>
+                  <TableHead>Payment</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Actions</TableHead>
@@ -459,6 +546,27 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
                     <TableCell>{booking.passenger_count}</TableCell>
                     <TableCell className="font-bold">
                       {formatCurrency(Number(booking.total_price))}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        {getPaymentStatusBadge(booking.payment_status, booking.payment_method)}
+                        {booking.payment_status === "pending_cash" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-6 text-xs gap-1 mt-1"
+                            onClick={() => markCashAsPaid(booking.id)}
+                          >
+                            <Banknote className="w-3 h-3" />
+                            Mark Paid
+                          </Button>
+                        )}
+                        {booking.transaction_id && (
+                          <span className="text-xs text-muted-foreground font-mono">
+                            {booking.transaction_id.slice(0, 12)}...
+                          </span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>{getStatusBadge(booking.status)}</TableCell>
                     <TableCell className="text-xs">
@@ -577,6 +685,37 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
                 </div>
               )}
 
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                <div>
+                  <p className="text-sm text-muted-foreground">Payment Status</p>
+                  <div className="mt-1">
+                    {getPaymentStatusBadge(selectedBooking.payment_status, selectedBooking.payment_method)}
+                  </div>
+                  {selectedBooking.transaction_id && (
+                    <p className="text-xs text-muted-foreground mt-1 font-mono">
+                      TX: {selectedBooking.transaction_id}
+                    </p>
+                  )}
+                  {selectedBooking.payment_status === "pending_cash" && (
+                    <Button
+                      size="sm"
+                      className="mt-2 gap-1"
+                      onClick={() => {
+                        markCashAsPaid(selectedBooking.id);
+                        setSelectedBooking(null);
+                      }}
+                    >
+                      <Banknote className="w-4 h-4" />
+                      Mark as Paid
+                    </Button>
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Booking Status</p>
+                  <div className="mt-1">{getStatusBadge(selectedBooking.status)}</div>
+                </div>
+              </div>
+
               <div className="flex justify-between items-center pt-4 border-t">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Amount</p>
@@ -584,7 +723,6 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
                     {formatCurrency(Number(selectedBooking.total_price))}
                   </p>
                 </div>
-                {getStatusBadge(selectedBooking.status)}
               </div>
             </motion.div>
             );
