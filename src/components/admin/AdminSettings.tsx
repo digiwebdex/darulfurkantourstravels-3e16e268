@@ -28,9 +28,12 @@ import {
   Instagram,
   Youtube,
   Twitter,
-  Megaphone
+  Megaphone,
+  ImageIcon
 } from "lucide-react";
 import { CURRENCY } from "@/lib/currency";
+import ImageUpload from "./ImageUpload";
+import { useImageUpload } from "@/hooks/useImageUpload";
 
 interface CompanyInfo {
   name: string;
@@ -62,6 +65,11 @@ interface Appearance {
 const AdminSettings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  
+  const { uploadImage, uploading } = useImageUpload({
+    bucket: "admin-uploads",
+    folder: "logos",
+  });
   
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
     name: "SM Elite Hajj",
@@ -264,23 +272,21 @@ const AdminSettings = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="logoUrl">Logo URL</Label>
-                <Input
-                  id="logoUrl"
+                <Label className="flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4" />
+                  Company Logo
+                </Label>
+                <ImageUpload
                   value={companyInfo.logo_url}
-                  onChange={(e) => setCompanyInfo({ ...companyInfo, logo_url: e.target.value })}
+                  onChange={(url) => setCompanyInfo({ ...companyInfo, logo_url: url })}
+                  onUpload={uploadImage}
+                  uploading={uploading}
+                  label=""
                   placeholder="https://example.com/logo.png"
                 />
-                {companyInfo.logo_url && (
-                  <div className="mt-2 p-4 bg-muted rounded-lg">
-                    <img 
-                      src={companyInfo.logo_url} 
-                      alt="Logo preview" 
-                      className="h-16 object-contain"
-                      onError={(e) => (e.currentTarget.style.display = 'none')}
-                    />
-                  </div>
-                )}
+                <p className="text-xs text-muted-foreground">
+                  Upload a logo image or paste a URL. Recommended size: 200x60 pixels.
+                </p>
               </div>
 
               <div className="space-y-2">
