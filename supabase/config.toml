@@ -3,6 +3,9 @@ project_id = "miixzsgabxqhiqiqkpry"
 [functions.send-booking-notification]
 verify_jwt = false
 
+[functions.send-tracking-notification]
+verify_jwt = false
+
 [functions.payment-sslcommerz]
 verify_jwt = false
 

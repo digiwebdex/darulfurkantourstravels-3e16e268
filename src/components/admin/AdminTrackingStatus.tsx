@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -25,7 +26,8 @@ import {
   Search, 
   CheckCircle, 
   Settings, 
-  PackageCheck 
+  PackageCheck,
+  Bell
 } from "lucide-react";
 
 type TrackingStatus = 'order_submitted' | 'documents_received' | 'under_review' | 'approved' | 'processing' | 'completed';
@@ -58,6 +60,7 @@ const AdminTrackingStatus = ({
   const { toast } = useToast();
   const [newStatus, setNewStatus] = useState<TrackingStatus>(currentStatus);
   const [notes, setNotes] = useState("");
+  const [sendNotification, setSendNotification] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
@@ -94,12 +97,46 @@ const AdminTrackingStatus = ({
           });
 
         if (historyError) throw historyError;
-      }
 
-      toast({
-        title: "Status Updated",
-        description: "The booking tracking status has been updated successfully.",
-      });
+        // Send notification if enabled
+        if (sendNotification) {
+          try {
+            const { error: notifError } = await supabase.functions.invoke('send-tracking-notification', {
+              body: {
+                bookingId,
+                newStatus,
+                notes: notes || undefined
+              }
+            });
+
+            if (notifError) {
+              console.error("Notification error:", notifError);
+              toast({
+                title: "Status Updated",
+                description: "Status updated but notification failed to send.",
+                variant: "default",
+              });
+            } else {
+              toast({
+                title: "Status Updated",
+                description: "Customer has been notified of the status change.",
+              });
+            }
+          } catch (notifErr) {
+            console.error("Notification error:", notifErr);
+          }
+        } else {
+          toast({
+            title: "Status Updated",
+            description: "The booking tracking status has been updated.",
+          });
+        }
+      } else {
+        toast({
+          title: "Notes Updated",
+          description: "Admin notes have been updated.",
+        });
+      }
 
       onUpdate();
       onClose();
@@ -175,8 +212,24 @@ const AdminTrackingStatus = ({
               rows={3}
             />
           </div>
-        </div>
 
+          {newStatus !== currentStatus && (
+            <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
+              <Checkbox
+                id="sendNotification"
+                checked={sendNotification}
+                onCheckedChange={(checked) => setSendNotification(checked as boolean)}
+              />
+              <Label 
+                htmlFor="sendNotification" 
+                className="text-sm font-normal cursor-pointer flex items-center gap-2"
+              >
+                <Bell className="w-4 h-4" />
+                Send SMS/Email notification to customer
+              </Label>
+            </div>
+          )}
+        </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             Cancel
