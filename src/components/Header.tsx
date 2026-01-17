@@ -21,9 +21,17 @@ interface MenuItem {
   order_index: number;
 }
 
+const ANNOUNCEMENT_DISMISSED_KEY = "smEliteHajj_announcementDismissed";
+
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [announcementDismissed, setAnnouncementDismissed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem(ANNOUNCEMENT_DISMISSED_KEY) === 'true';
+    }
+    return false;
+  });
   const { user, isAdmin, signOut } = useAuth();
   const { companyInfo, contactDetails, appearance } = useSiteSettings();
   const navigate = useNavigate();
@@ -89,21 +97,33 @@ const Header = () => {
 
   const logoSrc = companyInfo.logo_url || companyLogo;
 
-  const hasAnnouncement = appearance.show_announcement_bar && appearance.announcement_text;
+  const showAnnouncement = appearance.show_announcement_bar && appearance.announcement_text && !announcementDismissed;
+
+  const dismissAnnouncement = () => {
+    setAnnouncementDismissed(true);
+    sessionStorage.setItem(ANNOUNCEMENT_DISMISSED_KEY, 'true');
+  };
 
   return (
     <>
       {/* Announcement Bar */}
-      {hasAnnouncement && (
-        <div className="fixed top-0 left-0 right-0 z-[60] bg-secondary text-secondary-foreground py-2 text-center text-sm font-medium animate-fade-down">
-          <div className="container flex items-center justify-center gap-2">
+      {showAnnouncement && (
+        <div className="fixed top-0 left-0 right-0 z-[60] bg-secondary text-secondary-foreground py-2 text-sm font-medium animate-fade-down">
+          <div className="container flex items-center justify-center gap-2 relative">
             <span>📢</span>
             <span>{appearance.announcement_text}</span>
+            <button 
+              onClick={dismissAnnouncement}
+              className="absolute right-0 p-1 hover:bg-secondary-foreground/10 rounded transition-colors"
+              aria-label="Dismiss announcement"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         </div>
       )}
       
-      <header className={`fixed left-0 right-0 z-50 bg-card/95 backdrop-blur-md shadow-elegant transition-all duration-300 ${isScrolled ? 'shadow-lg' : ''} ${hasAnnouncement ? 'top-[36px]' : 'top-0'}`}>
+      <header className={`fixed left-0 right-0 z-50 bg-card/95 backdrop-blur-md shadow-elegant transition-all duration-300 ${isScrolled ? 'shadow-lg' : ''} ${showAnnouncement ? 'top-[36px]' : 'top-0'}`}>
         {/* Top Bar - Hide when scrolled */}
         <div className={`bg-primary text-primary-foreground overflow-hidden transition-all duration-300 ${isScrolled ? 'h-0 py-0' : 'h-auto py-2'}`}>
           <div className="container flex justify-between items-center text-sm">
