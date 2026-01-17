@@ -8,12 +8,32 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Calendar, Package, ArrowLeft, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { 
+  Calendar, 
+  Package, 
+  ArrowLeft, 
+  Clock, 
+  CheckCircle, 
+  XCircle, 
+  AlertCircle,
+  MapPin,
+  FileText,
+  FileCheck,
+  Search,
+  Settings,
+  PackageCheck
+} from "lucide-react";
 import { formatCurrency } from "@/lib/currency";
+import OrderTrackingModal from "@/components/OrderTrackingModal";
+import { cn } from "@/lib/utils";
+
+type TrackingStatus = 'order_submitted' | 'documents_received' | 'under_review' | 'approved' | 'processing' | 'completed';
 
 interface Booking {
   id: string;
   status: string;
+  tracking_status: TrackingStatus;
+  admin_notes: string | null;
   total_price: number;
   passenger_count: number;
   travel_date: string | null;
@@ -32,11 +52,25 @@ const statusConfig: Record<string, { color: string; icon: React.ReactNode; label
   completed: { color: "bg-blue-500", icon: <AlertCircle className="w-4 h-4" />, label: "Completed" },
 };
 
+const trackingSteps: { status: TrackingStatus; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { status: 'order_submitted', label: 'Submitted', icon: FileText },
+  { status: 'documents_received', label: 'Documents', icon: FileCheck },
+  { status: 'under_review', label: 'Review', icon: Search },
+  { status: 'approved', label: 'Approved', icon: CheckCircle },
+  { status: 'processing', label: 'Processing', icon: Settings },
+  { status: 'completed', label: 'Completed', icon: PackageCheck },
+];
+
+const getStatusIndex = (status: TrackingStatus): number => {
+  return trackingSteps.findIndex(step => step.status === status);
+};
+
 const MyBookings = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -47,6 +81,7 @@ const MyBookings = () => {
   useEffect(() => {
     if (user) {
       fetchBookings();
+      subscribeToUpdates();
     }
   }, [user]);
 
@@ -56,6 +91,8 @@ const MyBookings = () => {
       .select(`
         id,
         status,
+        tracking_status,
+        admin_notes,
         total_price,
         passenger_count,
         travel_date,
@@ -73,6 +110,30 @@ const MyBookings = () => {
       setBookings(data as Booking[]);
     }
     setLoading(false);
+  };
+
+  const subscribeToUpdates = () => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('my-bookings')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'bookings',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          fetchBookings();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   };
 
   if (authLoading || loading) {
@@ -114,69 +175,138 @@ const MyBookings = () => {
           </Card>
         ) : (
           <div className="grid gap-6">
-            {bookings.map((booking, index) => (
-              <motion.div
-                key={booking.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="hover:shadow-elegant transition-shadow">
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="font-heading text-xl">
-                          {booking.packages.title}
-                        </CardTitle>
-                        <CardDescription className="capitalize">
-                          {booking.packages.type} Package • {booking.packages.duration_days} Days
-                        </CardDescription>
+            {bookings.map((booking, index) => {
+              const currentIndex = getStatusIndex(booking.tracking_status);
+              
+              return (
+                <motion.div
+                  key={booking.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card className="hover:shadow-elegant transition-shadow overflow-hidden">
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="font-heading text-xl">
+                            {booking.packages.title}
+                          </CardTitle>
+                          <CardDescription className="capitalize">
+                            {booking.packages.type} Package • {booking.packages.duration_days} Days
+                          </CardDescription>
+                        </div>
+                        <Badge 
+                          className={`${statusConfig[booking.status]?.color} text-white flex items-center gap-1`}
+                        >
+                          {statusConfig[booking.status]?.icon}
+                          {statusConfig[booking.status]?.label}
+                        </Badge>
                       </div>
-                      <Badge 
-                        className={`${statusConfig[booking.status]?.color} text-white flex items-center gap-1`}
-                      >
-                        {statusConfig[booking.status]?.icon}
-                        {statusConfig[booking.status]?.label}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Booking ID</p>
-                        <p className="font-medium">{booking.id.slice(0, 8).toUpperCase()}</p>
+                    </CardHeader>
+                    <CardContent>
+                      {/* Progress Tracker */}
+                      <div className="mb-6 pt-4">
+                        <div className="flex items-center justify-between relative">
+                          {/* Progress Line Background */}
+                          <div className="absolute left-0 right-0 top-4 h-1 bg-muted rounded-full" />
+                          {/* Progress Line Filled */}
+                          <div 
+                            className="absolute left-0 top-4 h-1 bg-primary rounded-full transition-all duration-500"
+                            style={{ 
+                              width: `${(currentIndex / (trackingSteps.length - 1)) * 100}%` 
+                            }}
+                          />
+                          
+                          {trackingSteps.map((step, stepIndex) => {
+                            const isCompleted = stepIndex <= currentIndex;
+                            const isCurrent = stepIndex === currentIndex;
+                            const Icon = step.icon;
+
+                            return (
+                              <div 
+                                key={step.status} 
+                                className="relative z-10 flex flex-col items-center"
+                              >
+                                <div
+                                  className={cn(
+                                    "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300",
+                                    isCompleted
+                                      ? "bg-primary text-primary-foreground"
+                                      : "bg-muted text-muted-foreground",
+                                    isCurrent && "ring-4 ring-primary/20 scale-110"
+                                  )}
+                                >
+                                  <Icon className="w-4 h-4" />
+                                </div>
+                                <span className={cn(
+                                  "text-xs mt-2 text-center max-w-[60px]",
+                                  isCompleted ? "text-foreground font-medium" : "text-muted-foreground"
+                                )}>
+                                  {step.label}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-muted-foreground">Passengers</p>
-                        <p className="font-medium">{booking.passenger_count} person(s)</p>
+
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <p className="text-muted-foreground">Booking ID</p>
+                          <p className="font-medium">{booking.id.slice(0, 8).toUpperCase()}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Passengers</p>
+                          <p className="font-medium">{booking.passenger_count} person(s)</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Travel Date</p>
+                          <p className="font-medium flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            {booking.travel_date 
+                              ? new Date(booking.travel_date).toLocaleDateString()
+                              : "To be confirmed"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Total Amount</p>
+                          <p className="font-bold text-primary text-lg">
+                            {formatCurrency(booking.total_price)}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-muted-foreground">Travel Date</p>
-                        <p className="font-medium flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {booking.travel_date 
-                            ? new Date(booking.travel_date).toLocaleDateString()
-                            : "To be confirmed"}
+                      
+                      <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                        <p className="text-xs text-muted-foreground">
+                          Booked on {new Date(booking.created_at).toLocaleDateString()}
                         </p>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="gap-2"
+                          onClick={() => setSelectedBooking(booking)}
+                        >
+                          <MapPin className="w-4 h-4" />
+                          View Details
+                        </Button>
                       </div>
-                      <div>
-                        <p className="text-muted-foreground">Total Amount</p>
-                        <p className="font-bold text-primary text-lg">
-                          {formatCurrency(booking.total_price)}
-                        </p>
-                      </div>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-4">
-                      Booked on {new Date(booking.created_at).toLocaleDateString()}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </main>
       <Footer />
+
+      {/* Order Tracking Modal */}
+      <OrderTrackingModal
+        isOpen={!!selectedBooking}
+        onClose={() => setSelectedBooking(null)}
+        booking={selectedBooking}
+      />
     </div>
   );
 };

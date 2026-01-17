@@ -14,8 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      booking_status_history: {
+        Row: {
+          booking_id: string
+          changed_by: string | null
+          created_at: string
+          id: string
+          new_status: Database["public"]["Enums"]["tracking_status"]
+          notes: string | null
+          previous_status: Database["public"]["Enums"]["tracking_status"] | null
+        }
+        Insert: {
+          booking_id: string
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_status: Database["public"]["Enums"]["tracking_status"]
+          notes?: string | null
+          previous_status?:
+            | Database["public"]["Enums"]["tracking_status"]
+            | null
+        }
+        Update: {
+          booking_id?: string
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_status?: Database["public"]["Enums"]["tracking_status"]
+          notes?: string | null
+          previous_status?:
+            | Database["public"]["Enums"]["tracking_status"]
+            | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_status_history_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
+          admin_notes: string | null
           created_at: string
           guest_email: string | null
           guest_name: string | null
@@ -29,12 +72,14 @@ export type Database = {
           payment_status: string
           status: Database["public"]["Enums"]["booking_status"]
           total_price: number
+          tracking_status: Database["public"]["Enums"]["tracking_status"]
           transaction_id: string | null
           travel_date: string | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
+          admin_notes?: string | null
           created_at?: string
           guest_email?: string | null
           guest_name?: string | null
@@ -48,12 +93,14 @@ export type Database = {
           payment_status?: string
           status?: Database["public"]["Enums"]["booking_status"]
           total_price: number
+          tracking_status?: Database["public"]["Enums"]["tracking_status"]
           transaction_id?: string | null
           travel_date?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
+          admin_notes?: string | null
           created_at?: string
           guest_email?: string | null
           guest_name?: string | null
@@ -67,6 +114,7 @@ export type Database = {
           payment_status?: string
           status?: Database["public"]["Enums"]["booking_status"]
           total_price?: number
+          tracking_status?: Database["public"]["Enums"]["tracking_status"]
           transaction_id?: string | null
           travel_date?: string | null
           updated_at?: string
@@ -721,6 +769,13 @@ export type Database = {
     Enums: {
       booking_status: "pending" | "confirmed" | "cancelled" | "completed"
       package_type: "hajj" | "umrah"
+      tracking_status:
+        | "order_submitted"
+        | "documents_received"
+        | "under_review"
+        | "approved"
+        | "processing"
+        | "completed"
       user_role: "customer" | "admin"
     }
     CompositeTypes: {
@@ -851,6 +906,14 @@ export const Constants = {
     Enums: {
       booking_status: ["pending", "confirmed", "cancelled", "completed"],
       package_type: ["hajj", "umrah"],
+      tracking_status: [
+        "order_submitted",
+        "documents_received",
+        "under_review",
+        "approved",
+        "processing",
+        "completed",
+      ],
       user_role: ["customer", "admin"],
     },
   },

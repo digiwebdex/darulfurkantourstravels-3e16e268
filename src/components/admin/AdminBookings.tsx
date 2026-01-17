@@ -33,15 +33,20 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Search, Eye, CheckCircle, XCircle, Clock, AlertCircle, Download, CalendarIcon, X, CreditCard, Banknote, Wallet } from "lucide-react";
+import { Search, Eye, CheckCircle, XCircle, Clock, AlertCircle, Download, CalendarIcon, X, CreditCard, Banknote, Wallet, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatCurrency } from "@/lib/currency";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import AdminTrackingStatus from "./AdminTrackingStatus";
+
+type TrackingStatus = 'order_submitted' | 'documents_received' | 'under_review' | 'approved' | 'processing' | 'completed';
 
 interface Booking {
   id: string;
   status: "pending" | "confirmed" | "cancelled" | "completed";
+  tracking_status: TrackingStatus;
+  admin_notes: string | null;
   payment_status: string;
   payment_method: string | null;
   transaction_id: string | null;
@@ -65,6 +70,15 @@ interface Booking {
     type: string;
   };
 }
+
+const trackingStatusLabels: Record<TrackingStatus, string> = {
+  order_submitted: 'Order Submitted',
+  documents_received: 'Documents Received',
+  under_review: 'Under Review',
+  approved: 'Approved',
+  processing: 'Processing',
+  completed: 'Completed',
+};
 
 const paymentStatusOptions = [
   { value: "pending", label: "Pending", icon: Clock, color: "bg-yellow-500" },
@@ -92,6 +106,7 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [trackingBooking, setTrackingBooking] = useState<Booking | null>(null);
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
 
@@ -105,6 +120,8 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
       .select(`
         id,
         status,
+        tracking_status,
+        admin_notes,
         payment_status,
         payment_method,
         transaction_id,
@@ -508,6 +525,7 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
                   <TableHead>Passengers</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Payment</TableHead>
+                  <TableHead>Tracking</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Actions</TableHead>
@@ -567,6 +585,17 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
                           </span>
                         )}
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1 h-7 text-xs"
+                        onClick={() => setTrackingBooking(booking)}
+                      >
+                        <MapPin className="w-3 h-3" />
+                        {trackingStatusLabels[booking.tracking_status]}
+                      </Button>
                     </TableCell>
                     <TableCell>{getStatusBadge(booking.status)}</TableCell>
                     <TableCell className="text-xs">
@@ -729,6 +758,20 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
           })()}
         </DialogContent>
       </Dialog>
+
+      {/* Tracking Status Update Modal */}
+      {trackingBooking && (
+        <AdminTrackingStatus
+          isOpen={!!trackingBooking}
+          onClose={() => setTrackingBooking(null)}
+          bookingId={trackingBooking.id}
+          currentStatus={trackingBooking.tracking_status}
+          onUpdate={() => {
+            fetchBookings();
+            onUpdate();
+          }}
+        />
+      )}
     </>
   );
 };
