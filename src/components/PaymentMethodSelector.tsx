@@ -3,8 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CreditCard, Smartphone, Wallet, Banknote, Loader2 } from "lucide-react";
+import { CreditCard, Loader2, CheckCircle2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { paymentLogoMap } from "./PaymentLogos";
+import { Badge } from "@/components/ui/badge";
 
 interface PaymentMethod {
   id: string;
@@ -18,13 +20,6 @@ interface PaymentMethodSelectorProps {
   selectedMethod: string | null;
   onSelect: (methodSlug: string) => void;
 }
-
-const iconMap: Record<string, React.ElementType> = {
-  CreditCard,
-  Smartphone,
-  Wallet,
-  Banknote,
-};
 
 const PaymentMethodSelector = ({ selectedMethod, onSelect }: PaymentMethodSelectorProps) => {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
@@ -68,6 +63,21 @@ const PaymentMethodSelector = ({ selectedMethod, onSelect }: PaymentMethodSelect
     );
   }
 
+  const getPaymentBadge = (slug: string) => {
+    switch (slug) {
+      case "sslcommerz":
+        return <Badge variant="outline" className="text-xs bg-emerald-500/10 text-emerald-600 border-emerald-500/30">Secure</Badge>;
+      case "bkash":
+        return <Badge variant="outline" className="text-xs bg-pink-500/10 text-pink-600 border-pink-500/30">Mobile</Badge>;
+      case "nagad":
+        return <Badge variant="outline" className="text-xs bg-orange-500/10 text-orange-600 border-orange-500/30">Mobile</Badge>;
+      case "cash":
+        return <Badge variant="outline" className="text-xs bg-green-500/10 text-green-600 border-green-500/30">Office</Badge>;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="space-y-3">
       <Label className="text-base font-medium">Select Payment Method</Label>
@@ -77,36 +87,60 @@ const PaymentMethodSelector = ({ selectedMethod, onSelect }: PaymentMethodSelect
         className="grid gap-3"
       >
         {paymentMethods.map((method) => {
-          const IconComponent = iconMap[method.icon_name] || CreditCard;
+          const LogoComponent = paymentLogoMap[method.slug];
           const isSelected = selectedMethod === method.slug;
 
           return (
             <Card
               key={method.id}
-              className={`cursor-pointer transition-all ${
+              className={`cursor-pointer transition-all duration-200 ${
                 isSelected 
-                  ? 'border-primary ring-2 ring-primary/20' 
-                  : 'hover:border-primary/50'
+                  ? 'border-primary ring-2 ring-primary/20 shadow-md' 
+                  : 'hover:border-primary/50 hover:shadow-sm'
               }`}
               onClick={() => onSelect(method.slug)}
             >
               <CardContent className="p-4">
                 <div className={`flex items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  <RadioGroupItem value={method.slug} id={method.id} />
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                    isSelected ? 'bg-primary/10' : 'bg-muted'
-                  }`}>
-                    <IconComponent className={`w-5 h-5 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <div className="relative">
+                    <RadioGroupItem 
+                      value={method.slug} 
+                      id={method.id} 
+                      className="sr-only"
+                    />
+                    {LogoComponent ? (
+                      <div className={`rounded-xl overflow-hidden shadow-sm transition-transform duration-200 ${
+                        isSelected ? 'scale-105 ring-2 ring-primary/30' : ''
+                      }`}>
+                        <LogoComponent size={48} />
+                      </div>
+                    ) : (
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${
+                        isSelected ? 'bg-primary/10' : 'bg-muted'
+                      }`}>
+                        <CreditCard className={`w-6 h-6 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                      </div>
+                    )}
+                    {isSelected && (
+                      <div className="absolute -top-1 -right-1 bg-primary rounded-full p-0.5">
+                        <CheckCircle2 className="w-4 h-4 text-primary-foreground" />
+                      </div>
+                    )}
                   </div>
-                  <div className="flex-1">
-                    <Label 
-                      htmlFor={method.id} 
-                      className="font-medium cursor-pointer"
-                    >
-                      {method.name}
-                    </Label>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Label 
+                        htmlFor={method.id} 
+                        className={`font-semibold cursor-pointer transition-colors ${
+                          isSelected ? 'text-primary' : ''
+                        }`}
+                      >
+                        {method.name}
+                      </Label>
+                      {getPaymentBadge(method.slug)}
+                    </div>
                     {method.description && (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">
                         {method.description}
                       </p>
                     )}
