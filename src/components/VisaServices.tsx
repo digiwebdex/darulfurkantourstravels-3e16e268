@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { ArrowRight, Globe, Eye, Filter, X } from "lucide-react";
+import { ArrowRight, Globe, Eye, Filter, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
@@ -9,6 +9,7 @@ import VisaDetailsModal from "./VisaDetailsModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 
 interface VisaCountry {
   id: string;
@@ -33,6 +34,7 @@ const VisaServices = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   
   // Filter states
+  const [searchQuery, setSearchQuery] = useState("");
   const [processingTimeFilter, setProcessingTimeFilter] = useState<ProcessingTimeFilter>("all");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
   const [showFilters, setShowFilters] = useState(false);
@@ -75,6 +77,14 @@ const VisaServices = () => {
   // Filter countries based on selected filters
   const filteredCountries = useMemo(() => {
     return countries.filter((country) => {
+      // Search filter
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        if (!country.country_name.toLowerCase().includes(query)) {
+          return false;
+        }
+      }
+
       // Price filter
       if (country.price < priceRange[0] || country.price > priceRange[1]) {
         return false;
@@ -90,7 +100,7 @@ const VisaServices = () => {
 
       return true;
     });
-  }, [countries, priceRange, processingTimeFilter]);
+  }, [countries, searchQuery, priceRange, processingTimeFilter]);
 
   // Get min and max prices from countries
   const priceStats = useMemo(() => {
@@ -100,11 +110,13 @@ const VisaServices = () => {
   }, [countries]);
 
   const clearFilters = () => {
+    setSearchQuery("");
     setProcessingTimeFilter("all");
     setPriceRange([priceStats.min, priceStats.max]);
   };
 
-  const hasActiveFilters = processingTimeFilter !== "all" || 
+  const hasActiveFilters = searchQuery.trim() !== "" ||
+    processingTimeFilter !== "all" || 
     priceRange[0] !== priceStats.min || 
     priceRange[1] !== priceStats.max;
 
@@ -241,6 +253,26 @@ const VisaServices = () => {
           transition={{ delay: 0.2 }}
           className="mb-8"
         >
+          {/* Search Bar */}
+          <div className="relative max-w-md mx-auto mb-6">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search countries..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-10 h-12 text-base rounded-full border-2 focus:border-primary"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full transition-colors"
+              >
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            )}
+          </div>
+
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
             <Button
               variant={showFilters ? "default" : "outline"}
@@ -249,7 +281,7 @@ const VisaServices = () => {
             >
               <Filter className="w-4 h-4" />
               {showFilters ? "Hide Filters" : "Show Filters"}
-              {hasActiveFilters && (
+              {hasActiveFilters && !searchQuery && (
                 <Badge variant="secondary" className="ml-1 text-xs">
                   Active
                 </Badge>
@@ -259,7 +291,7 @@ const VisaServices = () => {
             {hasActiveFilters && (
               <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-1">
                 <X className="w-4 h-4" />
-                Clear Filters
+                Clear All
               </Button>
             )}
             
