@@ -57,11 +57,23 @@ const ExpandablePackageCard = ({
       key={pkg.id}
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.1 }}
-      className="w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] xl:w-[calc(25%-18px)] max-w-sm flex"
+      viewport={{ once: true, margin: "-50px" }}
+      whileHover={{ 
+        scale: 1.02, 
+        y: -4,
+        boxShadow: "0 12px 32px -8px rgba(0, 0, 0, 0.15)"
+      }}
+      transition={{ 
+        duration: 0.5, 
+        delay: index * 0.1,
+        ease: [0.25, 0.46, 0.45, 0.94],
+        scale: { duration: 0.2 },
+        y: { duration: 0.2 },
+        boxShadow: { duration: 0.2 }
+      }}
+      className="w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] xl:w-[calc(25%-18px)] max-w-sm flex cursor-pointer"
     >
-      <Card className="h-full flex flex-col overflow-hidden hover:shadow-elegant transition-all duration-300 group border-border/50">
+      <Card className="h-full flex flex-col overflow-hidden transition-all duration-300 group border-border/50">
         {/* Header with gradient */}
         <CardHeader className="relative bg-gradient-to-br from-primary to-primary/80 text-primary-foreground p-6">
           <div className="flex justify-between items-start">
@@ -234,7 +246,13 @@ const DynamicPackages = ({ type }: DynamicPackagesProps) => {
   return (
     <>
       {/* Sort Controls */}
-      <div className="flex justify-end mb-6">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="flex justify-end mb-6"
+      >
         <div className="flex items-center gap-2">
           <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
           <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
@@ -250,7 +268,7 @@ const DynamicPackages = ({ type }: DynamicPackagesProps) => {
             </SelectContent>
           </Select>
         </div>
-      </div>
+      </motion.div>
 
       <div className="flex flex-wrap justify-center gap-6">
         {sortedPackages.map((pkg, index) => (

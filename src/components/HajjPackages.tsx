@@ -32,16 +32,30 @@ const HajjPackages = () => {
           </p>
           
           {/* Quick Info */}
-          <div className="flex flex-wrap justify-center gap-6 mt-8">
-            <div className="flex items-center gap-2 bg-card px-4 py-2 rounded-full shadow-elegant">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex flex-wrap justify-center gap-6 mt-8"
+          >
+            <motion.div 
+              whileHover={{ scale: 1.05, y: -2 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-center gap-2 bg-card px-4 py-2 rounded-full shadow-elegant cursor-pointer"
+            >
               <MapPin className="w-4 h-4 text-primary" />
               <span className="text-sm font-medium text-foreground">Makkah & Madinah</span>
-            </div>
-            <div className="flex items-center gap-2 bg-card px-4 py-2 rounded-full shadow-elegant">
+            </motion.div>
+            <motion.div 
+              whileHover={{ scale: 1.05, y: -2 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-center gap-2 bg-card px-4 py-2 rounded-full shadow-elegant cursor-pointer"
+            >
               <Calendar className="w-4 h-4 text-primary" />
               <span className="text-sm font-medium text-foreground">Dhul Hijjah 1447</span>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </motion.div>
 
         <DynamicPackages type="hajj" />
@@ -58,15 +72,18 @@ const HajjPackages = () => {
             Government Approved Hajj & Umrah Agency
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <span className="inline-flex items-center gap-2 text-primary text-sm font-medium">
-              ✓ Government Approved
-            </span>
-            <span className="inline-flex items-center gap-2 text-primary text-sm font-medium">
-              ✓ 10+ Years Experience
-            </span>
-            <span className="inline-flex items-center gap-2 text-primary text-sm font-medium">
-              ✓ 5000+ Happy Pilgrims
-            </span>
+            {["Government Approved", "10+ Years Experience", "5000+ Happy Pilgrims"].map((item, index) => (
+              <motion.span 
+                key={item}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.6 + index * 0.1 }}
+                className="inline-flex items-center gap-2 text-primary text-sm font-medium"
+              >
+                ✓ {item}
+              </motion.span>
+            ))}
           </div>
         </motion.div>
       </div>

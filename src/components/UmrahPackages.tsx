@@ -35,15 +35,41 @@ const UmrahPackages = () => {
             
             <div className="grid grid-cols-2 gap-6">
               <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/10"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                whileHover={{ 
+                  scale: 1.05, 
+                  y: -4,
+                  boxShadow: "0 12px 32px -8px rgba(0, 0, 0, 0.15)"
+                }}
+                transition={{ 
+                  duration: 0.5, 
+                  delay: 0.2,
+                  scale: { duration: 0.2 },
+                  y: { duration: 0.2 }
+                }}
+                className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/10 cursor-pointer"
               >
                 <div className="font-heading text-4xl font-bold text-primary mb-1">15+</div>
                 <div className="text-sm text-muted-foreground">Umrah Years Experience</div>
               </motion.div>
               <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-2xl p-6 border border-secondary/10"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                whileHover={{ 
+                  scale: 1.05, 
+                  y: -4,
+                  boxShadow: "0 12px 32px -8px rgba(0, 0, 0, 0.15)"
+                }}
+                transition={{ 
+                  duration: 0.5, 
+                  delay: 0.3,
+                  scale: { duration: 0.2 },
+                  y: { duration: 0.2 }
+                }}
+                className="bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-2xl p-6 border border-secondary/10 cursor-pointer"
               >
                 <div className="font-heading text-4xl font-bold text-secondary mb-1">3000+</div>
                 <div className="text-sm text-muted-foreground">Happy Pilgrims</div>
