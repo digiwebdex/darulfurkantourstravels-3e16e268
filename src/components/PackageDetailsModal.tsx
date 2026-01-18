@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Check, X, Star, Calendar, Hotel, Plane, Bus, FileText, MapPin, ChevronLeft, ChevronRight, ExternalLink, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
+import { Check, X, Star, Calendar, Hotel, Plane, Bus, FileText, MapPin, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 import { formatCurrency } from "@/lib/currency";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -39,11 +39,6 @@ interface PackageDetailsModalProps {
 
 const PackageDetailsModal = ({ isOpen, onClose, package_info, onBookNow }: PackageDetailsModalProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState(1);
-  const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   // Get all hotel images
   const hotelImages = package_info ? [
@@ -63,12 +58,6 @@ const PackageDetailsModal = ({ isOpen, onClose, package_info, onBookNow }: Packa
     }
   }, [isOpen]);
 
-  // Reset zoom when image changes or lightbox closes
-  useEffect(() => {
-    setZoomLevel(1);
-    setPanPosition({ x: 0, y: 0 });
-  }, [currentImageIndex, lightboxOpen]);
-
   if (!package_info) return null;
 
   const handleBookNow = () => {
@@ -86,72 +75,7 @@ const PackageDetailsModal = ({ isOpen, onClose, package_info, onBookNow }: Packa
     setCurrentImageIndex((prev) => (prev - 1 + hotelImages.length) % hotelImages.length);
   };
 
-  const openLightbox = (index: number) => {
-    setCurrentImageIndex(index);
-    setLightboxOpen(true);
-  };
-
-  const closeLightbox = () => {
-    setLightboxOpen(false);
-    setZoomLevel(1);
-    setPanPosition({ x: 0, y: 0 });
-  };
-
-  const handleZoomIn = () => {
-    setZoomLevel((prev) => Math.min(prev + 0.5, 4));
-  };
-
-  const handleZoomOut = () => {
-    setZoomLevel((prev) => {
-      const newZoom = Math.max(prev - 0.5, 1);
-      if (newZoom === 1) setPanPosition({ x: 0, y: 0 });
-      return newZoom;
-    });
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (zoomLevel > 1) {
-      setIsDragging(true);
-      setDragStart({ x: e.clientX - panPosition.x, y: e.clientY - panPosition.y });
-    }
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging && zoomLevel > 1) {
-      setPanPosition({
-        x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y
-      });
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    if (e.deltaY < 0) {
-      setZoomLevel((prev) => Math.min(prev + 0.25, 4));
-    } else {
-      setZoomLevel((prev) => {
-        const newZoom = Math.max(prev - 0.25, 1);
-        if (newZoom === 1) setPanPosition({ x: 0, y: 0 });
-        return newZoom;
-      });
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') closeLightbox();
-    if (e.key === 'ArrowLeft') prevImage();
-    if (e.key === 'ArrowRight') nextImage();
-    if (e.key === '+' || e.key === '=') handleZoomIn();
-    if (e.key === '-') handleZoomOut();
-  };
-
   return (
-    <>
     <Dialog open={isOpen} onOpenChange={onClose} modal={true}>
       <DialogContent 
         className="max-w-2xl max-h-[90vh] p-0 overflow-hidden flex flex-col"
@@ -237,10 +161,7 @@ const PackageDetailsModal = ({ isOpen, onClose, package_info, onBookNow }: Packa
                       <Hotel className="w-4 h-4" />
                       Hotel Images
                     </h4>
-                    <div 
-                      className="relative rounded-lg overflow-hidden bg-muted aspect-video cursor-pointer group"
-                      onClick={() => openLightbox(currentImageIndex)}
-                    >
+                    <div className="relative rounded-lg overflow-hidden bg-muted aspect-video">
                       <AnimatePresence mode="wait">
                         <motion.img
                           key={currentImageIndex}
@@ -254,18 +175,13 @@ const PackageDetailsModal = ({ isOpen, onClose, package_info, onBookNow }: Packa
                         />
                       </AnimatePresence>
                       
-                      {/* Fullscreen hint overlay */}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                        <Maximize2 className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </div>
-                      
                       {hotelImages.length > 1 && (
                         <>
                           <Button
                             variant="ghost"
                             size="icon"
                             className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full h-8 w-8"
-                            onClick={(e) => { e.stopPropagation(); prevImage(); }}
+                            onClick={prevImage}
                           >
                             <ChevronLeft className="w-4 h-4" />
                           </Button>
@@ -273,7 +189,7 @@ const PackageDetailsModal = ({ isOpen, onClose, package_info, onBookNow }: Packa
                             variant="ghost"
                             size="icon"
                             className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full h-8 w-8"
-                            onClick={(e) => { e.stopPropagation(); nextImage(); }}
+                            onClick={nextImage}
                           >
                             <ChevronRight className="w-4 h-4" />
                           </Button>
@@ -282,14 +198,13 @@ const PackageDetailsModal = ({ isOpen, onClose, package_info, onBookNow }: Packa
                               <button
                                 key={idx}
                                 className={`w-2 h-2 rounded-full transition-colors ${idx === currentImageIndex ? 'bg-white' : 'bg-white/50'}`}
-                                onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(idx); }}
+                                onClick={() => setCurrentImageIndex(idx)}
                               />
                             ))}
                           </div>
                         </>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground text-center">Click image to view fullscreen</p>
                   </div>
                 )}
 
@@ -416,140 +331,6 @@ const PackageDetailsModal = ({ isOpen, onClose, package_info, onBookNow }: Packa
         </AnimatePresence>
       </DialogContent>
     </Dialog>
-
-    {/* Fullscreen Lightbox */}
-    <AnimatePresence>
-      {lightboxOpen && hotelImages.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] bg-black flex items-center justify-center"
-          onKeyDown={handleKeyDown}
-          tabIndex={0}
-          role="dialog"
-          aria-modal="true"
-        >
-          {/* Close button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-4 right-4 z-10 bg-white/10 hover:bg-white/20 text-white rounded-full h-10 w-10"
-            onClick={closeLightbox}
-          >
-            <X className="w-5 h-5" />
-          </Button>
-
-          {/* Zoom controls */}
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-black/50 rounded-full px-4 py-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-white hover:bg-white/20"
-              onClick={handleZoomOut}
-              disabled={zoomLevel <= 1}
-            >
-              <ZoomOut className="w-4 h-4" />
-            </Button>
-            <span className="text-white text-sm font-medium min-w-[60px] text-center">
-              {Math.round(zoomLevel * 100)}%
-            </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-white hover:bg-white/20"
-              onClick={handleZoomIn}
-              disabled={zoomLevel >= 4}
-            >
-              <ZoomIn className="w-4 h-4" />
-            </Button>
-          </div>
-
-          {/* Image counter */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-black/50 rounded-full px-4 py-2">
-            <span className="text-white text-sm">
-              {currentImageIndex + 1} / {hotelImages.length}
-            </span>
-          </div>
-
-          {/* Navigation arrows */}
-          {hotelImages.length > 1 && (
-            <>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/10 hover:bg-white/20 text-white rounded-full h-12 w-12"
-                onClick={prevImage}
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/10 hover:bg-white/20 text-white rounded-full h-12 w-12"
-                onClick={nextImage}
-              >
-                <ChevronRight className="w-6 h-6" />
-              </Button>
-            </>
-          )}
-
-          {/* Thumbnail strip */}
-          {hotelImages.length > 1 && (
-            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-10 flex gap-2 max-w-[80vw] overflow-x-auto pb-2">
-              {hotelImages.map((img, idx) => (
-                <button
-                  key={idx}
-                  className={`w-16 h-12 rounded-md overflow-hidden flex-shrink-0 transition-all ${
-                    idx === currentImageIndex ? 'ring-2 ring-white scale-105' : 'opacity-60 hover:opacity-100'
-                  }`}
-                  onClick={() => setCurrentImageIndex(idx)}
-                >
-                  <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Main image with zoom and pan */}
-          <motion.div
-            className={`max-w-[90vw] max-h-[80vh] overflow-hidden ${zoomLevel > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-zoom-in'}`}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-            onWheel={handleWheel}
-            onClick={() => zoomLevel === 1 && handleZoomIn()}
-          >
-            <AnimatePresence mode="wait">
-              <motion.img
-                key={currentImageIndex}
-                src={hotelImages[currentImageIndex]}
-                alt={`Hotel image ${currentImageIndex + 1} fullscreen`}
-                className="max-w-[90vw] max-h-[80vh] object-contain select-none"
-                style={{
-                  transform: `scale(${zoomLevel}) translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
-                  transition: isDragging ? 'none' : 'transform 0.2s ease-out'
-                }}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.2 }}
-                draggable={false}
-              />
-            </AnimatePresence>
-          </motion.div>
-
-          {/* Instructions */}
-          <div className="absolute bottom-4 right-4 z-10 text-white/50 text-xs space-y-1">
-            <p>Scroll or +/- to zoom</p>
-            <p>Drag to pan when zoomed</p>
-            <p>← → to navigate</p>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  </>
   );
 };
 
