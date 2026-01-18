@@ -1,11 +1,14 @@
-import { useState, useEffect } from "react";
-import { ArrowRight, Globe, Eye } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { ArrowRight, Globe, Eye, Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import IslamicBorder from "./IslamicBorder";
 import VisaApplicationModal from "./VisaApplicationModal";
 import VisaDetailsModal from "./VisaDetailsModal";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Badge } from "@/components/ui/badge";
 
 interface VisaCountry {
   id: string;
@@ -20,12 +23,19 @@ interface VisaCountry {
   validity_period?: string | null;
 }
 
+type ProcessingTimeFilter = "all" | "fast" | "medium" | "slow";
+
 const VisaServices = () => {
   const [countries, setCountries] = useState<VisaCountry[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCountry, setSelectedCountry] = useState<VisaCountry | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  
+  // Filter states
+  const [processingTimeFilter, setProcessingTimeFilter] = useState<ProcessingTimeFilter>("all");
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     fetchCountries();
@@ -55,6 +65,48 @@ const VisaServices = () => {
     }
     setLoading(false);
   };
+
+  // Parse processing time to get approximate days
+  const getProcessingDays = (processingTime: string): number => {
+    const match = processingTime.match(/(\d+)/);
+    return match ? parseInt(match[1]) : 30; // Default to 30 if can't parse
+  };
+
+  // Filter countries based on selected filters
+  const filteredCountries = useMemo(() => {
+    return countries.filter((country) => {
+      // Price filter
+      if (country.price < priceRange[0] || country.price > priceRange[1]) {
+        return false;
+      }
+
+      // Processing time filter
+      if (processingTimeFilter !== "all") {
+        const days = getProcessingDays(country.processing_time);
+        if (processingTimeFilter === "fast" && days > 7) return false;
+        if (processingTimeFilter === "medium" && (days <= 7 || days > 15)) return false;
+        if (processingTimeFilter === "slow" && days <= 15) return false;
+      }
+
+      return true;
+    });
+  }, [countries, priceRange, processingTimeFilter]);
+
+  // Get min and max prices from countries
+  const priceStats = useMemo(() => {
+    if (countries.length === 0) return { min: 0, max: 50000 };
+    const prices = countries.map((c) => c.price);
+    return { min: Math.min(...prices), max: Math.max(...prices) };
+  }, [countries]);
+
+  const clearFilters = () => {
+    setProcessingTimeFilter("all");
+    setPriceRange([priceStats.min, priceStats.max]);
+  };
+
+  const hasActiveFilters = processingTimeFilter !== "all" || 
+    priceRange[0] !== priceStats.min || 
+    priceRange[1] !== priceStats.max;
 
   // Convert country name to ISO 3166-1 alpha-2 code for flag images
   const getCountryCode = (countryName: string): string => {
@@ -181,6 +233,91 @@ const VisaServices = () => {
           </p>
         </motion.div>
 
+        {/* Filters Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+          className="mb-8"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+            <Button
+              variant={showFilters ? "default" : "outline"}
+              onClick={() => setShowFilters(!showFilters)}
+              className="gap-2"
+            >
+              <Filter className="w-4 h-4" />
+              {showFilters ? "Hide Filters" : "Show Filters"}
+              {hasActiveFilters && (
+                <Badge variant="secondary" className="ml-1 text-xs">
+                  Active
+                </Badge>
+              )}
+            </Button>
+            
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-1">
+                <X className="w-4 h-4" />
+                Clear Filters
+              </Button>
+            )}
+            
+            <span className="text-sm text-muted-foreground">
+              Showing {filteredCountries.length} of {countries.length} countries
+            </span>
+          </div>
+
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="bg-card rounded-xl p-6 shadow-sm border border-border"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Processing Time Filter */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-foreground">Processing Time</label>
+                  <Select
+                    value={processingTimeFilter}
+                    onValueChange={(value: ProcessingTimeFilter) => setProcessingTimeFilter(value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select processing time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Processing Times</SelectItem>
+                      <SelectItem value="fast">Fast (≤ 7 days)</SelectItem>
+                      <SelectItem value="medium">Medium (8-15 days)</SelectItem>
+                      <SelectItem value="slow">Standard (15+ days)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Price Range Filter */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-foreground">
+                    Price Range: ৳{priceRange[0].toLocaleString()} - ৳{priceRange[1].toLocaleString()}
+                  </label>
+                  <Slider
+                    value={priceRange}
+                    onValueChange={(value) => setPriceRange(value as [number, number])}
+                    min={priceStats.min}
+                    max={priceStats.max}
+                    step={1000}
+                    className="py-4"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>৳{priceStats.min.toLocaleString()}</span>
+                    <span>৳{priceStats.max.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </motion.div>
+
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -188,7 +325,15 @@ const VisaServices = () => {
           viewport={{ once: true }}
           className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
         >
-          {countries.map((country) => (
+          {filteredCountries.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-muted-foreground text-lg mb-4">No countries match your filter criteria.</p>
+              <Button variant="outline" onClick={clearFilters}>
+                Clear Filters
+              </Button>
+            </div>
+          ) : (
+            filteredCountries.map((country) => (
             <motion.div
               key={country.id}
               variants={itemVariants}
@@ -254,7 +399,8 @@ const VisaServices = () => {
                 </div>
               </div>
             </motion.div>
-          ))}
+            ))
+          )}
         </motion.div>
 
         <motion.div
