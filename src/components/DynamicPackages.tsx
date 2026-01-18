@@ -75,9 +75,9 @@ const ExpandablePackageCard = ({
     >
       <Card className="h-full flex flex-col overflow-hidden transition-all duration-300 group border-border/50">
         {/* Header with gradient */}
-        <CardHeader className="relative bg-gradient-to-br from-primary to-primary/80 text-primary-foreground p-6 pb-8">
-          <div className="flex justify-between items-start gap-2">
-            <div className="flex-1 min-w-0">
+        <CardHeader className="relative bg-gradient-to-br from-primary to-primary/80 text-primary-foreground p-6 pb-14">
+          <div className="flex justify-between items-start gap-2 relative z-10">
+            <div className="flex-1 min-w-0 pr-44">
               <h3 className="font-heading text-xl font-bold">{pkg.title}</h3>
               <div className="flex flex-wrap items-center gap-2 mt-2">
                 <Badge variant="secondary" className="bg-white/20 text-white border-0 whitespace-nowrap">
@@ -86,7 +86,7 @@ const ExpandablePackageCard = ({
                 {pkg.hotel_rating && (
                   <div className="flex items-center gap-0.5">
                     {Array.from({ length: pkg.hotel_rating }).map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-secondary text-secondary" />
+                      <Star key={i} className="w-4 h-4 text-secondary fill-secondary" />
                     ))}
                   </div>
                 )}
