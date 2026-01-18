@@ -52,58 +52,6 @@ const GallerySection = () => {
     fetchGalleryData();
   }, []);
 
-  const fetchGalleryData = async () => {
-    try {
-      const { data: settingsData } = await supabase
-        .from("gallery_settings")
-        .select("*")
-        .single();
-
-      if (settingsData) {
-        setSettings(settingsData);
-      }
-
-      const { data: imagesData } = await supabase
-        .from("gallery_images")
-        .select("*")
-        .eq("is_active", true)
-        .order("order_index");
-
-      if (imagesData) {
-        setImages(imagesData);
-      }
-    } catch (error) {
-      console.error("Error fetching gallery data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (!loading && (!settings?.is_enabled || images.length === 0)) {
-    return null;
-  }
-
-  if (loading) {
-    return (
-      <section id="gallery" className="py-20 bg-muted/30">
-        <div className="container">
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  const toggleAutoplay = () => {
-    if (isAutoplayPaused) {
-      autoplayPlugin.play();
-    } else {
-      autoplayPlugin.stop();
-    }
-    setIsAutoplayPaused(!isAutoplayPaused);
-  };
-
   const onSelect = useCallback(() => {
     if (!carouselApi) return;
     setCurrentSlide(carouselApi.selectedScrollSnap());
@@ -136,11 +84,63 @@ const GallerySection = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [viewMode, carouselApi]);
 
+  const fetchGalleryData = async () => {
+    try {
+      const { data: settingsData } = await supabase
+        .from("gallery_settings")
+        .select("*")
+        .single();
+
+      if (settingsData) {
+        setSettings(settingsData);
+      }
+
+      const { data: imagesData } = await supabase
+        .from("gallery_images")
+        .select("*")
+        .eq("is_active", true)
+        .order("order_index");
+
+      if (imagesData) {
+        setImages(imagesData);
+      }
+    } catch (error) {
+      console.error("Error fetching gallery data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleAutoplay = () => {
+    if (isAutoplayPaused) {
+      autoplayPlugin.play();
+    } else {
+      autoplayPlugin.stop();
+    }
+    setIsAutoplayPaused(!isAutoplayPaused);
+  };
+
   const scrollToSlide = (index: number) => {
     if (carouselApi) {
       carouselApi.scrollTo(index);
     }
   };
+
+  if (!loading && (!settings?.is_enabled || images.length === 0)) {
+    return null;
+  }
+
+  if (loading) {
+    return (
+      <section id="gallery" className="py-20 bg-muted/30">
+        <div className="container">
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <>
