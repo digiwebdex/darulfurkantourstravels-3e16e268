@@ -32,6 +32,9 @@ interface Package {
   exclusions: string[] | null;
   hotel_rating: number | null;
   hotel_type: string | null;
+  hotel_image_url: string | null;
+  hotel_images: string[] | null;
+  hotel_map_link: string | null;
   transport_type: string | null;
   flight_type: string | null;
   special_notes: string | null;

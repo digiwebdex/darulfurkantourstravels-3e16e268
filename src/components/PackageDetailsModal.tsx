@@ -1,10 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Check, X, Star, Calendar, Hotel, Plane, Bus, FileText } from "lucide-react";
+import { Check, X, Star, Calendar, Hotel, Plane, Bus, FileText, MapPin, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 import { formatCurrency } from "@/lib/currency";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -20,6 +20,9 @@ interface PackageDetails {
   exclusions: string[] | null;
   hotel_rating: number | null;
   hotel_type: string | null;
+  hotel_image_url: string | null;
+  hotel_images: string[] | null;
+  hotel_map_link: string | null;
   transport_type: string | null;
   flight_type: string | null;
   special_notes: string | null;
@@ -35,11 +38,20 @@ interface PackageDetailsModalProps {
 }
 
 const PackageDetailsModal = ({ isOpen, onClose, package_info, onBookNow }: PackageDetailsModalProps) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Get all hotel images
+  const hotelImages = package_info ? [
+    ...(package_info.hotel_image_url ? [package_info.hotel_image_url] : []),
+    ...(package_info.hotel_images || [])
+  ].filter(Boolean) : [];
+
   // Lock body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
+      setCurrentImageIndex(0); // Reset image index when modal opens
       return () => {
         document.body.style.overflow = originalOverflow;
       };
@@ -53,6 +65,14 @@ const PackageDetailsModal = ({ isOpen, onClose, package_info, onBookNow }: Packa
       onBookNow(package_info);
     }
     onClose();
+  };
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % hotelImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + hotelImages.length) % hotelImages.length);
   };
 
   return (
@@ -131,6 +151,79 @@ const PackageDetailsModal = ({ isOpen, onClose, package_info, onBookNow }: Packa
                       Accommodation
                     </h4>
                     <p className="text-foreground">{package_info.hotel_type}</p>
+                  </div>
+                )}
+
+                {/* Hotel Images Gallery */}
+                {hotelImages.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-sm text-muted-foreground flex items-center gap-2">
+                      <Hotel className="w-4 h-4" />
+                      Hotel Images
+                    </h4>
+                    <div className="relative rounded-lg overflow-hidden bg-muted aspect-video">
+                      <AnimatePresence mode="wait">
+                        <motion.img
+                          key={currentImageIndex}
+                          src={hotelImages[currentImageIndex]}
+                          alt={`Hotel image ${currentImageIndex + 1}`}
+                          className="w-full h-full object-cover"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      </AnimatePresence>
+                      
+                      {hotelImages.length > 1 && (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full h-8 w-8"
+                            onClick={prevImage}
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full h-8 w-8"
+                            onClick={nextImage}
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </Button>
+                          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                            {hotelImages.map((_, idx) => (
+                              <button
+                                key={idx}
+                                className={`w-2 h-2 rounded-full transition-colors ${idx === currentImageIndex ? 'bg-white' : 'bg-white/50'}`}
+                                onClick={() => setCurrentImageIndex(idx)}
+                              />
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Google Maps Link */}
+                {package_info.hotel_map_link && (
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-sm text-muted-foreground flex items-center gap-2">
+                      <MapPin className="w-4 h-4" />
+                      Hotel Location
+                    </h4>
+                    <a
+                      href={package_info.hotel_map_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors text-sm font-medium"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      View on Google Maps
+                    </a>
                   </div>
                 )}
 
