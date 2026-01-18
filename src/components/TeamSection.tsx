@@ -123,12 +123,10 @@ const TeamSection = () => {
                 {/* Square Image Container */}
                 <div className="relative aspect-square w-full overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5">
                   {member.avatar_url ? (
-                    <motion.img 
+                    <img 
                       src={member.avatar_url} 
                       alt={member.name} 
-                      className="w-full h-full object-cover"
-                      whileHover={{ scale: 1.05 }}
-                      transition={{ duration: 0.3 }}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-primary">
@@ -137,8 +135,12 @@ const TeamSection = () => {
                       </span>
                     </div>
                   )}
-                  {/* Overlay gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  {/* Hover Overlay with Bio */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-5">
+                    <p className="text-white/90 text-sm leading-relaxed line-clamp-4">
+                      {member.qualifications || "Dedicated professional committed to providing exceptional Hajj & Umrah services."}
+                    </p>
+                  </div>
                 </div>
                 
                 {/* Content */}
@@ -189,12 +191,10 @@ const TeamSection = () => {
                     {/* Square Image Container */}
                     <div className="relative w-40 h-40 flex-shrink-0 overflow-hidden bg-gradient-to-br from-secondary/20 to-secondary/5">
                       {member.avatar_url ? (
-                        <motion.img 
+                        <img 
                           src={member.avatar_url} 
                           alt={member.name} 
-                          className="w-full h-full object-cover"
-                          whileHover={{ scale: 1.05 }}
-                          transition={{ duration: 0.3 }}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-secondary">
@@ -203,6 +203,12 @@ const TeamSection = () => {
                           </span>
                         </div>
                       )}
+                      {/* Hover Overlay with Bio */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center p-3">
+                        <p className="text-white/90 text-xs leading-relaxed text-center line-clamp-5">
+                          {member.qualifications || "Shariah expert ensuring Islamic compliance."}
+                        </p>
+                      </div>
                     </div>
                     
                     {/* Content */}
