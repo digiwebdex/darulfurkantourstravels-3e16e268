@@ -268,9 +268,15 @@ const Footer = () => {
                 <div className="w-10 h-10 bg-primary-foreground/10 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Phone className="w-5 h-5 text-secondary" />
                 </div>
-                <div className="text-primary-foreground/80 text-sm pt-2">
+                <div className="text-sm pt-2 space-y-1">
                   {displayPhones.map((phone, index) => (
-                    <div key={index}>{phone}</div>
+                    <a 
+                      key={index}
+                      href={`tel:${phone.replace(/\s/g, '')}`}
+                      className="text-primary-foreground/80 hover:text-secondary transition-colors block"
+                    >
+                      {phone}
+                    </a>
                   ))}
                 </div>
               </li>
