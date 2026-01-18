@@ -121,13 +121,19 @@ const ServicesOverview = () => {
                 key={service.id}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ 
+                  scale: 1.02, 
+                  y: -4,
+                  boxShadow: "0 12px 32px -8px rgba(0, 0, 0, 0.15)"
+                }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ 
                   duration: 0.5, 
                   delay: index * 0.1,
                   ease: [0.25, 0.46, 0.45, 0.94],
-                  scale: { duration: 0.2 }
+                  scale: { duration: 0.2 },
+                  y: { duration: 0.2 },
+                  boxShadow: { duration: 0.2 }
                 }}
                 className="group flex items-start gap-4 p-6 rounded-xl hover:bg-muted/50 transition-colors duration-300 cursor-pointer"
               >
