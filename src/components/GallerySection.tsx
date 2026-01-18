@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
-import { Grid3X3, SlidersHorizontal, Pause, Play, Maximize, Minimize, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
+import { Grid3X3, SlidersHorizontal, Pause, Play, Maximize, Minimize, ZoomIn, ZoomOut, RotateCcw, Sparkles, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
@@ -247,35 +247,49 @@ const GallerySection = () => {
     <>
       <section 
         id="gallery" 
-        className="py-20 relative overflow-hidden"
+        className="py-24 relative overflow-hidden"
         style={{ backgroundColor: settings?.background_color || undefined }}
       >
-        {/* Decorative background elements */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-10 left-10 w-64 h-64 border-2 border-primary rounded-full" />
-          <div className="absolute bottom-10 right-10 w-48 h-48 border-2 border-secondary rounded-full" />
+        {/* Enhanced Decorative background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full geometric-pattern opacity-30" />
+          <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-primary/20 to-secondary/10 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-tl from-secondary/20 to-primary/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '-3s' }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-primary/10 rounded-full" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-secondary/10 rounded-full" />
         </div>
 
         <div className="container relative z-10">
-          {/* Header */}
+          {/* Enhanced Header */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-8"
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="text-center mb-12"
           >
-            <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">
-              📸 Photo Gallery
-            </span>
-            <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-              {settings?.title || "Our Gallery"}
+            <motion.div
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 border border-primary/20 rounded-full text-sm font-medium mb-6 backdrop-blur-sm"
+            >
+              <Camera className="w-4 h-4 text-primary" />
+              <span className="text-gradient-gold font-semibold">Photo Gallery</span>
+              <Sparkles className="w-4 h-4 text-secondary" />
+            </motion.div>
+            <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
+              <span className="text-gradient-gold">{settings?.title || "Our Gallery"}</span>
             </h2>
             {settings?.subtitle && (
-              <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+              <p className="text-muted-foreground max-w-2xl mx-auto text-lg md:text-xl leading-relaxed">
                 {settings.subtitle}
               </p>
             )}
+            <div className="mt-6 flex justify-center">
+              <div className="h-1 w-24 bg-gradient-to-r from-transparent via-secondary to-transparent rounded-full" />
+            </div>
           </motion.div>
 
           {/* View Mode Toggle */}
@@ -283,78 +297,103 @@ const GallerySection = () => {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            className="flex justify-center gap-2 mb-8"
+            transition={{ duration: 0.4, delay: 0.3 }}
+            className="flex justify-center gap-3 mb-12"
           >
             <Button
               variant={viewMode === "grid" ? "default" : "outline"}
-              size="sm"
+              size="lg"
               onClick={() => setViewMode("grid")}
-              className="gap-2"
+              className={`gap-2 px-6 transition-all duration-300 ${viewMode === "grid" ? "shadow-gold" : "hover:border-primary/50"}`}
             >
-              <Grid3X3 className="w-4 h-4" />
-              Grid
+              <Grid3X3 className="w-5 h-5" />
+              Grid View
             </Button>
             <Button
               variant={viewMode === "carousel" ? "default" : "outline"}
-              size="sm"
+              size="lg"
               onClick={() => setViewMode("carousel")}
-              className="gap-2"
+              className={`gap-2 px-6 transition-all duration-300 ${viewMode === "carousel" ? "shadow-gold" : "hover:border-primary/50"}`}
             >
-              <SlidersHorizontal className="w-4 h-4" />
+              <SlidersHorizontal className="w-5 h-5" />
               Carousel
             </Button>
             {viewMode === "carousel" && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleAutoplay}
-                className="gap-2"
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
               >
-                {isAutoplayPaused ? (
-                  <>
-                    <Play className="w-4 h-4" />
-                    Play
-                  </>
-                ) : (
-                  <>
-                    <Pause className="w-4 h-4" />
-                    Pause
-                  </>
-                )}
-              </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={toggleAutoplay}
+                  className="gap-2 px-6 border-secondary/50 hover:border-secondary"
+                >
+                  {isAutoplayPaused ? (
+                    <>
+                      <Play className="w-5 h-5 text-secondary" />
+                      Play
+                    </>
+                  ) : (
+                    <>
+                      <Pause className="w-5 h-5 text-secondary" />
+                      Pause
+                    </>
+                  )}
+                </Button>
+              </motion.div>
             )}
           </motion.div>
 
           {/* Grid View */}
           {viewMode === "grid" && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {images.map((image, index) => (
                 <motion.div
                   key={image.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
-                  className="group relative aspect-square overflow-hidden rounded-xl cursor-pointer bg-muted"
+                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ 
+                    duration: 0.5, 
+                    delay: index * 0.08,
+                    ease: [0.25, 0.46, 0.45, 0.94]
+                  }}
+                  whileHover={{ y: -8 }}
+                  className="group relative aspect-square overflow-hidden rounded-2xl cursor-pointer bg-muted shadow-elegant"
                   onClick={() => setSelectedImage(image)}
                 >
+                  {/* Image */}
                   <img
                     src={image.image_url}
                     alt={image.alt_text || "Gallery image"}
                     loading="lazy"
-                    className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                      {image.caption && (
-                        <p className="text-white text-sm font-medium line-clamp-2">
-                          {image.caption}
-                        </p>
-                      )}
-                    </div>
+                  
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                  
+                  {/* Content */}
+                  <div className="absolute inset-0 p-5 flex flex-col justify-end translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                    {image.caption && (
+                      <motion.p 
+                        className="text-white text-sm font-medium line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100"
+                      >
+                        {image.caption}
+                      </motion.p>
+                    )}
                   </div>
-                  <div className="absolute -inset-[2px] rounded-xl bg-gradient-to-r from-primary via-secondary to-primary opacity-0 group-hover:opacity-60 blur-sm transition-opacity duration-500 -z-10" />
+                  
+                  {/* Hover Border Glow */}
+                  <div className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-secondary/50 transition-all duration-500" />
+                  <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-primary via-secondary to-primary opacity-0 group-hover:opacity-40 blur-md transition-all duration-700 -z-10" />
+                  
+                  {/* Corner Accent */}
+                  <div className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100">
+                    <Sparkles className="w-4 h-4 text-white" />
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -363,9 +402,9 @@ const GallerySection = () => {
           {/* Carousel View */}
           {viewMode === "carousel" && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.4 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
             >
               <Carousel
                 opts={{
@@ -379,47 +418,63 @@ const GallerySection = () => {
                 setApi={setCarouselApi}
                 className="w-full touch-pan-y"
               >
-                <CarouselContent className="-ml-4">
-                  {images.map((image) => (
-                    <CarouselItem key={image.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
-                      <div 
-                        className="group relative aspect-[4/3] overflow-hidden rounded-xl cursor-pointer bg-muted"
+                <CarouselContent className="-ml-6">
+                  {images.map((image, index) => (
+                    <CarouselItem key={image.id} className="pl-6 md:basis-1/2 lg:basis-1/3">
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        whileHover={{ y: -5 }}
+                        className="group relative aspect-[4/3] overflow-hidden rounded-2xl cursor-pointer bg-muted shadow-elegant"
                         onClick={() => setSelectedImage(image)}
                       >
                         <img
                           src={image.image_url}
                           alt={image.alt_text || "Gallery image"}
                           loading="lazy"
-                          className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
+                          className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute bottom-0 left-0 right-0 p-6">
-                            {image.caption && (
-                              <p className="text-white text-base font-medium">
-                                {image.caption}
-                              </p>
-                            )}
-                          </div>
+                        {/* Gradient Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                        
+                        {/* Content */}
+                        <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                          {image.caption && (
+                            <p className="text-white text-lg font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                              {image.caption}
+                            </p>
+                          )}
                         </div>
-                        <div className="absolute -inset-[2px] rounded-xl bg-gradient-to-r from-primary via-secondary to-primary opacity-0 group-hover:opacity-70 blur-sm transition-opacity duration-500 -z-10" />
-                      </div>
+                        
+                        {/* Border Effect */}
+                        <div className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-secondary/50 transition-all duration-500" />
+                        <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-primary via-secondary to-primary opacity-0 group-hover:opacity-50 blur-md transition-all duration-700 -z-10" />
+                        
+                        {/* Corner Icon */}
+                        <div className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100">
+                          <Camera className="w-5 h-5 text-white" />
+                        </div>
+                      </motion.div>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="hidden md:flex -left-12 bg-card/80 backdrop-blur-sm hover:bg-card border-primary/20" />
-                <CarouselNext className="hidden md:flex -right-12 bg-card/80 backdrop-blur-sm hover:bg-card border-primary/20" />
+                <CarouselPrevious className="hidden md:flex -left-14 h-12 w-12 bg-card/90 backdrop-blur-sm hover:bg-card border-primary/30 hover:border-secondary shadow-lg" />
+                <CarouselNext className="hidden md:flex -right-14 h-12 w-12 bg-card/90 backdrop-blur-sm hover:bg-card border-primary/30 hover:border-secondary shadow-lg" />
               </Carousel>
 
-              {/* Thumbnail Navigation */}
-              <div className="flex justify-center gap-2 mt-6 overflow-x-auto pb-2 px-4">
+              {/* Enhanced Thumbnail Navigation */}
+              <div className="flex justify-center gap-3 mt-8 overflow-x-auto pb-2 px-4">
                 {images.map((image, index) => (
-                  <button
+                  <motion.button
                     key={image.id}
                     onClick={() => scrollToSlide(index)}
-                    className={`relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden transition-all duration-300 ${
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`relative flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden transition-all duration-300 ${
                       currentSlide === index 
-                        ? 'ring-2 ring-primary ring-offset-2 ring-offset-background scale-105' 
-                        : 'opacity-60 hover:opacity-100'
+                        ? 'ring-3 ring-secondary ring-offset-2 ring-offset-background shadow-gold scale-105' 
+                        : 'opacity-50 hover:opacity-100 grayscale hover:grayscale-0'
                     }`}
                   >
                     <img
@@ -427,18 +482,25 @@ const GallerySection = () => {
                       alt={image.alt_text || `Thumbnail ${index + 1}`}
                       className="w-full h-full object-cover"
                     />
-                  </button>
+                    {currentSlide === index && (
+                      <div className="absolute inset-0 border-2 border-secondary rounded-xl" />
+                    )}
+                  </motion.button>
                 ))}
               </div>
 
-              {/* Autoplay indicator & mobile hint */}
-              <div className="flex flex-col items-center gap-2 mt-4">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span className={`w-2 h-2 rounded-full ${isAutoplayPaused ? 'bg-muted-foreground' : 'bg-primary animate-pulse'}`} />
-                  {isAutoplayPaused ? 'Paused' : 'Auto-playing'}
+              {/* Enhanced Autoplay indicator & mobile hint */}
+              <div className="flex flex-col items-center gap-3 mt-6">
+                <div className="flex items-center gap-3 px-4 py-2 bg-card/50 backdrop-blur-sm rounded-full border border-border/50">
+                  <span className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${isAutoplayPaused ? 'bg-muted-foreground' : 'bg-secondary animate-pulse shadow-gold'}`} />
+                  <span className="text-sm font-medium text-foreground">
+                    {isAutoplayPaused ? 'Paused' : 'Auto-playing'}
+                  </span>
                 </div>
-                <p className="text-sm text-muted-foreground md:hidden">
-                  ← Swipe to explore →
+                <p className="text-sm text-muted-foreground md:hidden flex items-center gap-2">
+                  <span className="animate-pulse">👆</span>
+                  Swipe to explore
+                  <span className="animate-pulse">👆</span>
                 </p>
               </div>
             </motion.div>
