@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
-import { Grid3X3, SlidersHorizontal, Pause, Play } from "lucide-react";
+import { Grid3X3, SlidersHorizontal, Pause, Play, Maximize, Minimize, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
@@ -40,6 +40,15 @@ const GallerySection = () => {
   const [isAutoplayPaused, setIsAutoplayPaused] = useState(false);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // Lightbox state
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
+  const lightboxRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
+  const lastTouchDistance = useRef<number | null>(null);
+  const lastPanPosition = useRef({ x: 0, y: 0 });
 
   // Autoplay plugin with pause on hover
   const autoplayPlugin = Autoplay({
@@ -123,6 +132,98 @@ const GallerySection = () => {
   const scrollToSlide = (index: number) => {
     if (carouselApi) {
       carouselApi.scrollTo(index);
+    }
+  };
+
+  // Fullscreen toggle
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      lightboxRef.current?.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  }, []);
+
+  // Zoom controls
+  const handleZoomIn = () => {
+    setZoomLevel((prev) => Math.min(prev + 0.5, 4));
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel((prev) => Math.max(prev - 0.5, 1));
+    if (zoomLevel <= 1.5) {
+      setPanPosition({ x: 0, y: 0 });
+    }
+  };
+
+  const handleResetZoom = () => {
+    setZoomLevel(1);
+    setPanPosition({ x: 0, y: 0 });
+  };
+
+  // Reset zoom when closing lightbox
+  const handleCloseLightbox = () => {
+    setSelectedImage(null);
+    setZoomLevel(1);
+    setPanPosition({ x: 0, y: 0 });
+    setIsFullscreen(false);
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    }
+  };
+
+  // Pinch-to-zoom handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      const distance = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      lastTouchDistance.current = distance;
+    } else if (e.touches.length === 1 && zoomLevel > 1) {
+      lastPanPosition.current = {
+        x: e.touches[0].clientX - panPosition.x,
+        y: e.touches[0].clientY - panPosition.y,
+      };
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2 && lastTouchDistance.current !== null) {
+      e.preventDefault();
+      const distance = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const delta = distance - lastTouchDistance.current;
+      const newZoom = Math.max(1, Math.min(4, zoomLevel + delta * 0.01));
+      setZoomLevel(newZoom);
+      lastTouchDistance.current = distance;
+    } else if (e.touches.length === 1 && zoomLevel > 1) {
+      const newX = e.touches[0].clientX - lastPanPosition.current.x;
+      const newY = e.touches[0].clientY - lastPanPosition.current.y;
+      const maxPan = (zoomLevel - 1) * 150;
+      setPanPosition({
+        x: Math.max(-maxPan, Math.min(maxPan, newX)),
+        y: Math.max(-maxPan, Math.min(maxPan, newY)),
+      });
+    }
+  };
+
+  const handleTouchEnd = () => {
+    lastTouchDistance.current = null;
+  };
+
+  // Mouse wheel zoom
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.2 : 0.2;
+    const newZoom = Math.max(1, Math.min(4, zoomLevel + delta));
+    setZoomLevel(newZoom);
+    if (newZoom <= 1) {
+      setPanPosition({ x: 0, y: 0 });
     }
   };
 
@@ -348,33 +449,115 @@ const GallerySection = () => {
       {/* Lightbox Modal */}
       {selectedImage && (
         <div 
-          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4"
-          onClick={() => setSelectedImage(null)}
+          ref={lightboxRef}
+          className="fixed inset-0 z-[100] bg-black/95 flex flex-col"
+          onClick={handleCloseLightbox}
         >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="relative max-w-4xl max-h-[90vh] w-full"
+          {/* Lightbox Controls */}
+          <div 
+            className="flex items-center justify-between p-4 bg-black/50"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              onClick={() => setSelectedImage(null)}
-              className="absolute -top-12 right-0 text-white hover:text-secondary transition-colors text-lg font-medium"
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleZoomOut}
+                disabled={zoomLevel <= 1}
+                className="text-white hover:bg-white/20"
+              >
+                <ZoomOut className="w-5 h-5" />
+              </Button>
+              <span className="text-white text-sm min-w-[60px] text-center">
+                {Math.round(zoomLevel * 100)}%
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleZoomIn}
+                disabled={zoomLevel >= 4}
+                className="text-white hover:bg-white/20"
+              >
+                <ZoomIn className="w-5 h-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleResetZoom}
+                className="text-white hover:bg-white/20"
+              >
+                <RotateCcw className="w-5 h-5" />
+              </Button>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleFullscreen}
+                className="text-white hover:bg-white/20"
+              >
+                {isFullscreen ? (
+                  <Minimize className="w-5 h-5" />
+                ) : (
+                  <Maximize className="w-5 h-5" />
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCloseLightbox}
+                className="text-white hover:bg-white/20"
+              >
+                ✕
+              </Button>
+            </div>
+          </div>
+
+          {/* Image Container */}
+          <div 
+            className="flex-1 flex items-center justify-center overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onWheel={handleWheel}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="relative max-w-full max-h-full"
             >
-              ✕ Close
-            </button>
-            <img
-              src={selectedImage.image_url}
-              alt={selectedImage.alt_text || "Gallery image"}
-              className="w-full h-auto max-h-[85vh] object-contain rounded-lg"
-            />
-            {selectedImage.caption && (
-              <p className="text-white text-center mt-4 text-lg">
+              <img
+                ref={imageRef}
+                src={selectedImage.image_url}
+                alt={selectedImage.alt_text || "Gallery image"}
+                className="max-w-full max-h-[calc(100vh-140px)] object-contain select-none transition-transform duration-150"
+                style={{
+                  transform: `scale(${zoomLevel}) translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
+                  cursor: zoomLevel > 1 ? 'grab' : 'default',
+                }}
+                draggable={false}
+              />
+            </motion.div>
+          </div>
+
+          {/* Caption */}
+          {selectedImage.caption && (
+            <div className="p-4 bg-black/50 text-center" onClick={(e) => e.stopPropagation()}>
+              <p className="text-white text-lg">
                 {selectedImage.caption}
               </p>
-            )}
-          </motion.div>
+            </div>
+          )}
+
+          {/* Mobile hint */}
+          <div className="absolute bottom-20 left-0 right-0 text-center pointer-events-none md:hidden">
+            <p className="text-white/60 text-sm">
+              Pinch to zoom • Drag to pan
+            </p>
+          </div>
         </div>
       )}
     </>
