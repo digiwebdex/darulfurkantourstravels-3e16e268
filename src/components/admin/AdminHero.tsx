@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Plus, Trash2, GripVertical, ChevronDown, ChevronUp, Image as ImageIcon } from "lucide-react";
+import { Save, Plus, Trash2, GripVertical, ChevronDown, ChevronUp, Image as ImageIcon, Settings, Timer, Zap } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -31,6 +31,11 @@ interface HeroSlide {
   is_active: boolean;
 }
 
+interface SliderSettings {
+  autoplayInterval: string;
+  transitionSpeed: string;
+}
+
 const defaultSlide: Omit<HeroSlide, "id"> = {
   badge_text: "",
   title: "New Slide",
@@ -54,6 +59,11 @@ const AdminHero = () => {
   const [saving, setSaving] = useState<string | null>(null);
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [openSlides, setOpenSlides] = useState<Set<string>>(new Set());
+  const [sliderSettings, setSliderSettings] = useState<SliderSettings>({
+    autoplayInterval: "6",
+    transitionSpeed: "normal",
+  });
+  const [savingSettings, setSavingSettings] = useState(false);
   const { uploadImage, uploading } = useImageUpload({
     bucket: "admin-uploads",
     folder: "hero-banners",
@@ -61,7 +71,47 @@ const AdminHero = () => {
 
   useEffect(() => {
     fetchSlides();
+    fetchSliderSettings();
   }, []);
+
+  const fetchSliderSettings = async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("setting_key, setting_value")
+      .in("setting_key", ["hero_autoplay_interval", "hero_transition_speed"]);
+
+    if (data) {
+      const settings: SliderSettings = { autoplayInterval: "6", transitionSpeed: "normal" };
+      data.forEach((item) => {
+        if (item.setting_key === "hero_autoplay_interval") {
+          settings.autoplayInterval = String(item.setting_value).replace(/"/g, "");
+        } else if (item.setting_key === "hero_transition_speed") {
+          settings.transitionSpeed = String(item.setting_value).replace(/"/g, "");
+        }
+      });
+      setSliderSettings(settings);
+    }
+  };
+
+  const handleSaveSettings = async () => {
+    setSavingSettings(true);
+    
+    const updates = [
+      supabase
+        .from("site_settings")
+        .update({ setting_value: JSON.stringify(sliderSettings.autoplayInterval) })
+        .eq("setting_key", "hero_autoplay_interval"),
+      supabase
+        .from("site_settings")
+        .update({ setting_value: JSON.stringify(sliderSettings.transitionSpeed) })
+        .eq("setting_key", "hero_transition_speed"),
+    ];
+
+    await Promise.all(updates);
+    
+    toast({ title: "Success", description: "Slider settings saved" });
+    setSavingSettings(false);
+  };
 
   const fetchSlides = async () => {
     const { data, error } = await supabase
@@ -257,11 +307,75 @@ const AdminHero = () => {
 
   return (
     <div className="space-y-6">
+      {/* Slider Settings Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="w-5 h-5" />
+            Slider Settings
+          </CardTitle>
+          <CardDescription>Control how the hero slider behaves</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Timer className="w-4 h-4" />
+                Autoplay Interval
+              </Label>
+              <Select
+                value={sliderSettings.autoplayInterval}
+                onValueChange={(value) => setSliderSettings({ ...sliderSettings, autoplayInterval: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select interval" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="4">4 seconds (Fast)</SelectItem>
+                  <SelectItem value="6">6 seconds (Normal)</SelectItem>
+                  <SelectItem value="8">8 seconds (Slow)</SelectItem>
+                  <SelectItem value="10">10 seconds (Very Slow)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">Time before auto-switching to next slide</p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Zap className="w-4 h-4" />
+                Transition Speed
+              </Label>
+              <Select
+                value={sliderSettings.transitionSpeed}
+                onValueChange={(value) => setSliderSettings({ ...sliderSettings, transitionSpeed: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select speed" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="fast">Fast (0.5s)</SelectItem>
+                  <SelectItem value="normal">Normal (0.9s)</SelectItem>
+                  <SelectItem value="slow">Slow (1.2s)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">Speed of slide transition animation</p>
+            </div>
+
+            <div className="flex items-end">
+              <Button onClick={handleSaveSettings} disabled={savingSettings} className="gap-2">
+                <Save className="w-4 h-4" />
+                {savingSettings ? "Saving..." : "Save Settings"}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>Hero Banner Slider</CardTitle>
-            <CardDescription>Manage your homepage hero banners. Slides auto-rotate every 6 seconds.</CardDescription>
+            <CardDescription>Manage your homepage hero banners</CardDescription>
           </div>
           <Button onClick={handleAddSlide} className="gap-2">
             <Plus className="w-4 h-4" />
