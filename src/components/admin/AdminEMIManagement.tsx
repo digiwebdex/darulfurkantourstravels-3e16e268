@@ -242,6 +242,16 @@ const AdminEMIManagement = ({
           payment_method: "emi"
         })
         .eq("id", bookingId);
+
+      // Send EMI plan created notification
+      supabase.functions.invoke("send-emi-notification", {
+        body: {
+          bookingId: bookingId,
+          notificationType: "emi_plan_created",
+          amount: emiAmount,
+          totalEmis: numberOfEmis,
+        }
+      }).catch(err => console.error("EMI notification error:", err));
       
       fetchEMIData();
       onUpdate();
@@ -300,6 +310,19 @@ const AdminEMIManagement = ({
         .update({ payment_status: "paid" })
         .eq("id", bookingId);
     }
+
+    // Send payment recorded notification
+    supabase.functions.invoke("send-emi-notification", {
+      body: {
+        bookingId: bookingId,
+        notificationType: "payment_recorded",
+        installmentNumber: payingInstallment.installment_number,
+        amount: payingInstallment.amount,
+        paidEmis: newPaidEmis,
+        totalEmis: emiPayment.number_of_emis,
+        remainingAmount: newRemainingAmount,
+      }
+    }).catch(err => console.error("EMI notification error:", err));
 
     toast({
       title: "Payment Recorded",
