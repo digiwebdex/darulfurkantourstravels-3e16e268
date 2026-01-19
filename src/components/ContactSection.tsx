@@ -180,15 +180,18 @@ const ContactSection = () => {
                         const parts = detail.split(':');
                         const isPhone = info.type === 'phone';
                         const isEmail = info.type === 'email';
+                        const isHoliday = detail.toLowerCase().includes('friday') || detail.toLowerCase().includes('holiday') || detail.toLowerCase().includes('closed');
                         
                         if (parts.length === 2) {
                           const label = parts[0].trim();
                           const value = parts[1].trim();
                           const phoneNumber = value.replace(/\s/g, '');
+                          const valueIsHoliday = value.toLowerCase().includes('holiday') || value.toLowerCase().includes('closed');
+                          const labelIsHoliday = label.toLowerCase().includes('friday');
                           
                           return (
-                            <p key={idx} className="text-muted-foreground text-xs leading-relaxed grid grid-cols-[auto_1fr] gap-1">
-                              <span>{label}:</span>
+                            <p key={idx} className={`text-xs leading-relaxed grid grid-cols-[auto_1fr] gap-1 ${isHoliday ? 'text-destructive font-medium' : 'text-muted-foreground'}`}>
+                              <span className={labelIsHoliday ? 'text-destructive' : ''}>{label}:</span>
                               {isPhone ? (
                                 <a 
                                   href={`tel:${phoneNumber}`} 
@@ -204,7 +207,7 @@ const ContactSection = () => {
                                   {value}
                                 </a>
                               ) : (
-                                <span className="text-left">{value}</span>
+                                <span className={`text-left ${valueIsHoliday ? 'text-destructive' : ''}`}>{value}</span>
                               )}
                             </p>
                           );
