@@ -163,11 +163,22 @@ const ContactSection = () => {
                       {info.title}
                     </h3>
                     <div className="space-y-1">
-                      {info.details.map((detail, idx) => (
-                        <p key={idx} className="text-muted-foreground text-xs leading-relaxed whitespace-nowrap">
-                          {detail}
-                        </p>
-                      ))}
+                      {info.details.map((detail, idx) => {
+                        const parts = detail.split(':');
+                        if (parts.length === 2) {
+                          return (
+                            <p key={idx} className="text-muted-foreground text-xs leading-relaxed grid grid-cols-[auto_1fr] gap-1">
+                              <span>{parts[0].trim()}:</span>
+                              <span className="text-left">{parts[1].trim()}</span>
+                            </p>
+                          );
+                        }
+                        return (
+                          <p key={idx} className="text-muted-foreground text-xs leading-relaxed">
+                            {detail}
+                          </p>
+                        );
+                      })}
                     </div>
                   </motion.div>
                 );
