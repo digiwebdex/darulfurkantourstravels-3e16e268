@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import heroImage from "@/assets/hero-kaaba.jpg";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import FloatingIslamicPatterns from "./FloatingIslamicPatterns";
+import FloatingParticles from "./FloatingParticles";
 import MakkahIcon from "./icons/MakkahIcon";
 import MadinahIcon from "./icons/MadinahIcon";
 import {
@@ -381,6 +382,7 @@ const HeroSection = () => {
       </div>
 
       <FloatingIslamicPatterns mousePosition={mousePosition} />
+      <FloatingParticles mousePosition={mousePosition} />
 
       {/* Decorative Elements - Left */}
       <motion.div
