@@ -252,18 +252,18 @@ const HeroSection = () => {
   const content = slides[currentSlide] || defaultSlides[0];
   const backgroundImage = content.background_image_url || heroImage;
 
-  // Text animation variants - animate from top to middle with fade (fast 0.5s)
+  // Text animation variants - normal (smooth) top to middle with fade
   const textVariants = {
-    hidden: { opacity: 0, y: -40 },
-    visible: { 
-      opacity: 1, 
+    hidden: { opacity: 0, y: -50 },
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const }
+      transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] as const },
     },
-    exit: { 
+    exit: {
       opacity: 0,
-      transition: { duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] as const }
-    }
+      transition: { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] as const },
+    },
   };
 
   const staggerContainer = {
@@ -271,17 +271,17 @@ const HeroSection = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.08,
-        delayChildren: 0.1,
-      }
+        staggerChildren: 0.12,
+        delayChildren: 0.15,
+      },
     },
     exit: {
       opacity: 0,
       transition: {
-        duration: 0.2,
-        ease: [0.25, 0.46, 0.45, 0.94] as const
-      }
-    }
+        duration: 0.25,
+        ease: [0.25, 0.46, 0.45, 0.94] as const,
+      },
+    },
   };
 
   return (
@@ -292,30 +292,31 @@ const HeroSection = () => {
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      {/* Background Image with Crossfade Slide Effect */}
+      {/* Background Image - smooth normal slide LEFT -> RIGHT (with crossfade) */}
       <div className="absolute inset-0 bg-primary">
         <AnimatePresence initial={false}>
           <motion.div
             key={`bg-${currentSlide}`}
-            initial={{ opacity: 0, x: 60 }}
+            initial={{ opacity: 0, x: -60 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -60 }}
-            transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const }}
+            exit={{ opacity: 0, x: 60 }}
+            transition={{ type: "tween", duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] as const }}
             className="absolute inset-0"
+            style={{ willChange: "transform, opacity" }}
           >
-            {/* Smooth Ken Burns zoom effect on the image */}
             <motion.img
               key={`img-${currentSlide}`}
               src={backgroundImage}
               alt="Hero background"
               className="w-full h-full object-cover"
+              draggable={false}
               initial={{ scale: 1.02 }}
-              animate={{ 
+              animate={{
                 scale: 1.08,
-                transition: { 
-                  duration: 4, 
-                  ease: "linear"
-                }
+                transition: {
+                  duration: 8,
+                  ease: "linear",
+                },
               }}
             />
             <div className="absolute inset-0 bg-gradient-hero" />
