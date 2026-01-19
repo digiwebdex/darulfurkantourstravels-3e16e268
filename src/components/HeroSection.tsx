@@ -62,10 +62,41 @@ const HeroSection = () => {
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isLoading, setIsLoading] = useState(true);
+  const [autoplayInterval, setAutoplayInterval] = useState(6000);
+  const [transitionDuration, setTransitionDuration] = useState(0.9);
 
   useEffect(() => {
     fetchHeroContent();
+    fetchSliderSettings();
   }, []);
+
+  const fetchSliderSettings = async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("setting_key, setting_value")
+      .in("setting_key", ["hero_autoplay_interval", "hero_transition_speed"]);
+
+    if (data) {
+      data.forEach((item) => {
+        if (item.setting_key === "hero_autoplay_interval") {
+          const seconds = parseInt(String(item.setting_value).replace(/"/g, ""), 10) || 6;
+          setAutoplayInterval(seconds * 1000);
+        } else if (item.setting_key === "hero_transition_speed") {
+          const speed = String(item.setting_value).replace(/"/g, "");
+          switch (speed) {
+            case "fast":
+              setTransitionDuration(0.5);
+              break;
+            case "slow":
+              setTransitionDuration(1.2);
+              break;
+            default:
+              setTransitionDuration(0.9);
+          }
+        }
+      });
+    }
+  };
 
   // Mouse parallax effect
   useEffect(() => {
@@ -85,10 +116,10 @@ const HeroSection = () => {
     
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 6000); // 6 seconds per slide
+    }, autoplayInterval);
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying, slides.length]);
+  }, [isAutoPlaying, slides.length, autoplayInterval]);
 
   const fetchHeroContent = async () => {
     setIsLoading(true);
@@ -252,17 +283,17 @@ const HeroSection = () => {
   const content = slides[currentSlide] || defaultSlides[0];
   const backgroundImage = content.background_image_url || heroImage;
 
-  // Text animation variants - normal (smooth) top to middle with fade
+  // Text animation variants - uses dynamic transition duration
   const textVariants = {
     hidden: { opacity: 0, y: -50 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] as const },
+      transition: { duration: transitionDuration * 0.8, ease: [0.25, 0.46, 0.45, 0.94] as const },
     },
     exit: {
       opacity: 0,
-      transition: { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] as const },
+      transition: { duration: transitionDuration * 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const },
     },
   };
 
@@ -278,7 +309,7 @@ const HeroSection = () => {
     exit: {
       opacity: 0,
       transition: {
-        duration: 0.25,
+        duration: transitionDuration * 0.3,
         ease: [0.25, 0.46, 0.45, 0.94] as const,
       },
     },
@@ -292,7 +323,7 @@ const HeroSection = () => {
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      {/* Background Image - smooth normal slide LEFT -> RIGHT (with crossfade) */}
+      {/* Background Image - smooth slide LEFT -> RIGHT (with crossfade) */}
       <div className="absolute inset-0 bg-primary">
         <AnimatePresence initial={false}>
           <motion.div
@@ -300,7 +331,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, x: -60 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 60 }}
-            transition={{ type: "tween", duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] as const }}
+            transition={{ type: "tween", duration: transitionDuration, ease: [0.25, 0.46, 0.45, 0.94] as const }}
             className="absolute inset-0"
             style={{ willChange: "transform, opacity" }}
           >
@@ -314,7 +345,7 @@ const HeroSection = () => {
               animate={{
                 scale: 1.08,
                 transition: {
-                  duration: 8,
+                  duration: autoplayInterval / 1000,
                   ease: "linear",
                 },
               }}
@@ -326,8 +357,6 @@ const HeroSection = () => {
           </motion.div>
         </AnimatePresence>
       </div>
-
-      {/* Floating Islamic Geometric Patterns */}
       <FloatingIslamicPatterns mousePosition={mousePosition} />
 
       {/* Arabic Calligraphy Decorative Elements - Left Side */}
