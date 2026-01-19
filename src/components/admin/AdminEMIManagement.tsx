@@ -39,7 +39,8 @@ import {
   Loader2,
   Calculator,
   Banknote,
-  CalendarDays
+  CalendarDays,
+  Bell
 } from "lucide-react";
 import { formatCurrency } from "@/lib/currency";
 import { format } from "date-fns";
@@ -89,6 +90,7 @@ const AdminEMIManagement = ({
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [sendingReminder, setSendingReminder] = useState(false);
   const [emiPayment, setEmiPayment] = useState<EMIPayment | null>(null);
   const [installments, setInstallments] = useState<EMIInstallment[]>([]);
   
@@ -361,6 +363,41 @@ const AdminEMIManagement = ({
     setSaving(false);
   };
 
+  const sendManualReminder = async (installment: EMIInstallment) => {
+    setSendingReminder(true);
+    
+    try {
+      const { error } = await supabase.functions.invoke("send-emi-notification", {
+        body: {
+          bookingId: bookingId,
+          notificationType: installment.status === "overdue" ? "payment_overdue" : "payment_due",
+          installmentNumber: installment.installment_number,
+          amount: installment.amount,
+          dueDate: installment.due_date,
+          paidEmis: emiPayment?.paid_emis,
+          totalEmis: emiPayment?.number_of_emis,
+          remainingAmount: emiPayment?.remaining_amount,
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Reminder Sent",
+        description: `Payment reminder sent for EMI #${installment.installment_number}`,
+      });
+    } catch (err) {
+      console.error("Failed to send reminder:", err);
+      toast({
+        title: "Error",
+        description: "Failed to send reminder. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSendingReminder(false);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "paid":
@@ -569,16 +606,32 @@ const AdminEMIManagement = ({
                           </TableCell>
                           <TableCell>{getStatusBadge(installment.status)}</TableCell>
                           <TableCell>
-                            {installment.status === "pending" ? (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => setPayingInstallment(installment)}
-                                className="gap-1"
-                              >
-                                <CheckCircle className="w-3 h-3" />
-                                Mark Paid
-                              </Button>
+                            {installment.status === "pending" || installment.status === "overdue" ? (
+                              <div className="flex gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => setPayingInstallment(installment)}
+                                  className="gap-1"
+                                >
+                                  <CheckCircle className="w-3 h-3" />
+                                  Mark Paid
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => sendManualReminder(installment)}
+                                  disabled={sendingReminder}
+                                  className="gap-1"
+                                  title="Send Reminder"
+                                >
+                                  {sendingReminder ? (
+                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                  ) : (
+                                    <Bell className="w-3 h-3" />
+                                  )}
+                                </Button>
+                              </div>
                             ) : (
                               <span className="text-xs text-muted-foreground">
                                 {installment.paid_date
