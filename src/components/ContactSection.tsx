@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import IslamicBorder from "./IslamicBorder";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 interface ContactInfo {
   id: string;
@@ -37,6 +38,7 @@ const iconMap: Record<string, LucideIcon> = {
 
 const ContactSection = () => {
   const { toast } = useToast();
+  const { contactDetails } = useSiteSettings();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [contactInfo, setContactInfo] = useState<ContactInfo[]>([]);
   const [officeLocations, setOfficeLocations] = useState<OfficeLocation[]>([]);
@@ -353,14 +355,14 @@ const ContactSection = () => {
           className="mt-12 bg-card rounded-2xl overflow-hidden shadow-elegant"
         >
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3650.5484611458387!2d90.39729221498282!3d23.79416879319868!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c709be6be7b5%3A0x7e53f4e8b8be1a24!2sBanani%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1700000000000!5m2!1sen!2sbd"
+            src={contactDetails.google_map_embed_url || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3650.5484611458387!2d90.39729221498282!3d23.79416879319868!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c709be6be7b5%3A0x7e53f4e8b8be1a24!2sBanani%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1700000000000!5m2!1sen!2sbd"}
             width="100%"
             height="300"
             style={{ border: 0 }}
             allowFullScreen
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            title="SM Elite Hajj Head Office Location - Banani, Dhaka"
+            title="SM Elite Hajj Head Office Location"
             className="w-full"
           />
         </motion.div>
