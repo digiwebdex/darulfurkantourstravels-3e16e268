@@ -37,6 +37,7 @@ import {
   Users,
   Download,
   FileText,
+  FileSpreadsheet,
 } from "lucide-react";
 import {
   Table,
@@ -49,6 +50,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 interface EMISummary {
   totalEMIPlans: number;
@@ -345,6 +347,89 @@ const AdminEMIReport = () => {
     }
   };
 
+  const exportToExcel = () => {
+    try {
+      setExporting(true);
+      
+      const wb = XLSX.utils.book_new();
+      
+      // Summary Sheet
+      const summaryData = [
+        ["Installment Report"],
+        ["Generated on:", format(new Date(), "dd MMM yyyy, hh:mm a")],
+        [],
+        ["Metric", "Value"],
+        ["Total Installment Plans", summary.totalEMIPlans],
+        ["Total Expected", summary.totalExpected],
+        ["Total Collected", summary.totalCollected],
+        ["Pending Amount", summary.totalPending],
+        ["Overdue Amount", summary.totalOverdue],
+        ["Overdue Count", summary.overdueCount],
+        ["Collection Rate", `${summary.collectionRate.toFixed(1)}%`],
+      ];
+      const summaryWs = XLSX.utils.aoa_to_sheet(summaryData);
+      summaryWs["!cols"] = [{ wch: 25 }, { wch: 20 }];
+      XLSX.utils.book_append_sheet(wb, summaryWs, "Summary");
+      
+      // Monthly Trends Sheet
+      const trendsData = [
+        ["Month", "Expected", "Collected"],
+        ...monthlyTrends.map(t => [t.month, t.expected, t.collected])
+      ];
+      const trendsWs = XLSX.utils.aoa_to_sheet(trendsData);
+      trendsWs["!cols"] = [{ wch: 15 }, { wch: 15 }, { wch: 15 }];
+      XLSX.utils.book_append_sheet(wb, trendsWs, "Monthly Trends");
+      
+      // Status Distribution Sheet
+      const statusData = [
+        ["Status", "Amount"],
+        ...statusDistribution.map(s => [s.name, s.value])
+      ];
+      const statusWs = XLSX.utils.aoa_to_sheet(statusData);
+      statusWs["!cols"] = [{ wch: 15 }, { wch: 15 }];
+      XLSX.utils.book_append_sheet(wb, statusWs, "Status Distribution");
+      
+      // Overdue Installments Sheet
+      if (overdueInstallments.length > 0) {
+        const overdueData = [
+          ["Customer", "Package", "Installment", "Amount", "Due Date", "Days Overdue"],
+          ...overdueInstallments.map(item => {
+            const daysOverdue = Math.floor(
+              (new Date().getTime() - new Date(item.due_date).getTime()) / (1000 * 60 * 60 * 24)
+            );
+            return [
+              item.customer_name,
+              item.package_name,
+              `#${item.installment_number}`,
+              item.amount,
+              format(new Date(item.due_date), "dd MMM yyyy"),
+              daysOverdue
+            ];
+          })
+        ];
+        const overdueWs = XLSX.utils.aoa_to_sheet(overdueData);
+        overdueWs["!cols"] = [{ wch: 20 }, { wch: 25 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, { wch: 12 }];
+        XLSX.utils.book_append_sheet(wb, overdueWs, "Overdue Installments");
+      }
+      
+      XLSX.writeFile(wb, `installment-report-${format(new Date(), "yyyy-MM-dd")}.xlsx`);
+      
+      toast({
+        title: "Export Successful",
+        description: "Excel report downloaded successfully.",
+      });
+    } catch (error) {
+      console.error("Error exporting Excel:", error);
+      toast({
+        title: "Export Failed",
+        description: "Failed to export Excel report.",
+        variant: "destructive",
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const exportToPDF = () => {
     try {
       setExporting(true);
@@ -538,8 +623,17 @@ const AdminEMIReport = () => {
           disabled={exporting}
           className="gap-2"
         >
-          <Download className="w-4 h-4" />
-          Export CSV
+          <FileText className="w-4 h-4" />
+          CSV
+        </Button>
+        <Button
+          variant="outline"
+          onClick={exportToExcel}
+          disabled={exporting}
+          className="gap-2"
+        >
+          <FileSpreadsheet className="w-4 h-4" />
+          Excel
         </Button>
         <Button
           variant="outline"
@@ -547,8 +641,8 @@ const AdminEMIReport = () => {
           disabled={exporting}
           className="gap-2"
         >
-          <FileText className="w-4 h-4" />
-          Export PDF
+          <Download className="w-4 h-4" />
+          PDF
         </Button>
       </div>
 
