@@ -479,41 +479,6 @@ const HeroSection = () => {
                 </motion.div>
               )}
 
-              {/* Buttons */}
-              <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                <Button
-                  size="lg"
-                  onClick={() => scrollToSection(content.primary_button_link || "#hajj")}
-                  className={`shadow-lg text-lg px-8 py-7 font-semibold group relative overflow-hidden
-                    ${isLight 
-                      ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-300/30" 
-                      : "bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-secondary/25"
-                    }`}
-                >
-                  <span className="relative z-10 flex items-center">
-                    {content.primary_button_text || "Explore Hajj Packages"}
-                    <motion.span
-                      animate={{ x: [0, 5, 0] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                      className="ml-2"
-                    >
-                      →
-                    </motion.span>
-                  </span>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  onClick={() => scrollToSection(content.secondary_button_link || "#umrah")}
-                  className={`border-2 text-lg px-8 py-7 transition-all duration-300
-                    ${isLight 
-                      ? "border-emerald-200 text-foreground bg-white/50 hover:bg-emerald-50 hover:border-emerald-300" 
-                      : "border-primary-foreground/30 text-primary-foreground bg-primary-foreground/5 backdrop-blur-md hover:bg-primary-foreground/15 hover:border-primary-foreground/50"
-                    }`}
-                >
-                  {content.secondary_button_text || "View Umrah Packages"}
-                </Button>
-              </motion.div>
 
               {/* Video CTA */}
               {content.video_url && (
@@ -625,41 +590,6 @@ const HeroSection = () => {
                     </motion.div>
                   )}
 
-                  {/* Buttons */}
-                  <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3 mb-6">
-                    <Button
-                      size="lg"
-                      onClick={() => scrollToSection(content.primary_button_link || "#hajj")}
-                      className={`shadow-lg text-base px-6 py-6 font-semibold group relative overflow-hidden
-                        ${isLight 
-                          ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-300/30" 
-                          : "bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-secondary/25"
-                        }`}
-                    >
-                      <span className="relative z-10 flex items-center">
-                        {content.primary_button_text || "Explore Hajj Packages"}
-                        <motion.span
-                          animate={{ x: [0, 5, 0] }}
-                          transition={{ duration: 1.5, repeat: Infinity }}
-                          className="ml-2"
-                        >
-                          →
-                        </motion.span>
-                      </span>
-                    </Button>
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      onClick={() => scrollToSection(content.secondary_button_link || "#umrah")}
-                      className={`border-2 text-base px-6 py-6 transition-all duration-300
-                        ${isLight 
-                          ? "border-emerald-200 text-foreground bg-white/50 hover:bg-emerald-50 hover:border-emerald-300" 
-                          : "border-primary-foreground/30 text-primary-foreground bg-primary-foreground/5 backdrop-blur-md hover:bg-primary-foreground/15 hover:border-primary-foreground/50"
-                        }`}
-                    >
-                      {content.secondary_button_text || "View Umrah Packages"}
-                    </Button>
-                  </motion.div>
 
                   {/* Video CTA */}
                   {content.video_url && (
