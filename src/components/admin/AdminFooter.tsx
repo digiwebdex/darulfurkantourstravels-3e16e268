@@ -5,7 +5,59 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Plus, Trash2 } from "lucide-react";
+import { Save, Plus, Trash2, GripVertical } from "lucide-react";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+interface SortablePhoneItemProps {
+  id: string;
+  index: number;
+  phone: string;
+  totalPhones: number;
+  onUpdate: (index: number, value: string) => void;
+  onRemove: (index: number) => void;
+}
+
+const SortablePhoneItem = ({ id, index, phone, totalPhones, onUpdate, onRemove }: SortablePhoneItemProps) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="flex gap-2 items-center">
+      <button
+        type="button"
+        className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="w-4 h-4 text-muted-foreground" />
+      </button>
+      <span className={`text-xs font-medium w-24 flex-shrink-0 ${index < 2 ? 'text-primary' : 'text-muted-foreground'}`}>
+        {index < 2 ? `1st Section #${index + 1}` : `2nd Section #${index - 1}`}
+      </span>
+      <Input 
+        value={phone} 
+        onChange={(e) => onUpdate(index, e.target.value)} 
+        placeholder="+880 1234-567890" 
+        className="flex-1" 
+      />
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        onClick={() => onRemove(index)}
+        disabled={totalPhones === 1}
+      >
+        <Trash2 className="w-4 h-4 text-destructive" />
+      </Button>
+    </div>
+  );
+};
 
 interface FooterLink {
   label: string;
@@ -36,6 +88,12 @@ const AdminFooter = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
   const [footerContent, setFooterContent] = useState<FooterContent>({
     id: "",
     company_description: "",
@@ -124,6 +182,16 @@ const AdminFooter = () => {
 
   const removePhone = (index: number) => {
     setFooterContent({ ...footerContent, contact_phones: footerContent.contact_phones.filter((_, i) => i !== index) });
+  };
+
+  const handlePhoneDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = footerContent.contact_phones.findIndex((_, i) => `phone-${i}` === active.id);
+      const newIndex = footerContent.contact_phones.findIndex((_, i) => `phone-${i}` === over.id);
+      const newPhones = arrayMove(footerContent.contact_phones, oldIndex, newIndex);
+      setFooterContent({ ...footerContent, contact_phones: newPhones });
+    }
   };
 
   const updateQuickLink = (index: number, field: keyof FooterLink, value: string) => {
@@ -287,29 +355,23 @@ const AdminFooter = () => {
               <p className="text-xs text-muted-foreground mb-3">
                 First 2 numbers appear in the 1st contact section, next 6 numbers in the 2nd contact section (max 8 total)
               </p>
-              <div className="space-y-2">
-                {footerContent.contact_phones.map((phone, index) => (
-                  <div key={index} className="flex gap-2 items-center">
-                    <span className={`text-xs font-medium w-24 flex-shrink-0 ${index < 2 ? 'text-primary' : 'text-muted-foreground'}`}>
-                      {index < 2 ? `1st Section #${index + 1}` : `2nd Section #${index - 1}`}
-                    </span>
-                    <Input 
-                      value={phone} 
-                      onChange={(e) => updatePhone(index, e.target.value)} 
-                      placeholder="+880 1234-567890" 
-                      className="flex-1" 
-                    />
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => removePhone(index)}
-                      disabled={footerContent.contact_phones.length === 1}
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handlePhoneDragEnd}>
+                <SortableContext items={footerContent.contact_phones.map((_, i) => `phone-${i}`)} strategy={verticalListSortingStrategy}>
+                  <div className="space-y-2">
+                    {footerContent.contact_phones.map((phone, index) => (
+                      <SortablePhoneItem
+                        key={`phone-${index}`}
+                        id={`phone-${index}`}
+                        index={index}
+                        phone={phone}
+                        totalPhones={footerContent.contact_phones.length}
+                        onUpdate={updatePhone}
+                        onRemove={removePhone}
+                      />
+                    ))}
                   </div>
-                ))}
-              </div>
+                </SortableContext>
+              </DndContext>
             </div>
 
             <div>
