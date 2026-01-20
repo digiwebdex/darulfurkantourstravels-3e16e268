@@ -418,42 +418,6 @@ const HeroSection = () => {
         </>
       )}
 
-      {/* Bottom Controls Bar */}
-      {slides.length > 1 && (
-        <div className="absolute bottom-28 left-1/2 -translate-x-1/2 z-20 flex items-center gap-6">
-          {/* Slide Counter */}
-          <div className={`flex items-center gap-2 font-medium ${isLight ? "text-foreground/80" : "text-primary-foreground/80"}`}>
-            <span className={`text-2xl ${isLight ? "text-emerald-600" : "text-secondary"}`}>{String(currentSlide + 1).padStart(2, '0')}</span>
-            <span className={isLight ? "text-muted-foreground" : "text-primary-foreground/40"}>/</span>
-            <span className="text-sm">{String(slides.length).padStart(2, '0')}</span>
-          </div>
-
-          {/* Progress Indicators */}
-          <div className="flex gap-2">
-            {slides.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => goToSlide(index)}
-                className="relative h-1.5 rounded-full overflow-hidden transition-all duration-300"
-                style={{ width: index === currentSlide ? '48px' : '24px' }}
-                aria-label={`Go to slide ${index + 1}`}
-              >
-                <div className={`absolute inset-0 ${isLight ? "bg-slate-300" : "bg-primary-foreground/20"}`} />
-                {index === currentSlide && (
-                  <motion.div
-                    className={`absolute inset-0 origin-left ${isLight ? "bg-emerald-500" : "bg-secondary"}`}
-                    style={{ scaleX: progress / 100 }}
-                  />
-                )}
-                {index < currentSlide && (
-                  <div className={`absolute inset-0 ${isLight ? "bg-emerald-400" : "bg-secondary/60"}`} />
-                )}
-              </button>
-            ))}
-          </div>
-
-        </div>
-      )}
 
       {/* Content - Conditional Layout */}
       {isLoading ? (
