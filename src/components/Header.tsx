@@ -126,27 +126,27 @@ const Header = () => {
       <header className={`fixed left-0 right-0 z-50 bg-card/95 backdrop-blur-md shadow-elegant transition-all duration-300 ${isScrolled ? 'shadow-lg' : ''} ${showAnnouncement ? 'top-[36px]' : 'top-0'}`}>
         {/* Top Bar - Hide when scrolled */}
         <div className={`bg-primary text-primary-foreground overflow-hidden transition-all duration-300 ${isScrolled ? 'h-0 py-0' : 'h-auto py-2'}`}>
-          <div className="container flex justify-between items-center text-sm">
-            <div className="flex items-center gap-6">
-              <a href={`tel:${contactDetails.phone.replace(/\s/g, '')}`} className="flex items-center gap-2 hover:text-secondary transition-colors">
-                <Phone className="w-4 h-4" />
-                <span className="hidden sm:inline">{contactDetails.phone}</span>
+          <div className="container flex flex-col sm:flex-row justify-between items-center gap-1 sm:gap-2 text-sm">
+            <div className="flex items-center gap-4 sm:gap-6">
+              <a href={`tel:${contactDetails.phone.replace(/\s/g, '')}`} className="flex items-center gap-1.5 hover:text-secondary transition-colors">
+                <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden md:inline">{contactDetails.phone}</span>
               </a>
-              <a href={`mailto:${contactDetails.email}`} className="flex items-center gap-2 hover:text-secondary transition-colors">
-                <Mail className="w-4 h-4" />
-                <span className="hidden sm:inline">{contactDetails.email}</span>
+              <a href={`mailto:${contactDetails.email}`} className="flex items-center gap-1.5 hover:text-secondary transition-colors">
+                <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden md:inline">{contactDetails.email}</span>
               </a>
               <a 
                 href={`https://wa.me/${contactDetails.whatsapp?.replace(/[^0-9]/g, '') || '8801867666888'}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 hover:text-[#25D366] transition-colors"
+                className="flex items-center gap-1.5 hover:text-[#25D366] transition-colors"
               >
-                <MessageCircle className="w-4 h-4" />
-                <span className="hidden sm:inline">WhatsApp</span>
+                <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden md:inline">WhatsApp</span>
               </a>
             </div>
-            <div className="text-secondary font-medium">
+            <div className="text-secondary font-medium text-xs sm:text-sm text-center leading-tight">
               {companyInfo.description}
             </div>
           </div>
