@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { ChevronDown, Play, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown, Play, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,7 +60,7 @@ const HeroSection = () => {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [autoplayInterval, setAutoplayInterval] = useState(6000);
+  const [autoplayInterval, setAutoplayInterval] = useState(3000);
   const [transitionDuration, setTransitionDuration] = useState(0.9);
   const [progress, setProgress] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -249,46 +249,60 @@ const HeroSection = () => {
   const backgroundImage = content.background_image_url || heroImage;
   const isLight = heroTheme === "light";
 
-  // Animation variants
+  // Animation variants - slow motion effect
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+      transition: { staggerChildren: 0.15, delayChildren: 0.2 },
     },
     exit: {
       opacity: 0,
-      transition: { duration: transitionDuration * 0.3 },
+      transition: { duration: transitionDuration * 0.6 },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 30, filter: "blur(10px)" },
+    hidden: { opacity: 0, y: -60 },
     visible: {
       opacity: 1,
       y: 0,
-      filter: "blur(0px)",
-      transition: { duration: transitionDuration * 0.7, ease: [0.25, 0.46, 0.45, 0.94] as const },
+      transition: { 
+        duration: transitionDuration * 1.5, 
+        ease: [0.16, 1, 0.3, 1] as const,
+        opacity: { duration: transitionDuration * 1.2 }
+      },
     },
     exit: {
       opacity: 0,
-      y: -20,
-      filter: "blur(5px)",
-      transition: { duration: transitionDuration * 0.3 },
+      y: -40,
+      transition: { 
+        duration: transitionDuration * 0.8, 
+        ease: [0.16, 1, 0.3, 1] as const
+      },
     },
   };
 
   const imageVariants = {
-    initial: { scale: 1.15, opacity: 0 },
+    initial: { x: 120, opacity: 0, scale: 1.05 },
     animate: { 
-      scale: 1, 
+      x: 0, 
       opacity: 1,
-      transition: { duration: transitionDuration * 1.2, ease: [0.25, 0.46, 0.45, 0.94] as const }
+      scale: 1,
+      transition: { 
+        duration: transitionDuration * 1.8, 
+        ease: [0.16, 1, 0.3, 1] as const,
+        opacity: { duration: transitionDuration * 1.4 }
+      }
     },
     exit: { 
-      scale: 1.05, 
+      x: -120, 
       opacity: 0,
-      transition: { duration: transitionDuration * 0.5 }
+      scale: 0.98,
+      transition: { 
+        duration: transitionDuration * 1, 
+        ease: [0.16, 1, 0.3, 1] as const
+      }
     },
   };
 
@@ -383,40 +397,6 @@ const HeroSection = () => {
         </div>
       )}
 
-      {/* Premium Navigation Controls */}
-      {slides.length > 1 && (
-        <>
-          {/* Left Arrow */}
-          <motion.button
-            onClick={goToPrevious}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            className={`absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full backdrop-blur-md border flex items-center justify-center transition-all duration-300 group
-              ${isLight 
-                ? "bg-white/80 border-slate-200 text-foreground hover:bg-white hover:border-emerald-300" 
-                : "bg-primary-foreground/5 border-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/15 hover:border-secondary/30"
-              }`}
-            aria-label="Previous slide"
-          >
-            <ChevronLeft className={`w-6 h-6 ${isLight ? "group-hover:text-emerald-600" : "group-hover:text-secondary"} transition-colors`} />
-          </motion.button>
-
-          {/* Right Arrow */}
-          <motion.button
-            onClick={goToNext}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            className={`absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full backdrop-blur-md border flex items-center justify-center transition-all duration-300 group
-              ${isLight 
-                ? "bg-white/80 border-slate-200 text-foreground hover:bg-white hover:border-emerald-300" 
-                : "bg-primary-foreground/5 border-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/15 hover:border-secondary/30"
-              }`}
-            aria-label="Next slide"
-          >
-            <ChevronRight className={`w-6 h-6 ${isLight ? "group-hover:text-emerald-600" : "group-hover:text-secondary"} transition-colors`} />
-          </motion.button>
-        </>
-      )}
 
 
       {/* Content - Conditional Layout */}
