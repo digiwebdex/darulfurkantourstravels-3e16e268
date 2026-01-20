@@ -263,9 +263,9 @@ const Footer = () => {
 
           {/* Contact Info - Phone & Email */}
           <div>
-            <h4 className="font-heading font-semibold text-lg mb-6 flex items-center gap-2 invisible">
+            <h4 className="font-heading font-semibold text-lg mb-6 flex items-center gap-2">
               <span className="w-8 h-0.5 bg-secondary" />
-              Contact
+              Contact Info
             </h4>
             <ul className="space-y-4">
               {/* Phone Numbers */}
