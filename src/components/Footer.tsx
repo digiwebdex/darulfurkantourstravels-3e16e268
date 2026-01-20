@@ -281,16 +281,52 @@ const Footer = () => {
                   </div>
                 </li>
               )}
-              <li className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-primary-foreground/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Phone className="w-5 h-5 text-secondary" />
-                </div>
-                <div className="text-primary-foreground/80 text-sm pt-2">
-                  {displayPhones.map((phone, index) => (
-                    <div key={index}>{phone}</div>
-                  ))}
-                </div>
-              </li>
+              {/* Phone Numbers - Grouped Layout */}
+              {displayPhones.length > 0 && (
+                <li className="space-y-3">
+                  {/* First group - first 2 phones */}
+                  {displayPhones.slice(0, 2).length > 0 && (
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-primary-foreground/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Phone className="w-5 h-5 text-secondary" />
+                      </div>
+                      <div className="text-primary-foreground/80 text-sm pt-2 space-y-1">
+                        {displayPhones.slice(0, 2).map((phone, index) => (
+                          <a 
+                            key={index} 
+                            href={`tel:${phone.replace(/\s/g, '')}`}
+                            className="block hover:text-secondary transition-colors"
+                          >
+                            {phone}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {/* Second group - remaining phones */}
+                  {displayPhones.length > 2 && (
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-primary-foreground/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Phone className="w-5 h-5 text-secondary" />
+                      </div>
+                      <div className="text-primary-foreground/80 text-sm pt-2">
+                        {displayPhones.slice(2).map((phone, index, arr) => (
+                          <span key={index}>
+                            <a 
+                              href={`tel:${phone.replace(/\s/g, '')}`}
+                              className="hover:text-secondary transition-colors"
+                            >
+                              {phone}
+                            </a>
+                            {index < arr.length - 1 && <span className="text-primary-foreground/50">, </span>}
+                            {(index + 1) % 2 === 0 && index < arr.length - 1 && <br />}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </li>
+              )}
               <li className="flex items-start gap-3">
                 <div className="w-10 h-10 bg-primary-foreground/10 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Mail className="w-5 h-5 text-secondary" />
