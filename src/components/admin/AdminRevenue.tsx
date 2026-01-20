@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -24,8 +25,10 @@ import {
   Cell,
   Legend,
 } from "recharts";
-import { TrendingUp, Package, Wallet } from "lucide-react";
+import { TrendingUp, Package, Wallet, FileText, FileSpreadsheet, Download } from "lucide-react";
 import { formatCurrency, CURRENCY } from "@/lib/currency";
+import { useToast } from "@/hooks/use-toast";
+import * as XLSX from "xlsx";
 
 interface RevenueData {
   month: string;
@@ -43,6 +46,7 @@ interface PackageRevenue {
 const COLORS = ["#006D5B", "#D4AF37", "#10B981", "#3B82F6", "#8B5CF6", "#F59E0B"];
 
 const AdminRevenue = () => {
+  const { toast } = useToast();
   const [monthlyData, setMonthlyData] = useState<RevenueData[]>([]);
   const [packageRevenue, setPackageRevenue] = useState<PackageRevenue[]>([]);
   const [totals, setTotals] = useState({
@@ -137,8 +141,97 @@ const AdminRevenue = () => {
     } catch (error) {
       console.error("Error fetching revenue data:", error);
     } finally {
-      setLoading(false);
+    setLoading(false);
     }
+  };
+
+  const exportToCSV = () => {
+    if (packageRevenue.length === 0) return;
+    
+    const headers = ["Package", "Type", "Bookings", "Revenue", "% of Total"];
+    const csvData = packageRevenue.map((pkg) => [
+      pkg.name,
+      pkg.type,
+      pkg.bookings,
+      pkg.revenue,
+      totals.totalRevenue > 0 ? ((pkg.revenue / totals.totalRevenue) * 100).toFixed(1) + "%" : "0%"
+    ]);
+
+    const csvContent = [
+      headers.map(h => `"${h}"`).join(","),
+      ...csvData.map(row => row.map(cell => `"${String(cell)}"`).join(","))
+    ].join("\r\n");
+
+    const BOM = "\uFEFF";
+    const blob = new Blob([BOM + csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `revenue-report-${new Date().toISOString().split("T")[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "Export Successful",
+      description: `Revenue report exported to CSV`,
+    });
+  };
+
+  const exportToExcel = () => {
+    if (packageRevenue.length === 0 && monthlyData.length === 0) return;
+    
+    const wb = XLSX.utils.book_new();
+    
+    // Summary Sheet
+    const summaryData = [
+      ["Revenue Report"],
+      ["Generated on:", new Date().toLocaleDateString()],
+      [],
+      ["Summary"],
+      ["Total Revenue", totals.totalRevenue],
+      ["Total Bookings", totals.totalBookings],
+      ["Average Order Value", Math.round(totals.averageOrderValue)],
+      ["Hajj Revenue", totals.hajjRevenue],
+      ["Umrah Revenue", totals.umrahRevenue],
+    ];
+    const summaryWs = XLSX.utils.aoa_to_sheet(summaryData);
+    summaryWs["!cols"] = [{ wch: 20 }, { wch: 20 }];
+    XLSX.utils.book_append_sheet(wb, summaryWs, "Summary");
+    
+    // Monthly Trends Sheet
+    if (monthlyData.length > 0) {
+      const monthlySheet = [
+        ["Month", "Revenue", "Bookings"],
+        ...monthlyData.map(m => [m.month, m.revenue, m.bookings])
+      ];
+      const monthlyWs = XLSX.utils.aoa_to_sheet(monthlySheet);
+      monthlyWs["!cols"] = [{ wch: 12 }, { wch: 15 }, { wch: 12 }];
+      XLSX.utils.book_append_sheet(wb, monthlyWs, "Monthly Trends");
+    }
+    
+    // Package Revenue Sheet
+    if (packageRevenue.length > 0) {
+      const packageSheet = [
+        ["Package", "Type", "Bookings", "Revenue", "% of Total"],
+        ...packageRevenue.map(pkg => [
+          pkg.name,
+          pkg.type,
+          pkg.bookings,
+          pkg.revenue,
+          totals.totalRevenue > 0 ? ((pkg.revenue / totals.totalRevenue) * 100).toFixed(1) + "%" : "0%"
+        ])
+      ];
+      const packageWs = XLSX.utils.aoa_to_sheet(packageSheet);
+      packageWs["!cols"] = [{ wch: 30 }, { wch: 10 }, { wch: 10 }, { wch: 15 }, { wch: 12 }];
+      XLSX.utils.book_append_sheet(wb, packageWs, "Package Revenue");
+    }
+    
+    XLSX.writeFile(wb, `revenue-report-${new Date().toISOString().split("T")[0]}.xlsx`);
+
+    toast({
+      title: "Export Successful",
+      description: `Revenue report exported to Excel`,
+    });
   };
 
   if (loading) {
@@ -158,6 +251,30 @@ const AdminRevenue = () => {
 
   return (
     <div className="space-y-6">
+      {/* Export Buttons */}
+      <div className="flex justify-end gap-2">
+        <Button
+          variant="outline"
+          onClick={exportToCSV}
+          disabled={packageRevenue.length === 0}
+          className="gap-2"
+          size="sm"
+        >
+          <FileText className="w-4 h-4" />
+          CSV
+        </Button>
+        <Button
+          variant="outline"
+          onClick={exportToExcel}
+          disabled={packageRevenue.length === 0 && monthlyData.length === 0}
+          className="gap-2"
+          size="sm"
+        >
+          <FileSpreadsheet className="w-4 h-4" />
+          Excel
+        </Button>
+      </div>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <motion.div

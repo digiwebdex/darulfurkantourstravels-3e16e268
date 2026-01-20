@@ -33,7 +33,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Search, Eye, CheckCircle, XCircle, Clock, AlertCircle, Download, CalendarIcon, X, CreditCard, Banknote, Wallet, MapPin, Calculator, Building, ShieldCheck } from "lucide-react";
+import { Search, Eye, CheckCircle, XCircle, Clock, AlertCircle, Download, CalendarIcon, X, CreditCard, Banknote, Wallet, MapPin, Calculator, Building, ShieldCheck, FileSpreadsheet, FileText } from "lucide-react";
+import * as XLSX from "xlsx";
 import { motion } from "framer-motion";
 import { formatCurrency } from "@/lib/currency";
 import { format } from "date-fns";
@@ -333,64 +334,53 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
     );
   };
 
-  const exportToCSV = () => {
-    const headers = [
-      "Booking ID",
-      "Customer Name",
-      "Email",
-      "Phone",
-      "Customer Type",
-      "Package",
-      "Package Type",
-      "Passengers",
-      "Travel Date",
-      "Total Amount",
-      "Status",
-      "Booking Date",
-      "Notes"
-    ];
-
-    const csvData = filteredBookings.map((booking) => {
+  const getExportData = () => {
+    return filteredBookings.map((booking) => {
       const customerInfo = getCustomerInfo(booking);
-      return [
-        booking.id.slice(0, 8).toUpperCase(),
-        customerInfo.name,
-        customerInfo.email,
-        customerInfo.phone,
-        customerInfo.isGuest ? "Guest" : "Registered",
-        booking.packages.title,
-        booking.packages.type,
-        booking.passenger_count,
-        booking.travel_date ? new Date(booking.travel_date).toLocaleDateString() : "Not set",
-        booking.total_price,
-        booking.status,
-        new Date(booking.created_at).toLocaleDateString(),
-        booking.notes || ""
-      ];
+      return {
+        "Booking Date": new Date(booking.created_at).toLocaleDateString(),
+        "Booking ID": booking.id.slice(0, 8).toUpperCase(),
+        "Customer Name": customerInfo.name,
+        "Email": customerInfo.email,
+        "Phone": customerInfo.phone,
+        "Customer Type": customerInfo.isGuest ? "Guest" : "Registered",
+        "Package": booking.packages.title,
+        "Package Type": booking.packages.type,
+        "Passengers": booking.passenger_count,
+        "Travel Date": booking.travel_date ? new Date(booking.travel_date).toLocaleDateString() : "Not set",
+        "Total Amount": booking.total_price,
+        "Payment Status": booking.payment_status,
+        "Tracking Status": trackingStatusLabels[booking.tracking_status] || booking.tracking_status,
+        "Booking Status": booking.status,
+        "Notes": booking.notes || ""
+      };
+    });
+  };
+
+  const exportToCSV = () => {
+    const data = getExportData();
+    const headers = Object.keys(data[0] || {});
+
+    const csvData = data.map((row) => {
+      return headers.map(header => {
+        const cellStr = String(row[header as keyof typeof row]);
+        if (cellStr.includes(",") || cellStr.includes('"') || cellStr.includes("\n")) {
+          return `"${cellStr.replace(/"/g, '""')}"`;
+        }
+        return `"${cellStr}"`;
+      });
     });
 
     const csvContent = [
-      headers.join(","),
-      ...csvData.map(row => 
-        row.map(cell => {
-          const cellStr = String(cell);
-          // Escape quotes and wrap in quotes if contains comma, quote, or newline
-          if (cellStr.includes(",") || cellStr.includes('"') || cellStr.includes("\n")) {
-            return `"${cellStr.replace(/"/g, '""')}"`;
-          }
-          return `"${cellStr}"`;
-        }).join(",")
-      )
+      headers.map(h => `"${h}"`).join(","),
+      ...csvData.map(row => row.join(","))
     ].join("\r\n");
 
-    // Add BOM (Byte Order Mark) for proper Excel UTF-8 encoding
     const BOM = "\uFEFF";
     const blob = new Blob([BOM + csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `bookings-${new Date().toISOString().split("T")[0]}.csv`);
-    link.style.visibility = "hidden";
+    link.href = URL.createObjectURL(blob);
+    link.download = `bookings-${new Date().toISOString().split("T")[0]}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -398,6 +388,44 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
     toast({
       title: "Export Successful",
       description: `${filteredBookings.length} bookings exported to CSV`,
+    });
+  };
+
+  const exportToExcel = () => {
+    const data = getExportData();
+    
+    // Create workbook and worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(data);
+
+    // Set column widths
+    const colWidths = [
+      { wch: 12 }, // Booking Date
+      { wch: 10 }, // Booking ID
+      { wch: 20 }, // Customer Name
+      { wch: 25 }, // Email
+      { wch: 15 }, // Phone
+      { wch: 12 }, // Customer Type
+      { wch: 25 }, // Package
+      { wch: 10 }, // Package Type
+      { wch: 10 }, // Passengers
+      { wch: 12 }, // Travel Date
+      { wch: 12 }, // Total Amount
+      { wch: 15 }, // Payment Status
+      { wch: 18 }, // Tracking Status
+      { wch: 12 }, // Booking Status
+      { wch: 30 }, // Notes
+    ];
+    ws["!cols"] = colWidths;
+
+    XLSX.utils.book_append_sheet(wb, ws, "Bookings");
+
+    // Write the file
+    XLSX.writeFile(wb, `bookings-${new Date().toISOString().split("T")[0]}.xlsx`);
+
+    toast({
+      title: "Export Successful",
+      description: `${filteredBookings.length} bookings exported to Excel`,
     });
   };
 
@@ -417,16 +445,28 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span>All Bookings ({bookings.length})</span>
-            <Button 
-              onClick={exportToCSV} 
-              variant="outline" 
-              size="sm"
-              disabled={filteredBookings.length === 0}
-              className="gap-2"
-            >
-              <Download className="w-4 h-4" />
-              Export CSV
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={exportToCSV} 
+                variant="outline" 
+                size="sm"
+                disabled={filteredBookings.length === 0}
+                className="gap-2"
+              >
+                <FileText className="w-4 h-4" />
+                CSV
+              </Button>
+              <Button 
+                onClick={exportToExcel} 
+                variant="outline" 
+                size="sm"
+                disabled={filteredBookings.length === 0}
+                className="gap-2"
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+                Excel
+              </Button>
+            </div>
           </CardTitle>
           <div className="flex flex-col gap-4 mt-4">
             <div className="flex flex-col sm:flex-row gap-4">
