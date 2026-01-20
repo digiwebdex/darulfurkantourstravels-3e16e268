@@ -101,6 +101,7 @@ const HeroServiceTiles = ({ tiles = defaultTiles, theme = "light" }: HeroService
           className={`
             relative flex items-center gap-3 px-4 py-3 rounded-xl border 
             transition-all duration-300 shadow-md hover:shadow-lg
+            w-full sm:w-auto
             ${theme === "light" 
               ? tile.bgColor 
               : "bg-white/10 hover:bg-white/15 border-white/20 backdrop-blur-md"
