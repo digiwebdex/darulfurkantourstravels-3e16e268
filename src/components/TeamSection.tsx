@@ -132,8 +132,8 @@ const TeamSection = () => {
                     whileHover={{ y: -8 }}
                     className="bg-card rounded-2xl shadow-elegant hover:shadow-lg transition-all duration-300 group overflow-hidden flex border-b-4 border-secondary"
                   >
-                    {/* Square Image Container */}
-                    <div className="relative w-44 h-44 sm:w-52 sm:h-52 md:w-48 md:h-48 lg:w-60 lg:h-60 flex-shrink-0 overflow-hidden bg-gradient-to-br from-secondary/20 to-secondary/5">
+                    {/* Square Image Container with green border */}
+                    <div className="relative w-44 h-44 sm:w-52 sm:h-52 md:w-48 md:h-48 lg:w-60 lg:h-60 flex-shrink-0 overflow-hidden bg-gradient-to-br from-secondary/20 to-secondary/5 border-4 border-primary rounded-l-2xl">
                       {member.avatar_url ? (
                         <OptimizedImage 
                           src={member.avatar_url} 
