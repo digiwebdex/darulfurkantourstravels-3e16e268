@@ -279,7 +279,7 @@ const Footer = () => {
               <span className="w-8 h-0.5 bg-secondary" />
               Phone Numbers
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {/* First 2 sections with icons */}
               {displayPhones.slice(0, 2).map((phoneSection, sectionIndex) => {
                 const phones = phoneSection.split(',').map(p => p.trim()).filter(p => p);
@@ -306,7 +306,7 @@ const Footer = () => {
               
               {/* Remaining sections without icons - grouped as paragraph */}
               {displayPhones.length > 2 && (
-                <li className="pl-[52px] text-primary-foreground/80 text-sm leading-relaxed">
+                <li className="pl-[52px] text-primary-foreground/80 text-sm leading-relaxed -mt-1">
                   {displayPhones.slice(2).map((phoneSection, sectionIndex) => {
                     const phones = phoneSection.split(',').map(p => p.trim()).filter(p => p);
                     if (phones.length === 0) return null;
