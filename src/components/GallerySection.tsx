@@ -32,6 +32,11 @@ interface GallerySettings {
 
 type ViewMode = "grid" | "carousel";
 
+interface SectionHeader {
+  badge_text: string;
+  arabic_text: string;
+}
+
 const GallerySection = () => {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [settings, setSettings] = useState<GallerySettings | null>(null);
@@ -41,6 +46,10 @@ const GallerySection = () => {
   const [isAutoplayPaused, setIsAutoplayPaused] = useState(false);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [sectionHeader, setSectionHeader] = useState<SectionHeader>({
+    badge_text: "Photo Gallery",
+    arabic_text: "معرض الصور"
+  });
   
   // Lightbox state
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -94,8 +103,22 @@ const GallerySection = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [viewMode, carouselApi]);
 
+  const fetchSectionHeader = async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("setting_value")
+      .eq("setting_key", "gallery_section_header")
+      .single();
+    
+    if (data?.setting_value) {
+      setSectionHeader(data.setting_value as unknown as SectionHeader);
+    }
+  };
+
   const fetchGalleryData = async () => {
     try {
+      fetchSectionHeader();
+      
       const { data: settingsData } = await supabase
         .from("gallery_settings")
         .select("*")
@@ -316,8 +339,13 @@ const GallerySection = () => {
               className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 border border-primary/20 rounded-full text-sm font-medium mb-6 backdrop-blur-sm"
             >
               <Camera className="w-4 h-4 text-primary" />
-              <span className="text-gradient-gold font-semibold">Photo Gallery</span>
+              <span className="text-gradient-gold font-semibold">{sectionHeader.badge_text}</span>
               <Sparkles className="w-4 h-4 text-secondary" />
+            </motion.div>
+            <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
+              <span className="text-gradient-gold">{settings?.title || "Our Gallery"}</span>
+            </h2>
+            <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">{sectionHeader.arabic_text}</span>
             </motion.div>
             <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
               <span className="text-gradient-gold">{settings?.title || "Our Gallery"}</span>

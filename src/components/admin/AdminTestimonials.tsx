@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import ImageUpload from "./ImageUpload";
-import { Plus, Edit, Trash2, Star, User } from "lucide-react";
+import { Plus, Edit, Trash2, Star, User, FileText, Loader2 } from "lucide-react";
 
 interface Testimonial {
   id: string;
@@ -25,6 +25,13 @@ interface Testimonial {
   is_active: boolean;
 }
 
+interface SectionHeader {
+  badge_text: string;
+  title: string;
+  arabic_text: string;
+  description: string;
+}
+
 const AdminTestimonials = () => {
   const { toast } = useToast();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -34,6 +41,15 @@ const AdminTestimonials = () => {
   const [formData, setFormData] = useState({
     name: "", location: "", package_name: "", rating: 5, quote: "", avatar_url: ""
   });
+  
+  // Section header state
+  const [sectionHeader, setSectionHeader] = useState<SectionHeader>({
+    badge_text: "Testimonials",
+    title: "What Our Pilgrims Say",
+    arabic_text: "شهادات",
+    description: "Read authentic experiences from our valued pilgrims who trusted us with their sacred journey."
+  });
+  const [savingHeader, setSavingHeader] = useState(false);
 
   const { uploadImage, uploading } = useImageUpload({
     bucket: "admin-uploads",
@@ -42,6 +58,7 @@ const AdminTestimonials = () => {
 
   useEffect(() => {
     fetchTestimonials();
+    fetchSectionHeader();
   }, []);
 
   const fetchTestimonials = async () => {
@@ -52,6 +69,46 @@ const AdminTestimonials = () => {
     
     if (!error && data) setTestimonials(data);
     setLoading(false);
+  };
+
+  const fetchSectionHeader = async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("setting_value")
+      .eq("setting_key", "testimonials_section_header")
+      .single();
+    
+    if (data?.setting_value) {
+      setSectionHeader(data.setting_value as unknown as SectionHeader);
+    }
+  };
+
+  const saveSectionHeader = async () => {
+    setSavingHeader(true);
+    try {
+      const settingValue = JSON.parse(JSON.stringify(sectionHeader));
+      
+      const { data: existing } = await supabase
+        .from("site_settings")
+        .select("id")
+        .eq("setting_key", "testimonials_section_header")
+        .single();
+
+      if (existing) {
+        await supabase
+          .from("site_settings")
+          .update({ setting_value: settingValue })
+          .eq("setting_key", "testimonials_section_header");
+      } else {
+        await supabase
+          .from("site_settings")
+          .insert([{ setting_key: "testimonials_section_header", setting_value: settingValue, category: "sections" }]);
+      }
+      toast({ title: "Success", description: "Section header saved" });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to save header", variant: "destructive" });
+    }
+    setSavingHeader(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -106,12 +163,67 @@ const AdminTestimonials = () => {
   if (loading) return <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>;
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle>Testimonials</CardTitle>
-          <CardDescription>Manage customer reviews and testimonials</CardDescription>
-        </div>
+    <div className="space-y-6">
+      {/* Section Header Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="w-5 h-5" />
+            Section Header
+          </CardTitle>
+          <CardDescription>Customize the Testimonials section header text</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium">Badge Text</label>
+              <Input
+                value={sectionHeader.badge_text}
+                onChange={(e) => setSectionHeader({ ...sectionHeader, badge_text: e.target.value })}
+                placeholder="e.g., Testimonials"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Arabic Text</label>
+              <Input
+                value={sectionHeader.arabic_text}
+                onChange={(e) => setSectionHeader({ ...sectionHeader, arabic_text: e.target.value })}
+                placeholder="e.g., شهادات"
+                dir="rtl"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium">Title</label>
+            <Input
+              value={sectionHeader.title}
+              onChange={(e) => setSectionHeader({ ...sectionHeader, title: e.target.value })}
+              placeholder="e.g., What Our Pilgrims Say"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Description</label>
+            <Textarea
+              value={sectionHeader.description}
+              onChange={(e) => setSectionHeader({ ...sectionHeader, description: e.target.value })}
+              placeholder="Section description..."
+              rows={2}
+            />
+          </div>
+          <Button onClick={saveSectionHeader} disabled={savingHeader}>
+            {savingHeader && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            Save Header
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Testimonials Card */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Testimonials</CardTitle>
+            <CardDescription>Manage customer reviews and testimonials</CardDescription>
+          </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) { setEditingItem(null); resetForm(); } }}>
           <DialogTrigger asChild>
             <Button><Plus className="w-4 h-4 mr-2" />Add Testimonial</Button>
@@ -208,6 +320,7 @@ const AdminTestimonials = () => {
         {testimonials.length === 0 && <p className="text-center text-muted-foreground py-8">No testimonials yet.</p>}
       </CardContent>
     </Card>
+    </div>
   );
 };
 

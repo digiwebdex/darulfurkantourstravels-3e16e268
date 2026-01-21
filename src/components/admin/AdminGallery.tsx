@@ -29,6 +29,11 @@ interface GallerySettings {
   is_enabled: boolean;
 }
 
+interface SectionHeader {
+  badge_text: string;
+  arabic_text: string;
+}
+
 const AdminGallery = () => {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [settings, setSettings] = useState<GallerySettings | null>(null);
@@ -36,6 +41,13 @@ const AdminGallery = () => {
   const [saving, setSaving] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
+  
+  // Section header state
+  const [sectionHeader, setSectionHeader] = useState<SectionHeader>({
+    badge_text: "Our Gallery",
+    arabic_text: "معرض الصور"
+  });
+  const [savingHeader, setSavingHeader] = useState(false);
   
   // Form state for image
   const [imageUrl, setImageUrl] = useState("");
@@ -46,7 +58,48 @@ const AdminGallery = () => {
 
   useEffect(() => {
     fetchData();
+    fetchSectionHeader();
   }, []);
+
+  const fetchSectionHeader = async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("setting_value")
+      .eq("setting_key", "gallery_section_header")
+      .single();
+    
+    if (data?.setting_value) {
+      setSectionHeader(data.setting_value as unknown as SectionHeader);
+    }
+  };
+
+  const saveSectionHeader = async () => {
+    setSavingHeader(true);
+    try {
+      const settingValue = JSON.parse(JSON.stringify(sectionHeader));
+      
+      const { data: existing } = await supabase
+        .from("site_settings")
+        .select("id")
+        .eq("setting_key", "gallery_section_header")
+        .single();
+
+      if (existing) {
+        await supabase
+          .from("site_settings")
+          .update({ setting_value: settingValue })
+          .eq("setting_key", "gallery_section_header");
+      } else {
+        await supabase
+          .from("site_settings")
+          .insert([{ setting_key: "gallery_section_header", setting_value: settingValue, category: "sections" }]);
+      }
+      toast.success("Section header saved");
+    } catch (error) {
+      toast.error("Failed to save header");
+    }
+    setSavingHeader(false);
+  };
 
   const fetchData = async () => {
     try {
@@ -261,6 +314,28 @@ const AdminGallery = () => {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
+              <Label htmlFor="badge">Badge Text</Label>
+              <Input
+                id="badge"
+                value={sectionHeader.badge_text}
+                onChange={(e) => setSectionHeader({ ...sectionHeader, badge_text: e.target.value })}
+                placeholder="Photo Gallery"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="arabic">Arabic Text</Label>
+              <Input
+                id="arabic"
+                value={sectionHeader.arabic_text}
+                onChange={(e) => setSectionHeader({ ...sectionHeader, arabic_text: e.target.value })}
+                placeholder="معرض الصور"
+                dir="rtl"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
               <Label htmlFor="title">Gallery Title</Label>
               <Input
                 id="title"
@@ -302,10 +377,16 @@ const AdminGallery = () => {
             />
           </div>
 
-          <Button onClick={handleSaveSettings} disabled={saving}>
-            {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Save Settings
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={handleSaveSettings} disabled={saving}>
+              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Save Settings
+            </Button>
+            <Button onClick={saveSectionHeader} disabled={savingHeader} variant="outline">
+              {savingHeader && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Save Header Text
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

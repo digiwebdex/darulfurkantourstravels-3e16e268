@@ -17,13 +17,39 @@ interface FAQItem {
   order_index: number;
 }
 
+interface SectionHeader {
+  badge_text: string;
+  title: string;
+  arabic_text: string;
+  description: string;
+}
+
 const FAQSection = () => {
   const [faqs, setFaqs] = useState<FAQItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sectionHeader, setSectionHeader] = useState<SectionHeader>({
+    badge_text: "Have Questions?",
+    title: "Frequently Asked Questions",
+    arabic_text: "أسئلة شائعة",
+    description: "Find answers to common questions about our Hajj and Umrah services."
+  });
 
   useEffect(() => {
     fetchFaqs();
+    fetchSectionHeader();
   }, []);
+
+  const fetchSectionHeader = async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("setting_value")
+      .eq("setting_key", "faq_section_header")
+      .single();
+    
+    if (data?.setting_value) {
+      setSectionHeader(data.setting_value as unknown as SectionHeader);
+    }
+  };
 
   const fetchFaqs = async () => {
     const { data } = await supabase
@@ -95,14 +121,14 @@ const FAQSection = () => {
           className="text-center mb-16"
         >
           <span className="text-secondary font-semibold uppercase tracking-wider">
-            Have Questions?
+            {sectionHeader.badge_text}
           </span>
           <h2 className="font-calligraphy text-4xl md:text-5xl font-bold text-foreground mt-3 mb-4">
-            Frequently Asked Questions
+            {sectionHeader.title}
           </h2>
-          <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">أسئلة شائعة</span>
+          <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">{sectionHeader.arabic_text}</span>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Find answers to common questions about our Hajj and Umrah services.
+            {sectionHeader.description}
           </p>
         </motion.div>
 

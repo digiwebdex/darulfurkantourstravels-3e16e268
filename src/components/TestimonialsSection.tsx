@@ -22,13 +22,39 @@ interface Testimonial {
   avatar_url?: string;
 }
 
+interface SectionHeader {
+  badge_text: string;
+  title: string;
+  arabic_text: string;
+  description: string;
+}
+
 const TestimonialsSection = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sectionHeader, setSectionHeader] = useState<SectionHeader>({
+    badge_text: "Testimonials",
+    title: "What Our Pilgrims Say",
+    arabic_text: "شهادات",
+    description: "Read authentic experiences from our valued pilgrims who trusted us with their sacred journey."
+  });
 
   useEffect(() => {
     fetchTestimonials();
+    fetchSectionHeader();
   }, []);
+
+  const fetchSectionHeader = async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("setting_value")
+      .eq("setting_key", "testimonials_section_header")
+      .single();
+    
+    if (data?.setting_value) {
+      setSectionHeader(data.setting_value as unknown as SectionHeader);
+    }
+  };
 
   const fetchTestimonials = async () => {
     const { data } = await supabase
@@ -99,15 +125,14 @@ const TestimonialsSection = () => {
           className="text-center mb-16"
         >
           <span className="text-secondary font-semibold uppercase tracking-wider">
-            Testimonials
+            {sectionHeader.badge_text}
           </span>
           <h2 className="font-calligraphy text-4xl md:text-5xl font-bold text-foreground mt-3 mb-4">
-            What Our Pilgrims Say
+            {sectionHeader.title}
           </h2>
-          <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">شهادات</span>
+          <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">{sectionHeader.arabic_text}</span>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Read authentic experiences from our valued pilgrims who trusted us 
-            with their sacred journey.
+            {sectionHeader.description}
           </p>
         </motion.div>
 

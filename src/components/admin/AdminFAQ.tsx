@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, FileText, Loader2 } from "lucide-react";
 
 interface FAQItem {
   id: string;
@@ -18,6 +18,13 @@ interface FAQItem {
   is_active: boolean;
 }
 
+interface SectionHeader {
+  badge_text: string;
+  title: string;
+  arabic_text: string;
+  description: string;
+}
+
 const AdminFAQ = () => {
   const { toast } = useToast();
   const [faqs, setFaqs] = useState<FAQItem[]>([]);
@@ -25,15 +32,65 @@ const AdminFAQ = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<FAQItem | null>(null);
   const [formData, setFormData] = useState({ question: "", answer: "" });
+  
+  // Section header state
+  const [sectionHeader, setSectionHeader] = useState<SectionHeader>({
+    badge_text: "Have Questions?",
+    title: "Frequently Asked Questions",
+    arabic_text: "أسئلة شائعة",
+    description: "Find answers to common questions about our Hajj and Umrah services."
+  });
+  const [savingHeader, setSavingHeader] = useState(false);
 
   useEffect(() => {
     fetchFaqs();
+    fetchSectionHeader();
   }, []);
 
   const fetchFaqs = async () => {
     const { data, error } = await supabase.from("faq_items").select("*").order("order_index");
     if (!error && data) setFaqs(data);
     setLoading(false);
+  };
+
+  const fetchSectionHeader = async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("setting_value")
+      .eq("setting_key", "faq_section_header")
+      .single();
+    
+    if (data?.setting_value) {
+      setSectionHeader(data.setting_value as unknown as SectionHeader);
+    }
+  };
+
+  const saveSectionHeader = async () => {
+    setSavingHeader(true);
+    try {
+      const settingValue = JSON.parse(JSON.stringify(sectionHeader));
+      
+      const { data: existing } = await supabase
+        .from("site_settings")
+        .select("id")
+        .eq("setting_key", "faq_section_header")
+        .single();
+
+      if (existing) {
+        await supabase
+          .from("site_settings")
+          .update({ setting_value: settingValue })
+          .eq("setting_key", "faq_section_header");
+      } else {
+        await supabase
+          .from("site_settings")
+          .insert([{ setting_key: "faq_section_header", setting_value: settingValue, category: "sections" }]);
+      }
+      toast({ title: "Success", description: "Section header saved" });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to save header", variant: "destructive" });
+    }
+    setSavingHeader(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,16 +149,71 @@ const AdminFAQ = () => {
   if (loading) return <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>;
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle>FAQ Section</CardTitle>
-          <CardDescription>Manage frequently asked questions</CardDescription>
-        </div>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) { setEditingItem(null); setFormData({ question: "", answer: "" }); } }}>
-          <DialogTrigger asChild>
-            <Button><Plus className="w-4 h-4 mr-2" />Add FAQ</Button>
-          </DialogTrigger>
+    <div className="space-y-6">
+      {/* Section Header Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="w-5 h-5" />
+            Section Header
+          </CardTitle>
+          <CardDescription>Customize the FAQ section header text</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium">Badge Text</label>
+              <Input
+                value={sectionHeader.badge_text}
+                onChange={(e) => setSectionHeader({ ...sectionHeader, badge_text: e.target.value })}
+                placeholder="e.g., Have Questions?"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Arabic Text</label>
+              <Input
+                value={sectionHeader.arabic_text}
+                onChange={(e) => setSectionHeader({ ...sectionHeader, arabic_text: e.target.value })}
+                placeholder="e.g., أسئلة شائعة"
+                dir="rtl"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium">Title</label>
+            <Input
+              value={sectionHeader.title}
+              onChange={(e) => setSectionHeader({ ...sectionHeader, title: e.target.value })}
+              placeholder="e.g., Frequently Asked Questions"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Description</label>
+            <Textarea
+              value={sectionHeader.description}
+              onChange={(e) => setSectionHeader({ ...sectionHeader, description: e.target.value })}
+              placeholder="Section description..."
+              rows={2}
+            />
+          </div>
+          <Button onClick={saveSectionHeader} disabled={savingHeader}>
+            {savingHeader && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            Save Header
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* FAQ Items Card */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>FAQ Items</CardTitle>
+            <CardDescription>Manage frequently asked questions</CardDescription>
+          </div>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) { setEditingItem(null); setFormData({ question: "", answer: "" }); } }}>
+            <DialogTrigger asChild>
+              <Button><Plus className="w-4 h-4 mr-2" />Add FAQ</Button>
+            </DialogTrigger>
           <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle>{editingItem ? "Edit FAQ" : "Add FAQ"}</DialogTitle>
@@ -154,6 +266,7 @@ const AdminFAQ = () => {
         {faqs.length === 0 && <p className="text-center text-muted-foreground py-8">No FAQs yet.</p>}
       </CardContent>
     </Card>
+    </div>
   );
 };
 
