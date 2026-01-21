@@ -145,7 +145,7 @@ const ContactSection = () => {
             transition={{ duration: 0.6 }}
             className="flex flex-col gap-4"
           >
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
               {contactInfo.map((info, index) => {
                 const Icon = getIcon(info.icon_name);
                 const isClickable = info.type === 'address' && info.map_link;
@@ -165,17 +165,17 @@ const ContactSection = () => {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.1 }}
                     whileHover={{ y: -3 }}
-                    className={`bg-card rounded-xl p-4 shadow-elegant hover:shadow-lg transition-all duration-300 group ${isClickable ? 'cursor-pointer' : ''}`}
+                    className={`bg-card rounded-xl p-3 sm:p-4 shadow-elegant hover:shadow-lg transition-all duration-300 group ${isClickable ? 'cursor-pointer' : ''}`}
                     onClick={isClickable ? () => window.open(info.map_link!, '_blank') : undefined}
                   >
-                    <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-elegant">
-                      <Icon className="w-5 h-5 text-primary-foreground" />
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-primary rounded-lg flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform shadow-elegant">
+                      <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
                     </div>
-                    <h3 className="font-heading font-bold text-sm text-secondary mb-2 flex items-center gap-1.5">
+                    <h3 className="font-heading font-bold text-xs sm:text-sm text-secondary mb-1.5 sm:mb-2 flex items-center gap-1 sm:gap-1.5">
                       {info.title}
-                      {isClickable && <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />}
+                      {isClickable && <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />}
                     </h3>
-                    <div className="space-y-1">
+                    <div className="space-y-0.5 sm:space-y-1">
                       {info.details.map((detail, idx) => {
                         const parts = detail.split(':');
                         const isPhone = info.type === 'phone';
@@ -190,24 +190,24 @@ const ContactSection = () => {
                           const labelIsHoliday = label.toLowerCase().includes('friday');
                           
                           return (
-                            <p key={idx} className={`text-xs leading-relaxed grid grid-cols-[auto_1fr] gap-1 ${isHoliday ? 'text-destructive font-medium' : 'text-muted-foreground'}`}>
-                              <span className={labelIsHoliday ? 'text-destructive' : ''}>{label}:</span>
+                            <p key={idx} className={`text-[10px] sm:text-xs leading-relaxed ${isHoliday ? 'text-destructive font-medium' : 'text-muted-foreground'}`}>
+                              <span className={`block sm:inline ${labelIsHoliday ? 'text-destructive' : ''}`}>{label}:</span>{' '}
                               {isPhone ? (
                                 <a 
                                   href={`tel:${phoneNumber}`} 
-                                  className="text-left hover:text-primary transition-colors cursor-pointer"
+                                  className="hover:text-primary transition-colors cursor-pointer break-all"
                                 >
                                   {value}
                                 </a>
                               ) : isEmail ? (
                                 <a 
                                   href={`mailto:${value}`} 
-                                  className="text-left hover:text-primary transition-colors cursor-pointer"
+                                  className="hover:text-primary transition-colors cursor-pointer break-all"
                                 >
                                   {value}
                                 </a>
                               ) : (
-                                <span className={`text-left ${valueIsHoliday ? 'text-destructive' : ''}`}>{value}</span>
+                                <span className={valueIsHoliday ? 'text-destructive' : ''}>{value}</span>
                               )}
                             </p>
                           );
@@ -220,7 +220,7 @@ const ContactSection = () => {
                             <a 
                               key={idx} 
                               href={`tel:${phoneNumber}`}
-                              className="block text-muted-foreground text-xs leading-relaxed hover:text-primary transition-colors cursor-pointer"
+                              className="block text-muted-foreground text-[10px] sm:text-xs leading-relaxed hover:text-primary transition-colors cursor-pointer break-all"
                             >
                               {detail}
                             </a>
@@ -231,7 +231,7 @@ const ContactSection = () => {
                             <a 
                               key={idx} 
                               href={`mailto:${detail}`}
-                              className="block text-muted-foreground text-xs leading-relaxed hover:text-primary transition-colors cursor-pointer"
+                              className="block text-muted-foreground text-[10px] sm:text-xs leading-relaxed hover:text-primary transition-colors cursor-pointer break-all"
                             >
                               {detail}
                             </a>
@@ -239,7 +239,7 @@ const ContactSection = () => {
                         }
                         
                         return (
-                          <p key={idx} className="text-muted-foreground text-xs leading-relaxed">
+                          <p key={idx} className="text-muted-foreground text-[10px] sm:text-xs leading-relaxed">
                             {detail}
                           </p>
                         );
@@ -257,46 +257,46 @@ const ContactSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.3 }}
-                className="grid grid-cols-2 gap-4 flex-1"
+                className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4 flex-1"
               >
                 {officeLocations.map((office) => (
                   <div 
                     key={office.id}
-                    className="bg-card rounded-xl p-4 shadow-elegant hover:shadow-lg transition-all duration-300 group"
+                    className="bg-card rounded-xl p-3 sm:p-4 shadow-elegant hover:shadow-lg transition-all duration-300 group"
                   >
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-elegant">
-                        <Building2 className="w-5 h-5 text-primary-foreground" />
+                    <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-elegant">
+                        <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
                       </div>
-                      <h3 className="font-heading font-bold text-sm text-secondary">{office.name}</h3>
+                      <h3 className="font-heading font-bold text-xs sm:text-sm text-secondary">{office.name}</h3>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <a 
                         href={`https://maps.google.com/?q=${office.map_query || encodeURIComponent(office.address)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-start gap-2 text-muted-foreground hover:text-primary transition-colors group/link"
+                        className="flex items-start gap-1.5 sm:gap-2 text-muted-foreground hover:text-primary transition-colors group/link"
                       >
-                        <MapPin className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 group-hover/link:text-secondary" />
-                        <span className="text-xs leading-relaxed">{office.address}</span>
+                        <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 mt-0.5 flex-shrink-0 group-hover/link:text-secondary" />
+                        <span className="text-[10px] sm:text-xs leading-relaxed">{office.address}</span>
                       </a>
                       {office.phones.map((phone, idx) => (
                         <a 
                           key={idx}
                           href={`tel:${phone}`}
-                          className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
+                          className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground hover:text-primary transition-colors"
                         >
-                          <Phone className="w-3.5 h-3.5 flex-shrink-0" />
-                          <span className="text-xs">{phone}</span>
+                          <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
+                          <span className="text-[10px] sm:text-xs break-all">{phone}</span>
                         </a>
                       ))}
                       {office.email && (
                         <a 
                           href={`mailto:${office.email}`}
-                          className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
+                          className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground hover:text-primary transition-colors"
                         >
-                          <Mail className="w-3.5 h-3.5 flex-shrink-0" />
-                          <span className="text-xs">{office.email}</span>
+                          <Mail className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
+                          <span className="text-[10px] sm:text-xs break-all">{office.email}</span>
                         </a>
                       )}
                     </div>
