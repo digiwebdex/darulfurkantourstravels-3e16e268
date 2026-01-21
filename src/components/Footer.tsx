@@ -32,7 +32,7 @@ interface FooterContent {
   contact_address_2?: string;
   address_label_1?: string;
   address_label_2?: string;
-  contact_phones?: string[];
+  contact_phones?: string[]; // Each string is a section with two comma-separated phone numbers
   contact_email?: string;
 }
 
@@ -273,97 +273,44 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Contact Info - Phone & Email */}
+          {/* Contact Info - Phone Numbers */}
           <div>
             <h4 className="font-heading font-semibold text-lg mb-6 flex items-center gap-2">
               <span className="w-8 h-0.5 bg-secondary" />
-              Contact Info
+              Phone Numbers
             </h4>
             <ul className="space-y-4">
-              {/* Phone Numbers */}
-              {displayPhones.length > 0 && (
-                <>
-                  {/* First group - first 2 phones on one line */}
-                  {displayPhones.slice(0, 2).length > 0 && (
-                    <li className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-primary-foreground/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Phone className="w-5 h-5 text-secondary" />
-                      </div>
-                      <div className="text-primary-foreground/80 text-sm pt-2">
-                        {displayPhones.slice(0, 2).map((phone, idx, arr) => (
-                          <span key={idx}>
-                            <a 
-                              href={`tel:${phone.replace(/\s/g, '')}`}
-                              className="hover:text-secondary transition-colors"
-                            >
-                              {phone}
-                            </a>
-                            {idx < arr.length - 1 && <span className="text-primary-foreground/50">, </span>}
-                          </span>
-                        ))}
-                      </div>
-                    </li>
-                  )}
-                  {/* Second group - phones 3-8 in rows of 2 */}
-                  {displayPhones.length > 2 && (
-                    <li className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-primary-foreground/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Phone className="w-5 h-5 text-secondary" />
-                      </div>
-                      <div className="text-primary-foreground/80 text-sm pt-2 flex flex-col gap-1">
-                        {/* Row 1: phones 3-4 */}
-                        {displayPhones.slice(2, 4).length > 0 && (
-                          <div>
-                            {displayPhones.slice(2, 4).map((phone, idx, arr) => (
-                              <span key={idx}>
-                                <a 
-                                  href={`tel:${phone.replace(/\s/g, '')}`}
-                                  className="hover:text-secondary transition-colors"
-                                >
-                                  {phone}
-                                </a>
-                                {idx < arr.length - 1 && <span className="text-primary-foreground/50">, </span>}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                        {/* Row 2: phones 5-6 */}
-                        {displayPhones.slice(4, 6).length > 0 && (
-                          <div>
-                            {displayPhones.slice(4, 6).map((phone, idx, arr) => (
-                              <span key={idx}>
-                                <a 
-                                  href={`tel:${phone.replace(/\s/g, '')}`}
-                                  className="hover:text-secondary transition-colors"
-                                >
-                                  {phone}
-                                </a>
-                                {idx < arr.length - 1 && <span className="text-primary-foreground/50">, </span>}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                        {/* Row 3: phones 7-8 */}
-                        {displayPhones.slice(6, 8).length > 0 && (
-                          <div>
-                            {displayPhones.slice(6, 8).map((phone, idx, arr) => (
-                              <span key={idx}>
-                                <a 
-                                  href={`tel:${phone.replace(/\s/g, '')}`}
-                                  className="hover:text-secondary transition-colors"
-                                >
-                                  {phone}
-                                </a>
-                                {idx < arr.length - 1 && <span className="text-primary-foreground/50">, </span>}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </li>
-                  )}
-                </>
-              )}
+              {/* Display each phone section */}
+              {displayPhones.map((phoneSection, sectionIndex) => {
+                // Split the comma-separated phones
+                const phones = phoneSection.split(',').map(p => p.trim()).filter(p => p);
+                if (phones.length === 0) return null;
+                
+                return (
+                  <li key={sectionIndex} className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-primary-foreground/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Phone className="w-5 h-5 text-secondary" />
+                    </div>
+                    {/* Two columns on desktop/tablet, stacked on mobile */}
+                    <div className="text-primary-foreground/80 text-sm pt-2 flex flex-col md:flex-row md:gap-2">
+                      {phones.map((phone, idx) => (
+                        <span key={idx} className="block md:inline">
+                          <a 
+                            href={`tel:${phone.replace(/\s/g, '')}`}
+                            className="hover:text-secondary transition-colors"
+                          >
+                            {phone}
+                          </a>
+                          {/* Show comma separator only on desktop between phones */}
+                          {idx < phones.length - 1 && (
+                            <span className="hidden md:inline text-primary-foreground/50">, </span>
+                          )}
+                        </span>
+                      ))}
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>

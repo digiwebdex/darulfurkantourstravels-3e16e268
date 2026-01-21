@@ -10,23 +10,30 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-interface SortablePhoneItemProps {
+interface PhoneSection {
   id: string;
-  index: number;
-  phone: string;
-  totalPhones: number;
-  onUpdate: (index: number, value: string) => void;
-  onRemove: (index: number) => void;
+  phones: string; // Two phone numbers comma-separated
 }
 
-const SortablePhoneItem = ({ id, index, phone, totalPhones, onUpdate, onRemove }: SortablePhoneItemProps) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+interface SortablePhoneSectionProps {
+  section: PhoneSection;
+  index: number;
+  totalSections: number;
+  onUpdate: (id: string, value: string) => void;
+  onRemove: (id: string) => void;
+}
+
+const SortablePhoneSection = ({ section, index, totalSections, onUpdate, onRemove }: SortablePhoneSectionProps) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: section.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
+
+  // Label: 1st Section #1 for index 0, 2nd Section #1 for index 1, 2nd Section #2 for index 2, etc.
+  const sectionLabel = index === 0 ? "1st Section #1" : `2nd Section #${index}`;
 
   return (
     <div ref={setNodeRef} style={style} className="flex gap-2 items-center">
@@ -38,20 +45,20 @@ const SortablePhoneItem = ({ id, index, phone, totalPhones, onUpdate, onRemove }
       >
         <GripVertical className="w-4 h-4 text-muted-foreground" />
       </button>
-      <span className={`text-xs font-medium w-24 flex-shrink-0 ${index < 2 ? 'text-primary' : 'text-muted-foreground'}`}>
-        {index < 2 ? `1st Section #${index + 1}` : `2nd Section #${index - 1}`}
+      <span className={`text-xs font-medium w-28 flex-shrink-0 ${index === 0 ? 'text-primary' : 'text-muted-foreground'}`}>
+        {sectionLabel}
       </span>
       <Input 
-        value={phone} 
-        onChange={(e) => onUpdate(index, e.target.value)} 
-        placeholder="+880 1234-567890" 
+        value={section.phones} 
+        onChange={(e) => onUpdate(section.id, e.target.value)} 
+        placeholder="+8801234567890, +8809876543210" 
         className="flex-1" 
       />
       <Button 
         variant="ghost" 
         size="icon" 
-        onClick={() => onRemove(index)}
-        disabled={totalPhones === 1}
+        onClick={() => onRemove(section.id)}
+        disabled={totalSections === 1}
       >
         <Trash2 className="w-4 h-4 text-destructive" />
       </Button>
@@ -80,7 +87,7 @@ interface FooterContent {
   contact_address_2: string;
   address_label_1: string;
   address_label_2: string;
-  contact_phones: string[];
+  contact_phones: string[]; // Now stores sections, each section is "phone1, phone2"
   contact_email: string;
 }
 
@@ -105,9 +112,22 @@ const AdminFooter = () => {
     contact_address_2: "",
     address_label_1: "Head Office",
     address_label_2: "Branch Office",
-    contact_phones: [""],
+    contact_phones: [], // Stores sections as strings
     contact_email: "",
   });
+
+  // Generate unique IDs for phone sections (for drag-and-drop)
+  const [phoneSections, setPhoneSections] = useState<PhoneSection[]>([]);
+
+  // Sync phoneSections when footerContent.contact_phones changes
+  useEffect(() => {
+    const phones = footerContent.contact_phones;
+    if (phones.length === 0) {
+      setPhoneSections([{ id: `section-${Date.now()}`, phones: "" }]);
+    } else {
+      setPhoneSections(phones.map((p, i) => ({ id: `section-${i}-${Date.now()}`, phones: p })));
+    }
+  }, [footerContent.id]); // Only sync on initial load
 
   useEffect(() => {
     fetchFooterContent();
@@ -138,6 +158,9 @@ const AdminFooter = () => {
   const handleSave = async () => {
     setSaving(true);
     
+    // Convert phoneSections back to array of strings for storage
+    const phonesArray = phoneSections.map(s => s.phones).filter(p => p.trim() !== "");
+    
     const payload = {
       company_description: footerContent.company_description,
       quick_links: footerContent.quick_links as unknown as null,
@@ -148,7 +171,7 @@ const AdminFooter = () => {
       contact_address_2: footerContent.contact_address_2,
       address_label_1: footerContent.address_label_1,
       address_label_2: footerContent.address_label_2,
-      contact_phones: footerContent.contact_phones.filter(p => p.trim() !== ""),
+      contact_phones: phonesArray,
       contact_email: footerContent.contact_email,
     };
 
@@ -172,25 +195,25 @@ const AdminFooter = () => {
   const addQuickLink = () => setFooterContent({ ...footerContent, quick_links: [...footerContent.quick_links, { label: "", href: "" }] });
   const addServiceLink = () => setFooterContent({ ...footerContent, services_links: [...footerContent.services_links, { label: "", href: "" }] });
   const addSocialLink = () => setFooterContent({ ...footerContent, social_links: [...footerContent.social_links, { platform: "", url: "" }] });
-  const addPhone = () => setFooterContent({ ...footerContent, contact_phones: [...footerContent.contact_phones, ""] });
-
-  const updatePhone = (index: number, value: string) => {
-    const newPhones = [...footerContent.contact_phones];
-    newPhones[index] = value;
-    setFooterContent({ ...footerContent, contact_phones: newPhones });
+  
+  const addPhoneSection = () => {
+    setPhoneSections([...phoneSections, { id: `section-${Date.now()}`, phones: "" }]);
   };
 
-  const removePhone = (index: number) => {
-    setFooterContent({ ...footerContent, contact_phones: footerContent.contact_phones.filter((_, i) => i !== index) });
+  const updatePhoneSection = (id: string, value: string) => {
+    setPhoneSections(phoneSections.map(s => s.id === id ? { ...s, phones: value } : s));
+  };
+
+  const removePhoneSection = (id: string) => {
+    setPhoneSections(phoneSections.filter(s => s.id !== id));
   };
 
   const handlePhoneDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
-      const oldIndex = footerContent.contact_phones.findIndex((_, i) => `phone-${i}` === active.id);
-      const newIndex = footerContent.contact_phones.findIndex((_, i) => `phone-${i}` === over.id);
-      const newPhones = arrayMove(footerContent.contact_phones, oldIndex, newIndex);
-      setFooterContent({ ...footerContent, contact_phones: newPhones });
+      const oldIndex = phoneSections.findIndex(s => s.id === active.id);
+      const newIndex = phoneSections.findIndex(s => s.id === over.id);
+      setPhoneSections(arrayMove(phoneSections, oldIndex, newIndex));
     }
   };
 
@@ -347,26 +370,25 @@ const AdminFooter = () => {
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium">Phone Numbers</label>
-                <Button type="button" variant="outline" size="sm" onClick={addPhone} disabled={footerContent.contact_phones.length >= 8}>
-                  <Plus className="w-4 h-4 mr-1" />Add Phone
+                <label className="text-sm font-medium">Phone Number Sections</label>
+                <Button type="button" variant="outline" size="sm" onClick={addPhoneSection}>
+                  <Plus className="w-4 h-4 mr-1" />Add Section
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground mb-3">
-                First 2 numbers appear in the 1st contact section, next 6 numbers in the 2nd contact section (max 8 total)
+                Each section contains two phone numbers separated by comma. First section appears as primary contact.
               </p>
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handlePhoneDragEnd}>
-                <SortableContext items={footerContent.contact_phones.map((_, i) => `phone-${i}`)} strategy={verticalListSortingStrategy}>
+                <SortableContext items={phoneSections.map(s => s.id)} strategy={verticalListSortingStrategy}>
                   <div className="space-y-2">
-                    {footerContent.contact_phones.map((phone, index) => (
-                      <SortablePhoneItem
-                        key={`phone-${index}`}
-                        id={`phone-${index}`}
+                    {phoneSections.map((section, index) => (
+                      <SortablePhoneSection
+                        key={section.id}
+                        section={section}
                         index={index}
-                        phone={phone}
-                        totalPhones={footerContent.contact_phones.length}
-                        onUpdate={updatePhone}
-                        onRemove={removePhone}
+                        totalSections={phoneSections.length}
+                        onUpdate={updatePhoneSection}
+                        onRemove={removePhoneSection}
                       />
                     ))}
                   </div>
