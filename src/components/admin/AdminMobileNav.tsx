@@ -16,7 +16,8 @@ import {
   LayoutDashboard,
   BarChart3,
   Layers,
-  Images
+  Images,
+  Megaphone
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ const menuItems = [
   { value: "revenue", label: "Revenue", icon: Wallet },
   { value: "payments", label: "Payments", icon: Wallet },
   { value: "notifications", label: "Notifications", icon: Bell },
+  { value: "notices", label: "Notice Board", icon: Megaphone },
   { value: "menu", label: "Menu", icon: MenuIcon },
   { value: "hero", label: "Hero", icon: Image },
   { value: "services", label: "Services", icon: Settings },

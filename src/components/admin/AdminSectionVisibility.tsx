@@ -19,7 +19,8 @@ import {
   Images,
   Globe,
   Phone,
-  GripVertical
+  GripVertical,
+  Megaphone
 } from "lucide-react";
 
 interface SectionConfig {
@@ -33,15 +34,16 @@ interface SectionConfig {
 
 const defaultSections: SectionConfig[] = [
   { key: "hero", label: "Hero Section", description: "Main banner with slideshow", icon: Image, is_active: true, order_index: 0 },
-  { key: "services", label: "Services Overview", description: "Key services cards", icon: Layers, is_active: true, order_index: 1 },
-  { key: "hajj_packages", label: "Hajj Packages", description: "Hajj package listings", icon: Package, is_active: true, order_index: 2 },
-  { key: "umrah_packages", label: "Umrah Packages", description: "Umrah package listings", icon: Package, is_active: true, order_index: 3 },
-  { key: "visa_services", label: "Visa Services", description: "Visa application services", icon: Globe, is_active: true, order_index: 4 },
-  { key: "testimonials", label: "Testimonials", description: "Customer reviews", icon: MessageSquare, is_active: true, order_index: 5 },
-  { key: "team", label: "Team Section", description: "Team members display", icon: Users, is_active: true, order_index: 6 },
-  { key: "faq", label: "FAQ Section", description: "Frequently asked questions", icon: HelpCircle, is_active: true, order_index: 7 },
-  { key: "gallery", label: "Gallery Section", description: "Photo gallery", icon: Images, is_active: true, order_index: 8 },
-  { key: "contact", label: "Contact Section", description: "Contact form and info", icon: Phone, is_active: true, order_index: 9 },
+  { key: "notices", label: "Notice Board", description: "Announcements & updates", icon: Megaphone, is_active: true, order_index: 1 },
+  { key: "services", label: "Services Overview", description: "Key services cards", icon: Layers, is_active: true, order_index: 2 },
+  { key: "hajj_packages", label: "Hajj Packages", description: "Hajj package listings", icon: Package, is_active: true, order_index: 3 },
+  { key: "umrah_packages", label: "Umrah Packages", description: "Umrah package listings", icon: Package, is_active: true, order_index: 4 },
+  { key: "visa_services", label: "Visa Services", description: "Visa application services", icon: Globe, is_active: true, order_index: 5 },
+  { key: "testimonials", label: "Testimonials", description: "Customer reviews", icon: MessageSquare, is_active: true, order_index: 6 },
+  { key: "team", label: "Team Section", description: "Team members display", icon: Users, is_active: true, order_index: 7 },
+  { key: "faq", label: "FAQ Section", description: "Frequently asked questions", icon: HelpCircle, is_active: true, order_index: 8 },
+  { key: "gallery", label: "Gallery Section", description: "Photo gallery", icon: Images, is_active: true, order_index: 9 },
+  { key: "contact", label: "Contact Section", description: "Contact form and info", icon: Phone, is_active: true, order_index: 10 },
 ];
 
 const AdminSectionVisibility = () => {

@@ -688,6 +688,63 @@ export type Database = {
         }
         Relationships: []
       }
+      notices: {
+        Row: {
+          attachment_name: string | null
+          attachment_url: string | null
+          content: string | null
+          created_at: string
+          end_date: string | null
+          external_link: string | null
+          external_link_text: string | null
+          id: string
+          is_active: boolean
+          is_pinned: boolean
+          notice_type: string
+          order_index: number
+          priority: string
+          start_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          attachment_name?: string | null
+          attachment_url?: string | null
+          content?: string | null
+          created_at?: string
+          end_date?: string | null
+          external_link?: string | null
+          external_link_text?: string | null
+          id?: string
+          is_active?: boolean
+          is_pinned?: boolean
+          notice_type?: string
+          order_index?: number
+          priority?: string
+          start_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          attachment_name?: string | null
+          attachment_url?: string | null
+          content?: string | null
+          created_at?: string
+          end_date?: string | null
+          external_link?: string | null
+          external_link_text?: string | null
+          id?: string
+          is_active?: boolean
+          is_pinned?: boolean
+          notice_type?: string
+          order_index?: number
+          priority?: string
+          start_date?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notification_logs: {
         Row: {
           booking_id: string | null

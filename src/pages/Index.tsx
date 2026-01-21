@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
+import NoticeBoard from "@/components/NoticeBoard";
 import ServicesOverview from "@/components/ServicesOverview";
 import HajjPackages from "@/components/HajjPackages";
 import UmrahPackages from "@/components/UmrahPackages";
@@ -22,6 +23,7 @@ interface SectionVisibility {
 const Index = () => {
   const [sectionVisibility, setSectionVisibility] = useState<SectionVisibility>({
     hero: true,
+    notices: true,
     services: true,
     hajj_packages: true,
     umrah_packages: true,
@@ -75,6 +77,7 @@ const Index = () => {
       <Header />
       <main>
         {sectionVisibility.hero && <HeroSection />}
+        {sectionVisibility.notices && <NoticeBoard />}
         {sectionVisibility.services && <ServicesOverview />}
         {sectionVisibility.hajj_packages && <HajjPackages />}
         {sectionVisibility.umrah_packages && <UmrahPackages />}
