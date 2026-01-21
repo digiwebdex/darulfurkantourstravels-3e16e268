@@ -2,61 +2,28 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Plus, Trash2, GripVertical, ChevronDown, ChevronUp, Image as ImageIcon, Settings, Timer, Zap, LayoutTemplate, Columns, AlignCenter, Sun, Moon, Grid3X3, Sparkles, Maximize, Focus, MoveVertical } from "lucide-react";
+import { Save, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import ImageUpload from "./ImageUpload";
 import { useImageUpload } from "@/hooks/useImageUpload";
 
 interface HeroSlide {
   id: string;
-  badge_text: string;
   title: string;
   subtitle: string;
-  description: string;
-  primary_button_text: string;
-  primary_button_link: string;
-  secondary_button_text: string;
-  secondary_button_link: string;
   background_image_url: string;
-  video_url: string;
-  stats: { number: string; label: string }[];
-  slide_type: string;
   order_index: number;
   is_active: boolean;
 }
 
-interface SliderSettings {
-  autoplayInterval: string;
-  transitionSpeed: string;
-  layoutMode: "centered" | "split-screen";
-  heroTheme: "dark" | "light";
-  showServiceTiles: boolean;
-  showFloatingPatterns: boolean;
-  heroHeight: "60vh" | "70vh" | "80vh" | "100vh";
-  heroHeightMobile: "50vh" | "60vh" | "70vh" | "80vh" | "100vh";
-  imageFocalPoint: "top" | "center" | "bottom";
-  heroTopMargin: "0" | "20" | "40" | "60" | "80";
-}
-
 const defaultSlide: Omit<HeroSlide, "id"> = {
-  badge_text: "",
   title: "New Slide",
   subtitle: "",
-  description: "",
-  primary_button_text: "Explore Packages",
-  primary_button_link: "#hajj",
-  secondary_button_text: "Contact Us",
-  secondary_button_link: "#contact",
   background_image_url: "",
-  video_url: "",
-  stats: [],
-  slide_type: "general",
   order_index: 0,
   is_active: true,
 };
@@ -67,19 +34,6 @@ const AdminHero = () => {
   const [saving, setSaving] = useState<string | null>(null);
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [openSlides, setOpenSlides] = useState<Set<string>>(new Set());
-  const [sliderSettings, setSliderSettings] = useState<SliderSettings>({
-    autoplayInterval: "6",
-    transitionSpeed: "normal",
-    layoutMode: "split-screen",
-    heroTheme: "dark",
-    showServiceTiles: true,
-    showFloatingPatterns: true,
-    heroHeight: "70vh",
-    heroHeightMobile: "60vh",
-    imageFocalPoint: "center",
-    heroTopMargin: "0",
-  });
-  const [savingSettings, setSavingSettings] = useState(false);
   const { uploadImage, uploading } = useImageUpload({
     bucket: "admin-uploads",
     folder: "hero-banners",
@@ -87,87 +41,7 @@ const AdminHero = () => {
 
   useEffect(() => {
     fetchSlides();
-    fetchSliderSettings();
   }, []);
-
-  const fetchSliderSettings = async () => {
-    const { data } = await supabase
-      .from("site_settings")
-      .select("setting_key, setting_value")
-      .in("setting_key", ["hero_autoplay_interval", "hero_transition_speed", "hero_layout_mode", "hero_theme", "hero_show_service_tiles", "hero_show_floating_patterns", "hero_height", "hero_height_mobile", "hero_image_focal_point", "hero_top_margin"]);
-
-    if (data) {
-      const settings: SliderSettings = { autoplayInterval: "6", transitionSpeed: "normal", layoutMode: "split-screen", heroTheme: "dark", showServiceTiles: true, showFloatingPatterns: true, heroHeight: "70vh", heroHeightMobile: "60vh", imageFocalPoint: "center", heroTopMargin: "0" };
-      data.forEach((item) => {
-        const value = String(item.setting_value).replace(/"/g, "");
-        if (item.setting_key === "hero_autoplay_interval") {
-          settings.autoplayInterval = value;
-        } else if (item.setting_key === "hero_transition_speed") {
-          settings.transitionSpeed = value;
-        } else if (item.setting_key === "hero_layout_mode") {
-          settings.layoutMode = value === "centered" ? "centered" : "split-screen";
-        } else if (item.setting_key === "hero_theme") {
-          settings.heroTheme = value === "light" ? "light" : "dark";
-        } else if (item.setting_key === "hero_show_service_tiles") {
-          settings.showServiceTiles = value !== "false";
-        } else if (item.setting_key === "hero_show_floating_patterns") {
-          settings.showFloatingPatterns = value !== "false";
-        } else if (item.setting_key === "hero_height") {
-          settings.heroHeight = (value === "60vh" || value === "70vh" || value === "80vh" || value === "100vh") ? value : "70vh";
-        } else if (item.setting_key === "hero_height_mobile") {
-          settings.heroHeightMobile = (value === "50vh" || value === "60vh" || value === "70vh" || value === "80vh" || value === "100vh") ? value : "60vh";
-        } else if (item.setting_key === "hero_image_focal_point") {
-          settings.imageFocalPoint = (value === "top" || value === "center" || value === "bottom") ? value : "center";
-        } else if (item.setting_key === "hero_top_margin") {
-          settings.heroTopMargin = (value === "0" || value === "20" || value === "40" || value === "60" || value === "80") ? value : "0";
-        }
-      });
-      setSliderSettings(settings);
-    }
-  };
-
-  const handleSaveSettings = async () => {
-    setSavingSettings(true);
-    
-    const settingsToSave = [
-      { key: "hero_autoplay_interval", value: sliderSettings.autoplayInterval },
-      { key: "hero_transition_speed", value: sliderSettings.transitionSpeed },
-      { key: "hero_layout_mode", value: sliderSettings.layoutMode },
-      { key: "hero_theme", value: sliderSettings.heroTheme },
-      { key: "hero_show_service_tiles", value: String(sliderSettings.showServiceTiles) },
-      { key: "hero_show_floating_patterns", value: String(sliderSettings.showFloatingPatterns) },
-      { key: "hero_height", value: sliderSettings.heroHeight },
-      { key: "hero_height_mobile", value: sliderSettings.heroHeightMobile },
-      { key: "hero_image_focal_point", value: sliderSettings.imageFocalPoint },
-      { key: "hero_top_margin", value: sliderSettings.heroTopMargin },
-    ];
-
-    for (const setting of settingsToSave) {
-      const { data: existing } = await supabase
-        .from("site_settings")
-        .select("id")
-        .eq("setting_key", setting.key)
-        .single();
-
-      if (existing) {
-        await supabase
-          .from("site_settings")
-          .update({ setting_value: JSON.stringify(setting.value) })
-          .eq("setting_key", setting.key);
-      } else {
-        await supabase
-          .from("site_settings")
-          .insert({ 
-            setting_key: setting.key, 
-            setting_value: JSON.stringify(setting.value),
-            category: "hero"
-          });
-      }
-    }
-    
-    toast({ title: "Success", description: "Slider settings saved" });
-    setSavingSettings(false);
-  };
 
   const fetchSlides = async () => {
     const { data, error } = await supabase
@@ -178,23 +52,13 @@ const AdminHero = () => {
     if (!error && data) {
       const formattedSlides = data.map((item) => ({
         id: item.id,
-        badge_text: item.badge_text || "",
         title: item.title,
         subtitle: item.subtitle || "",
-        description: item.description || "",
-        primary_button_text: item.primary_button_text || "",
-        primary_button_link: item.primary_button_link || "",
-        secondary_button_text: item.secondary_button_text || "",
-        secondary_button_link: item.secondary_button_link || "",
         background_image_url: item.background_image_url || "",
-        video_url: item.video_url || "",
-        stats: Array.isArray(item.stats) ? item.stats as { number: string; label: string }[] : [],
-        slide_type: (item as any).slide_type || "general",
-        order_index: (item as any).order_index || 0,
+        order_index: item.order_index || 0,
         is_active: item.is_active,
       }));
       setSlides(formattedSlides);
-      // Open first slide by default
       if (formattedSlides.length > 0) {
         setOpenSlides(new Set([formattedSlides[0].id]));
       }
@@ -205,26 +69,15 @@ const AdminHero = () => {
   const handleSave = async (slide: HeroSlide) => {
     setSaving(slide.id);
     
-    const payload = {
-      badge_text: slide.badge_text,
-      title: slide.title,
-      subtitle: slide.subtitle,
-      description: slide.description,
-      primary_button_text: slide.primary_button_text,
-      primary_button_link: slide.primary_button_link,
-      secondary_button_text: slide.secondary_button_text,
-      secondary_button_link: slide.secondary_button_link,
-      background_image_url: slide.background_image_url,
-      video_url: slide.video_url,
-      stats: slide.stats,
-      slide_type: slide.slide_type,
-      order_index: slide.order_index,
-      is_active: slide.is_active,
-    };
-
     const { error } = await supabase
       .from("hero_content")
-      .update(payload)
+      .update({
+        title: slide.title,
+        subtitle: slide.subtitle,
+        background_image_url: slide.background_image_url,
+        order_index: slide.order_index,
+        is_active: slide.is_active,
+      })
       .eq("id", slide.id);
 
     if (error) {
@@ -284,33 +137,6 @@ const AdminHero = () => {
     setSlides(slides.map(s => s.id === id ? { ...s, ...updates } : s));
   };
 
-  const updateStat = (slideId: string, statIndex: number, field: "number" | "label", value: string) => {
-    const slide = slides.find(s => s.id === slideId);
-    if (!slide) return;
-    
-    const newStats = [...slide.stats];
-    newStats[statIndex] = { ...newStats[statIndex], [field]: value };
-    updateSlide(slideId, { stats: newStats });
-  };
-
-  const addStat = (slideId: string) => {
-    const slide = slides.find(s => s.id === slideId);
-    if (!slide) return;
-    
-    updateSlide(slideId, { 
-      stats: [...slide.stats, { number: "", label: "" }] 
-    });
-  };
-
-  const removeStat = (slideId: string, statIndex: number) => {
-    const slide = slides.find(s => s.id === slideId);
-    if (!slide) return;
-    
-    updateSlide(slideId, { 
-      stats: slide.stats.filter((_, i) => i !== statIndex) 
-    });
-  };
-
   const moveSlide = async (index: number, direction: "up" | "down") => {
     const newIndex = direction === "up" ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= slides.length) return;
@@ -318,13 +144,11 @@ const AdminHero = () => {
     const newSlides = [...slides];
     [newSlides[index], newSlides[newIndex]] = [newSlides[newIndex], newSlides[index]];
     
-    // Update order_index for both slides
     newSlides[index].order_index = index;
     newSlides[newIndex].order_index = newIndex;
     
     setSlides(newSlides);
 
-    // Save to database
     await Promise.all([
       supabase.from("hero_content").update({ order_index: index }).eq("id", newSlides[index].id),
       supabase.from("hero_content").update({ order_index: newIndex }).eq("id", newSlides[newIndex].id),
@@ -341,287 +165,12 @@ const AdminHero = () => {
     setOpenSlides(newOpen);
   };
 
-  const getSlideTypeLabel = (type: string) => {
-    switch (type) {
-      case "hajj": return "Hajj";
-      case "umrah": return "Umrah";
-      default: return "General";
-    }
-  };
-
-  const getSlideTypeBadgeColor = (type: string) => {
-    switch (type) {
-      case "hajj": return "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400";
-      case "umrah": return "bg-blue-500/20 text-blue-700 dark:text-blue-400";
-      default: return "bg-secondary/20 text-secondary-foreground";
-    }
-  };
-
   if (loading) {
     return <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>;
   }
 
   return (
     <div className="space-y-6">
-      {/* Slider Settings Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="w-5 h-5" />
-            Slider Settings
-          </CardTitle>
-          <CardDescription>Control how the hero slider behaves</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Layout Mode Toggle */}
-          <div className="space-y-3">
-            <Label className="flex items-center gap-2">
-              <LayoutTemplate className="w-4 h-4" />
-              Layout Mode
-            </Label>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setSliderSettings({ ...sliderSettings, layoutMode: "split-screen" })}
-                className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
-                  sliderSettings.layoutMode === "split-screen" 
-                    ? "border-primary bg-primary/5" 
-                    : "border-muted hover:border-muted-foreground/30"
-                }`}
-              >
-                <Columns className="w-8 h-8" />
-                <span className="font-medium text-sm">Split-Screen</span>
-                <span className="text-xs text-muted-foreground text-center">Content left, image right</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSliderSettings({ ...sliderSettings, layoutMode: "centered" })}
-                className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
-                  sliderSettings.layoutMode === "centered" 
-                    ? "border-primary bg-primary/5" 
-                    : "border-muted hover:border-muted-foreground/30"
-                }`}
-              >
-                <AlignCenter className="w-8 h-8" />
-                <span className="font-medium text-sm">Full-Width Centered</span>
-                <span className="text-xs text-muted-foreground text-center">Classic centered layout</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Theme Selection */}
-          <div className="space-y-3">
-            <Label className="flex items-center gap-2">
-              {sliderSettings.heroTheme === "light" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              Hero Theme
-            </Label>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setSliderSettings({ ...sliderSettings, heroTheme: "dark" })}
-                className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
-                  sliderSettings.heroTheme === "dark" 
-                    ? "border-primary bg-primary/5" 
-                    : "border-muted hover:border-muted-foreground/30"
-                }`}
-              >
-                <Moon className="w-8 h-8" />
-                <span className="font-medium text-sm">Dark Theme</span>
-                <span className="text-xs text-muted-foreground text-center">Rich emerald with gold accents</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSliderSettings({ ...sliderSettings, heroTheme: "light" })}
-                className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
-                  sliderSettings.heroTheme === "light" 
-                    ? "border-primary bg-primary/5" 
-                    : "border-muted hover:border-muted-foreground/30"
-                }`}
-              >
-                <Sun className="w-8 h-8" />
-                <span className="font-medium text-sm">Light Theme</span>
-                <span className="text-xs text-muted-foreground text-center">Clean, modern graphic style</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Toggle Options */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="flex items-center justify-between p-4 rounded-lg border">
-              <div className="flex items-center gap-3">
-                <Grid3X3 className="w-5 h-5 text-muted-foreground" />
-                <div>
-                  <p className="font-medium text-sm">Service Tiles</p>
-                  <p className="text-xs text-muted-foreground">Quick access buttons for Hajj, Umrah, Visa</p>
-                </div>
-              </div>
-              <Switch 
-                checked={sliderSettings.showServiceTiles} 
-                onCheckedChange={(checked) => setSliderSettings({ ...sliderSettings, showServiceTiles: checked })}
-              />
-            </div>
-            <div className="flex items-center justify-between p-4 rounded-lg border">
-              <div className="flex items-center gap-3">
-                <Sparkles className="w-5 h-5 text-muted-foreground" />
-                <div>
-                  <p className="font-medium text-sm">Floating Patterns</p>
-                  <p className="text-xs text-muted-foreground">Animated Islamic patterns (dark theme only)</p>
-                </div>
-              </div>
-              <Switch 
-                checked={sliderSettings.showFloatingPatterns} 
-                onCheckedChange={(checked) => setSliderSettings({ ...sliderSettings, showFloatingPatterns: checked })}
-              />
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Timer className="w-4 h-4" />
-                Autoplay Interval
-              </Label>
-              <Select
-                value={sliderSettings.autoplayInterval}
-                onValueChange={(value) => setSliderSettings({ ...sliderSettings, autoplayInterval: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select interval" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="2">2 seconds (Very Fast)</SelectItem>
-                  <SelectItem value="3">3 seconds (Fast)</SelectItem>
-                  <SelectItem value="4">4 seconds (Normal)</SelectItem>
-                  <SelectItem value="6">6 seconds (Slow)</SelectItem>
-                  <SelectItem value="8">8 seconds (Very Slow)</SelectItem>
-                  <SelectItem value="10">10 seconds (Ultra Slow)</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">Time before auto-switching to next slide</p>
-            </div>
-            
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Zap className="w-4 h-4" />
-                Transition Speed
-              </Label>
-              <Select
-                value={sliderSettings.transitionSpeed}
-                onValueChange={(value) => setSliderSettings({ ...sliderSettings, transitionSpeed: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select speed" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="fast">Fast (0.5s)</SelectItem>
-                  <SelectItem value="normal">Normal (0.9s)</SelectItem>
-                  <SelectItem value="slow">Slow (1.2s)</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">Speed of slide transition animation</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Maximize className="w-4 h-4" />
-                Desktop Height
-              </Label>
-              <Select
-                value={sliderSettings.heroHeight}
-                onValueChange={(value: "60vh" | "70vh" | "80vh" | "100vh") => setSliderSettings({ ...sliderSettings, heroHeight: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select height" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="60vh">60% Screen (Compact)</SelectItem>
-                  <SelectItem value="70vh">70% Screen (Default)</SelectItem>
-                  <SelectItem value="80vh">80% Screen (Large)</SelectItem>
-                  <SelectItem value="100vh">Full Screen</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">Height on desktop screens</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Maximize className="w-4 h-4" />
-                Mobile Height
-              </Label>
-              <Select
-                value={sliderSettings.heroHeightMobile}
-                onValueChange={(value: "50vh" | "60vh" | "70vh" | "80vh" | "100vh") => setSliderSettings({ ...sliderSettings, heroHeightMobile: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select height" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="50vh">50% Screen (Compact)</SelectItem>
-                  <SelectItem value="60vh">60% Screen (Default)</SelectItem>
-                  <SelectItem value="70vh">70% Screen (Medium)</SelectItem>
-                  <SelectItem value="80vh">80% Screen (Large)</SelectItem>
-                  <SelectItem value="100vh">Full Screen</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">Height on mobile screens</p>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Focus className="w-4 h-4" />
-                Image Focal Point
-              </Label>
-              <Select
-                value={sliderSettings.imageFocalPoint}
-                onValueChange={(value: "top" | "center" | "bottom") => setSliderSettings({ ...sliderSettings, imageFocalPoint: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select focal point" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="top">Top</SelectItem>
-                  <SelectItem value="center">Center (Default)</SelectItem>
-                  <SelectItem value="bottom">Bottom</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">Controls where the image centers vertically</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <MoveVertical className="w-4 h-4" />
-                Hero Top Margin
-              </Label>
-              <Select
-                value={sliderSettings.heroTopMargin}
-                onValueChange={(value: "0" | "20" | "40" | "60" | "80") => setSliderSettings({ ...sliderSettings, heroTopMargin: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select margin" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">None (Default)</SelectItem>
-                  <SelectItem value="20">20px</SelectItem>
-                  <SelectItem value="40">40px</SelectItem>
-                  <SelectItem value="60">60px</SelectItem>
-                  <SelectItem value="80">80px (Header Height)</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">Space above the hero section</p>
-            </div>
-          </div>
-
-          <div className="flex justify-end pt-2">
-            <Button onClick={handleSaveSettings} disabled={savingSettings} className="gap-2">
-              <Save className="w-4 h-4" />
-              {savingSettings ? "Saving..." : "Save Settings"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
@@ -664,9 +213,6 @@ const AdminHero = () => {
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
                     <span className="text-lg font-semibold">{slide.title}</span>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getSlideTypeBadgeColor(slide.slide_type)}`}>
-                      {getSlideTypeLabel(slide.slide_type)}
-                    </span>
                     {!slide.is_active && (
                       <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-destructive/20 text-destructive">
                         Inactive
@@ -691,33 +237,6 @@ const AdminHero = () => {
 
               <CollapsibleContent>
                 <CardContent className="pt-6 space-y-6">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label>Slide Type</Label>
-                      <Select
-                        value={slide.slide_type}
-                        onValueChange={(value) => updateSlide(slide.id, { slide_type: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="general">General</SelectItem>
-                          <SelectItem value="hajj">Hajj</SelectItem>
-                          <SelectItem value="umrah">Umrah</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Badge Text</Label>
-                      <Input
-                        value={slide.badge_text}
-                        onChange={(e) => updateSlide(slide.id, { badge_text: e.target.value })}
-                        placeholder="e.g., Premium Hajj Packages 2025"
-                      />
-                    </div>
-                  </div>
-
                   <div>
                     <Label>Background Image</Label>
                     <ImageUpload
@@ -730,21 +249,9 @@ const AdminHero = () => {
                     />
                   </div>
 
-                  <div>
-                    <Label>Video URL (YouTube or Direct Link)</Label>
-                    <Input
-                      value={slide.video_url}
-                      onChange={(e) => updateSlide(slide.id, { video_url: e.target.value })}
-                      placeholder="https://www.youtube.com/watch?v=..."
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Optional: Add a video for the "Watch Video" button
-                    </p>
-                  </div>
-
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <Label>Main Title</Label>
+                      <Label>Title</Label>
                       <Input
                         value={slide.title}
                         onChange={(e) => updateSlide(slide.id, { title: e.target.value })}
@@ -752,7 +259,7 @@ const AdminHero = () => {
                       />
                     </div>
                     <div>
-                      <Label>Subtitle (Highlighted)</Label>
+                      <Label>Subtitle</Label>
                       <Input
                         value={slide.subtitle}
                         onChange={(e) => updateSlide(slide.id, { subtitle: e.target.value })}
@@ -761,82 +268,14 @@ const AdminHero = () => {
                     </div>
                   </div>
 
-                  <div>
-                    <Label>Description</Label>
-                    <Textarea
-                      value={slide.description}
-                      onChange={(e) => updateSlide(slide.id, { description: e.target.value })}
-                      placeholder="Brief description..."
-                      rows={3}
-                    />
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Primary Button</Label>
-                      <Input
-                        value={slide.primary_button_text}
-                        onChange={(e) => updateSlide(slide.id, { primary_button_text: e.target.value })}
-                        placeholder="Button text"
-                      />
-                      <Input
-                        value={slide.primary_button_link}
-                        onChange={(e) => updateSlide(slide.id, { primary_button_link: e.target.value })}
-                        placeholder="Link (e.g., #hajj)"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Secondary Button</Label>
-                      <Input
-                        value={slide.secondary_button_text}
-                        onChange={(e) => updateSlide(slide.id, { secondary_button_text: e.target.value })}
-                        placeholder="Button text"
-                      />
-                      <Input
-                        value={slide.secondary_button_link}
-                        onChange={(e) => updateSlide(slide.id, { secondary_button_link: e.target.value })}
-                        placeholder="Link"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <Label>Stats</Label>
-                      <Button type="button" variant="outline" size="sm" onClick={() => addStat(slide.id)}>
-                        <Plus className="w-4 h-4 mr-1" />Add Stat
-                      </Button>
-                    </div>
-                    <div className="space-y-2">
-                      {slide.stats.map((stat, statIndex) => (
-                        <div key={statIndex} className="flex gap-2">
-                          <Input
-                            value={stat.number}
-                            onChange={(e) => updateStat(slide.id, statIndex, "number", e.target.value)}
-                            placeholder="10+"
-                            className="w-32"
-                          />
-                          <Input
-                            value={stat.label}
-                            onChange={(e) => updateStat(slide.id, statIndex, "label", e.target.value)}
-                            placeholder="Years Experience"
-                            className="flex-1"
-                          />
-                          <Button type="button" variant="ghost" size="icon" onClick={() => removeStat(slide.id, statIndex)}>
-                            <Trash2 className="w-4 h-4 text-destructive" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
                   <div className="flex gap-2 pt-4 border-t">
                     <Button onClick={() => handleSave(slide)} disabled={saving === slide.id} className="flex-1">
                       <Save className="w-4 h-4 mr-2" />
                       {saving === slide.id ? "Saving..." : "Save Slide"}
                     </Button>
-                    <Button 
-                      variant="destructive" 
+                    <Button
+                      variant="destructive"
+                      size="icon"
                       onClick={() => handleDeleteSlide(slide.id)}
                       disabled={slides.length <= 1}
                     >
