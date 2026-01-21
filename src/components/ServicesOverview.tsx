@@ -96,7 +96,7 @@ const ServicesOverview = () => {
   });
   const [sectionHeader, setSectionHeader] = useState<SectionHeaderSettings>({
     badge_text: "Why Choose Us",
-    title: "Complete Hajj & Umrah Services",
+    title: "Our Service",
     arabic_text: "خدماتنا"
   });
 
@@ -117,7 +117,7 @@ const ServicesOverview = () => {
       const settings = data.setting_value as unknown as SectionHeaderSettings;
       setSectionHeader({
         badge_text: settings.badge_text || "Why Choose Us",
-        title: settings.title || "Complete Hajj & Umrah Services",
+        title: settings.title || "Our Service",
         arabic_text: settings.arabic_text || "خدماتنا"
       });
     }
