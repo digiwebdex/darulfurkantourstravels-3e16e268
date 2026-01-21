@@ -373,7 +373,7 @@ const VisaServices = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
+          className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6"
         >
           {filteredCountries.length === 0 ? (
             <div className="col-span-full text-center py-12">
@@ -392,12 +392,12 @@ const VisaServices = () => {
                 setSelectedCountry(country);
                 setIsModalOpen(true);
               }}
-              className="group bg-card rounded-2xl p-6 shadow-elegant hover:shadow-lg transition-all duration-300 cursor-pointer relative overflow-hidden"
+              className="group bg-card rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 shadow-elegant hover:shadow-lg transition-all duration-300 cursor-pointer relative overflow-hidden"
             >
               {/* Featured badge */}
               {country.is_featured && (
-                <div className="absolute top-3 right-3 z-20">
-                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 shadow-md text-xs font-semibold">
+                <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-20">
+                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 shadow-md text-[10px] sm:text-xs font-semibold px-1.5 py-0.5 sm:px-2 sm:py-1">
                     ⭐ Popular
                   </Badge>
                 </div>
@@ -407,46 +407,45 @@ const VisaServices = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               
               <div className="relative z-10">
-                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                <div className="text-4xl sm:text-5xl mb-2 sm:mb-4 group-hover:scale-110 transition-transform duration-300">
                   <img 
                     src={`https://flagcdn.com/w80/${getCountryCode(country.country_name)}.png`}
                     alt={`${country.country_name} flag`}
                     loading="lazy"
-                    className="w-12 h-8 object-cover rounded shadow-sm"
+                    className="w-10 h-6 sm:w-12 sm:h-8 object-cover rounded shadow-sm"
                     onError={(e) => {
-                      // Fallback to emoji if flag image fails
                       const target = e.target as HTMLImageElement;
                       target.style.display = 'none';
                       target.parentElement!.innerHTML = country.flag_emoji;
                     }}
                   />
                 </div>
-                <h3 className="font-heading font-semibold text-lg text-foreground mb-1 group-hover:text-primary transition-colors">
+                <h3 className="font-heading font-semibold text-sm sm:text-base md:text-lg text-foreground mb-0.5 sm:mb-1 group-hover:text-primary transition-colors line-clamp-1">
                   {country.country_name}
                 </h3>
-                <p className="text-xs text-muted-foreground mb-2">
+                <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2 line-clamp-1">
                   ⏱️ {country.processing_time}
                 </p>
-                <p className="text-sm font-semibold text-secondary mb-4">
-                  From ৳{country.price.toLocaleString()}
+                <p className="text-xs sm:text-sm font-semibold text-secondary mb-2 sm:mb-4">
+                  From<br className="sm:hidden" /> ৳{country.price.toLocaleString()}
                 </p>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-2">
                   <Button
                     size="sm"
                     variant="outline"
-                    className="flex-1 transition-all duration-300"
+                    className="flex-1 transition-all duration-300 text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3"
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedCountry(country);
                       setIsDetailsModalOpen(true);
                     }}
                   >
-                    <Eye className="w-4 h-4 mr-1" />
+                    <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                     Details
                   </Button>
                   <Button
                     size="sm"
-                    className="flex-1 bg-gradient-primary text-primary-foreground transition-all duration-300 hover:opacity-90"
+                    className="flex-1 bg-gradient-primary text-primary-foreground transition-all duration-300 hover:opacity-90 text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 hidden sm:flex"
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedCountry(country);
@@ -454,13 +453,13 @@ const VisaServices = () => {
                     }}
                   >
                     Apply
-                    <ArrowRight className="w-4 h-4 ml-1" />
+                    <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
                   </Button>
                 </div>
               </div>
             </motion.div>
-            ))
-          )}
+          ))
+        )}
         </motion.div>
 
         <motion.div

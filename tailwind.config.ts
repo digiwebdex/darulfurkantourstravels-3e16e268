@@ -13,6 +13,9 @@ export default {
       },
     },
     extend: {
+      screens: {
+        'xs': '480px',
+      },
       fontFamily: {
         heading: ['Playfair Display', 'serif'],
         display: ['Raleway', 'sans-serif'],
