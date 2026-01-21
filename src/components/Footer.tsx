@@ -168,50 +168,18 @@ const Footer = () => {
 
   return (
     <footer className="bg-primary text-primary-foreground relative overflow-hidden">
-      {/* Background Video Animation - Tiled Pattern */}
+      {/* Background Video Animation */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 gap-0">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover opacity-50"
-            style={{ filter: 'blur(0.5px)' }}
-          >
-            <source src="/videos/footer-bg.mp4" type="video/mp4" />
-          </video>
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover opacity-50 -scale-x-100"
-            style={{ filter: 'blur(0.5px)' }}
-          >
-            <source src="/videos/footer-bg.mp4" type="video/mp4" />
-          </video>
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover opacity-50 -scale-y-100"
-            style={{ filter: 'blur(0.5px)' }}
-          >
-            <source src="/videos/footer-bg.mp4" type="video/mp4" />
-          </video>
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover opacity-50 -scale-x-100 -scale-y-100"
-            style={{ filter: 'blur(0.5px)' }}
-          >
-            <source src="/videos/footer-bg.mp4" type="video/mp4" />
-          </video>
-        </div>
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover opacity-50 scale-50"
+          style={{ filter: 'blur(0.5px)' }}
+        >
+          <source src="/videos/footer-bg.mp4" type="video/mp4" />
+        </video>
         <div className="absolute inset-0 bg-primary/30" />
       </div>
       
