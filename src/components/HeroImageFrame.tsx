@@ -88,7 +88,7 @@ const HeroImageFrame = ({
         {/* Main image container */}
         <div
           className={`
-            relative overflow-hidden shadow-2xl aspect-[4/3]
+            relative overflow-hidden shadow-2xl
             ${frameStyle === "modern" ? "rounded-[1.5rem]" : "rounded-3xl"}
             ${isLight ? "shadow-slate-300/50" : "shadow-black/30"}
           `}
@@ -97,7 +97,7 @@ const HeroImageFrame = ({
           <motion.img
             src={imageSrc}
             alt={alt}
-            className="w-full h-full object-cover object-center"
+            className="w-full h-[320px] xl:h-[400px] object-cover"
             initial={{ scale: 1.1 }}
             animate={{ scale: 1 }}
             transition={{ duration: 1 }}
