@@ -423,6 +423,7 @@ export type Database = {
           video_enabled: boolean | null
           video_opacity: number | null
           video_overlay_color: string | null
+          video_position: string | null
           video_scale: number | null
           video_speed: number | null
           video_url: string | null
@@ -446,6 +447,7 @@ export type Database = {
           video_enabled?: boolean | null
           video_opacity?: number | null
           video_overlay_color?: string | null
+          video_position?: string | null
           video_scale?: number | null
           video_speed?: number | null
           video_url?: string | null
@@ -469,6 +471,7 @@ export type Database = {
           video_enabled?: boolean | null
           video_opacity?: number | null
           video_overlay_color?: string | null
+          video_position?: string | null
           video_scale?: number | null
           video_speed?: number | null
           video_url?: string | null

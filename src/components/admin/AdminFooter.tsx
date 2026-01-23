@@ -98,6 +98,7 @@ interface FooterContent {
   video_speed: number;
   video_blur: number;
   video_overlay_color: string;
+  video_position: string;
   video_scale: number;
 }
 
@@ -130,6 +131,7 @@ const AdminFooter = () => {
     video_speed: 1.0,
     video_blur: 0.5,
     video_overlay_color: 'rgba(0, 0, 0, 0.5)',
+    video_position: 'center',
     video_scale: 100,
   });
   const [videoUploading, setVideoUploading] = useState(false);
@@ -175,6 +177,7 @@ const AdminFooter = () => {
         video_speed: (dataRecord.video_speed as number) ?? 1.0,
         video_blur: (dataRecord.video_blur as number) ?? 0.5,
         video_overlay_color: (dataRecord.video_overlay_color as string) ?? 'rgba(0, 0, 0, 0.5)',
+        video_position: (dataRecord.video_position as string) ?? 'center',
         video_scale: (dataRecord.video_scale as number) ?? 100,
       });
     }
@@ -205,6 +208,7 @@ const AdminFooter = () => {
       video_speed: footerContent.video_speed,
       video_blur: footerContent.video_blur,
       video_overlay_color: footerContent.video_overlay_color,
+      video_position: footerContent.video_position,
       video_scale: footerContent.video_scale,
     };
 
@@ -481,6 +485,25 @@ const AdminFooter = () => {
               style={{ backgroundColor: footerContent.video_overlay_color }}
             />
             <p className="text-xs text-muted-foreground">Pick a color and opacity for the video overlay tint</p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Video Position</label>
+            <div className="flex gap-2">
+              {['top', 'center', 'bottom'].map((position) => (
+                <Button
+                  key={position}
+                  type="button"
+                  variant={footerContent.video_position === position ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFooterContent({ ...footerContent, video_position: position })}
+                  className="flex-1 capitalize"
+                >
+                  {position}
+                </Button>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">Adjust the vertical alignment of the video</p>
           </div>
         </div>
 

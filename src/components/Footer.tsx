@@ -47,6 +47,7 @@ interface FooterContent {
   video_blur?: number;
   video_scale?: number;
   video_overlay_color?: string;
+  video_position?: string;
 }
 
 const Footer = () => {
@@ -85,6 +86,7 @@ const Footer = () => {
     video_speed: 1.0,
     video_blur: 0.5,
     video_overlay_color: 'rgba(0, 0, 0, 0.5)',
+    video_position: 'center',
     video_scale: 100,
   });
 
@@ -131,6 +133,7 @@ const Footer = () => {
         video_speed: (dataRecord.video_speed as number) ?? 1.0,
         video_blur: (dataRecord.video_blur as number) ?? 0.5,
         video_overlay_color: (dataRecord.video_overlay_color as string) ?? 'rgba(0, 0, 0, 0.5)',
+        video_position: (dataRecord.video_position as string) ?? 'center',
         video_scale: (dataRecord.video_scale as number) ?? 100,
       });
     }
@@ -152,6 +155,15 @@ const Footer = () => {
   const videoBlur = content.video_blur ?? 0.5;
   const videoScale = content.video_scale ?? 100;
   const videoOverlayColor = content.video_overlay_color ?? 'rgba(0, 0, 0, 0.5)';
+  const videoPosition = content.video_position ?? 'center';
+
+  const getObjectPosition = () => {
+    switch (videoPosition) {
+      case 'top': return 'center top';
+      case 'bottom': return 'center bottom';
+      default: return 'center center';
+    }
+  };
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -209,6 +221,7 @@ const Footer = () => {
               filter: `blur(${videoBlur}px)`,
               opacity: videoOpacity / 100,
               transform: `scale(${videoScale / 100})`,
+              objectPosition: getObjectPosition(),
             }}
             ref={(el) => {
               if (el) el.playbackRate = videoSpeed;
