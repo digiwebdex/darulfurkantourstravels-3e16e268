@@ -666,8 +666,40 @@ const AdminFooter = () => {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground mb-3">
-                Each section contains two phone numbers separated by comma. First section appears as primary contact.
+                Each section contains phone numbers separated by comma. First section appears as primary contact.
               </p>
+              
+              {/* Live Preview */}
+              {phoneSections.some(s => s.phones.trim()) && (
+                <div className="mb-4 p-4 rounded-lg bg-[#1a3d2e] border border-[#2a5d4e]">
+                  <p className="text-xs text-white/60 mb-3 uppercase tracking-wide">Preview</p>
+                  <div className="space-y-3">
+                    {phoneSections.map((section, sectionIndex) => {
+                      const phones = section.phones.split(',').map(p => p.trim()).filter(p => p);
+                      if (phones.length === 0) return null;
+                      
+                      return (
+                        <div key={section.id} className="flex items-start gap-3">
+                          <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <svg className="w-5 h-5 text-[#c9a961]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                          </div>
+                          <div className="text-white/80 text-sm leading-relaxed">
+                            {phones.map((phone, idx) => (
+                              <span key={idx}>
+                                <span className="whitespace-nowrap">{phone}</span>
+                                {idx < phones.length - 1 && <span className="text-white/50">, </span>}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handlePhoneDragEnd}>
                 <SortableContext items={phoneSections.map(s => s.id)} strategy={verticalListSortingStrategy}>
                   <div className="space-y-2">
