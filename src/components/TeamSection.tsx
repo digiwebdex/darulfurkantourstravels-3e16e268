@@ -203,10 +203,10 @@ const TeamSection = () => {
                 key={member.id}
                 variants={cardVariants}
                 whileHover={{ y: -8 }}
-                className="bg-card rounded-2xl shadow-elegant hover:shadow-lg transition-all duration-300 group text-center overflow-hidden border-2 border-primary"
+                className="bg-card rounded-2xl shadow-elegant hover:shadow-lg transition-all duration-300 group text-center overflow-hidden border-b-4 border-secondary"
               >
-                {/* Square Image Container with inner border */}
-                <div className="relative aspect-square w-full overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 m-2 border border-primary rounded-lg">
+                {/* Square Image Container */}
+                <div className="relative aspect-square w-full overflow-hidden bg-primary">
                   {member.avatar_url ? (
                     <OptimizedImage 
                       src={member.avatar_url} 
@@ -215,26 +215,27 @@ const TeamSection = () => {
                       sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-primary">
-                      <span className="text-6xl font-heading font-bold text-primary-foreground">
+                    <div className="w-full h-full flex items-center justify-center bg-primary">
+                      <span className="text-7xl font-serif font-normal text-white tracking-wider">
                         {getInitials(member.name)}
                       </span>
                     </div>
                   )}
-                  {/* Hover Overlay with Bio */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-5">
-                    <p className="text-white/90 text-sm leading-relaxed line-clamp-4">
-                      {member.qualifications || "Dedicated professional committed to providing exceptional Hajj & Umrah services."}
-                    </p>
+                  
+                  {/* Decorative "Hajj Pilgrimage" overlay at bottom */}
+                  <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-primary/90 via-primary/60 to-transparent flex items-end justify-center pb-2">
+                    <span className="font-pilgrimage text-2xl text-secondary/80 tracking-wide">
+                      Hajj Pilgrimage
+                    </span>
                   </div>
                 </div>
                 
                 {/* Content */}
-                <div className="p-6">
-                  <h3 className="font-pilgrimage font-bold text-3xl text-secondary mb-2">
+                <div className="p-5">
+                  <h3 className="font-heading font-bold text-xl text-foreground mb-1">
                     {member.name}
                   </h3>
-                  <p className="text-foreground font-semibold text-sm capitalize tracking-wide mb-3">
+                  <p className="text-secondary font-semibold text-xs uppercase tracking-widest mb-3">
                     {member.role}
                   </p>
                   <div className="flex flex-wrap items-center justify-center gap-4">
@@ -246,8 +247,8 @@ const TeamSection = () => {
                         className="inline-flex items-center gap-1.5 text-sm text-[#25D366] hover:text-[#128C7E] transition-colors font-medium hover:scale-110"
                         title="WhatsApp"
                       >
-                        <WhatsAppIcon size={20} />
-                        <span>{member.whatsapp_number}</span>
+                        <WhatsAppIcon size={18} />
+                        <span className="text-xs">{member.whatsapp_number}</span>
                       </a>
                     )}
                     {member.imo_number && (
@@ -258,8 +259,8 @@ const TeamSection = () => {
                         className="inline-flex items-center gap-1.5 text-sm text-[#3B82F6] hover:text-[#2563EB] transition-colors font-medium hover:scale-110"
                         title="IMO"
                       >
-                        <IMOIcon size={20} />
-                        <span>{member.imo_number}</span>
+                        <IMOIcon size={18} />
+                        <span className="text-xs">{member.imo_number}</span>
                       </a>
                     )}
                   </div>
