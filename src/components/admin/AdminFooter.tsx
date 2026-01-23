@@ -369,11 +369,11 @@ const AdminFooter = () => {
                 <div className="rounded-lg overflow-hidden border relative">
                   <video 
                     src={footerContent.video_url} 
-                    className="w-full h-40 object-cover"
-                    style={showOriginalVideo ? {} : {
-                      filter: `blur(${footerContent.video_blur}px)`,
-                      opacity: footerContent.video_opacity / 100,
-                      transform: `scale(${footerContent.video_scale / 100})`,
+                    className="w-full h-40 object-cover transition-all duration-300"
+                    style={{
+                      filter: showOriginalVideo ? 'blur(0px)' : `blur(${footerContent.video_blur}px)`,
+                      opacity: showOriginalVideo ? 1 : footerContent.video_opacity / 100,
+                      transform: showOriginalVideo ? 'scale(1)' : `scale(${footerContent.video_scale / 100})`,
                       objectPosition: footerContent.video_position === 'top' ? 'center top' : footerContent.video_position === 'bottom' ? 'center bottom' : 'center center',
                     }}
                     muted
@@ -381,12 +381,13 @@ const AdminFooter = () => {
                     autoPlay
                     playsInline
                   />
-                  {!showOriginalVideo && (
-                    <div 
-                      className="absolute inset-0 pointer-events-none"
-                      style={{ backgroundColor: footerContent.video_overlay_color }}
-                    />
-                  )}
+                  <div 
+                    className="absolute inset-0 pointer-events-none transition-opacity duration-300"
+                    style={{ 
+                      backgroundColor: footerContent.video_overlay_color,
+                      opacity: showOriginalVideo ? 0 : 1 
+                    }}
+                  />
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {showOriginalVideo ? "Showing original video without effects" : "Preview with current effects applied"}
