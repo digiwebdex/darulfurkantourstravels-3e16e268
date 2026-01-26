@@ -10,7 +10,47 @@ import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, Edit2, ChevronUp, ChevronDown, Image as ImageIcon, Settings, Palette, Video, Upload } from "lucide-react";
+import { Loader2, Plus, Trash2, Edit2, ChevronUp, ChevronDown, Image as ImageIcon, Settings, Palette, Video, Upload, Play } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const SAMPLE_VIDEOS = [
+  {
+    id: "mecca-aerial",
+    name: "Mecca Aerial View",
+    url: "https://videos.pexels.com/video-files/3773485/3773485-uhd_2560_1440_30fps.mp4",
+    thumbnail: "🕋"
+  },
+  {
+    id: "desert-sunset",
+    name: "Desert Sunset",
+    url: "https://videos.pexels.com/video-files/857195/857195-hd_1920_1080_25fps.mp4",
+    thumbnail: "🌅"
+  },
+  {
+    id: "mosque-interior",
+    name: "Mosque Interior",
+    url: "https://videos.pexels.com/video-files/5721604/5721604-uhd_2732_1440_25fps.mp4",
+    thumbnail: "🕌"
+  },
+  {
+    id: "clouds-sky",
+    name: "Peaceful Clouds",
+    url: "https://videos.pexels.com/video-files/857251/857251-hd_1920_1080_25fps.mp4",
+    thumbnail: "☁️"
+  },
+  {
+    id: "golden-particles",
+    name: "Golden Particles",
+    url: "https://videos.pexels.com/video-files/3129671/3129671-uhd_2560_1440_25fps.mp4",
+    thumbnail: "✨"
+  },
+  {
+    id: "stars-night",
+    name: "Starry Night Sky",
+    url: "https://videos.pexels.com/video-files/1851190/1851190-hd_1920_1080_25fps.mp4",
+    thumbnail: "🌙"
+  }
+];
 import { useImageUpload } from "@/hooks/useImageUpload";
 
 interface GalleryImage {
@@ -440,8 +480,36 @@ const AdminGallery = () => {
             </div>
 
             <div className="space-y-4">
+              {/* Sample Videos Selector */}
               <div className="space-y-2">
-                <Label>Video File</Label>
+                <Label className="flex items-center gap-2">
+                  <Play className="h-4 w-4" />
+                  Sample Videos
+                </Label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {SAMPLE_VIDEOS.map((video) => (
+                    <Button
+                      key={video.id}
+                      type="button"
+                      variant={settings?.video_url === video.url ? "default" : "outline"}
+                      className="h-auto py-3 flex flex-col gap-1 text-xs"
+                      onClick={() => setSettings(prev => prev ? { ...prev, video_url: video.url } : null)}
+                    >
+                      <span className="text-xl">{video.thumbnail}</span>
+                      <span className="truncate w-full">{video.name}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="relative flex items-center gap-4">
+                <div className="flex-1 border-t border-muted" />
+                <span className="text-xs text-muted-foreground">or use custom video</span>
+                <div className="flex-1 border-t border-muted" />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Custom Video URL</Label>
                 <div className="flex gap-2">
                   <Input
                     value={settings?.video_url || ""}
