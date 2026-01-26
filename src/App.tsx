@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import MyBookings from "./pages/MyBookings";
 import TrackOrder from "./pages/TrackOrder";
+import TrackVisa from "./pages/TrackVisa";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import LegalPage from "./pages/LegalPage";
 import PaymentResult from "./pages/PaymentResult";
@@ -31,6 +32,7 @@ const App = () => (
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/my-bookings" element={<MyBookings />} />
                 <Route path="/track-order" element={<TrackOrder />} />
+                <Route path="/track-visa" element={<TrackVisa />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/legal/:pageKey" element={<LegalPage />} />
                 <Route path="/payment/success" element={<PaymentResult />} />

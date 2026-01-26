@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import { ArrowRight, Globe, Eye, Filter, X, Search, Send, MessageSquare } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowRight, Globe, Eye, Filter, X, Search, Send, MessageSquare, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
@@ -257,10 +258,16 @@ const VisaServices = () => {
             Visa Processing Services
           </h2>
           <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">خدمات التأشيرة</span>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg mb-6">
             We provide hassle-free visa processing services for various countries. 
             Our experienced team ensures smooth documentation and timely processing.
           </p>
+          <Link to="/track-visa">
+            <Button variant="outline" className="gap-2">
+              <MapPin className="w-4 h-4" />
+              Track Your Visa Application
+            </Button>
+          </Link>
         </motion.div>
 
         {/* Filters Section */}
