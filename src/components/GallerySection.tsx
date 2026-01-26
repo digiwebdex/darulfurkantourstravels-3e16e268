@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
-import { Grid3X3, SlidersHorizontal, Pause, Play, Maximize, Minimize, ZoomIn, ZoomOut, RotateCcw, Sparkles, Camera, ChevronLeft, ChevronRight } from "lucide-react";
+import { Grid3X3, SlidersHorizontal, Pause, Play, Maximize, Minimize, ZoomIn, ZoomOut, RotateCcw, Sparkles, Camera, ChevronLeft, ChevronRight, Image as ImageIcon, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import OptimizedImage from "@/components/ui/optimized-image";
 import {
@@ -36,6 +36,46 @@ interface GallerySettings {
 }
 
 type ViewMode = "grid" | "carousel";
+type ContentType = "images" | "videos";
+
+const SAMPLE_VIDEOS = [
+  {
+    id: "mecca-aerial",
+    title: "Mecca Aerial View",
+    video_url: "https://videos.pexels.com/video-files/3773485/3773485-uhd_2560_1440_30fps.mp4",
+    thumbnail: "https://images.pexels.com/videos/3773485/free-video-3773485.jpg?auto=compress&cs=tinysrgb&w=600"
+  },
+  {
+    id: "desert-sunset",
+    title: "Desert Sunset",
+    video_url: "https://videos.pexels.com/video-files/857195/857195-hd_1920_1080_25fps.mp4",
+    thumbnail: "https://images.pexels.com/videos/857195/free-video-857195.jpg?auto=compress&cs=tinysrgb&w=600"
+  },
+  {
+    id: "mosque-interior",
+    title: "Mosque Interior",
+    video_url: "https://videos.pexels.com/video-files/5721604/5721604-uhd_2732_1440_25fps.mp4",
+    thumbnail: "https://images.pexels.com/videos/5721604/pexels-photo-5721604.jpeg?auto=compress&cs=tinysrgb&w=600"
+  },
+  {
+    id: "clouds-sky",
+    title: "Peaceful Clouds",
+    video_url: "https://videos.pexels.com/video-files/857251/857251-hd_1920_1080_25fps.mp4",
+    thumbnail: "https://images.pexels.com/videos/857251/free-video-857251.jpg?auto=compress&cs=tinysrgb&w=600"
+  },
+  {
+    id: "golden-particles",
+    title: "Golden Particles",
+    video_url: "https://videos.pexels.com/video-files/3129671/3129671-uhd_2560_1440_25fps.mp4",
+    thumbnail: "https://images.pexels.com/videos/3129671/free-video-3129671.jpg?auto=compress&cs=tinysrgb&w=600"
+  },
+  {
+    id: "stars-night",
+    title: "Starry Night Sky",
+    video_url: "https://videos.pexels.com/video-files/1851190/1851190-hd_1920_1080_25fps.mp4",
+    thumbnail: "https://images.pexels.com/videos/1851190/free-video-1851190.jpg?auto=compress&cs=tinysrgb&w=600"
+  }
+];
 
 interface SectionHeader {
   badge_text: string;
@@ -48,6 +88,8 @@ const GallerySection = () => {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [contentType, setContentType] = useState<ContentType>("images");
+  const [selectedVideo, setSelectedVideo] = useState<typeof SAMPLE_VIDEOS[0] | null>(null);
   const [isAutoplayPaused, setIsAutoplayPaused] = useState(false);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -382,62 +424,136 @@ const GallerySection = () => {
             </div>
           </motion.div>
 
-          {/* View Mode Toggle */}
+          {/* Content Type Toggle - Images / Videos */}
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: 0.3 }}
-            className="flex justify-center gap-3 mb-12"
+            transition={{ duration: 0.4, delay: 0.25 }}
+            className="flex justify-center gap-3 mb-6"
           >
             <Button
-              variant={viewMode === "grid" ? "default" : "outline"}
+              variant={contentType === "images" ? "default" : "outline"}
               size="lg"
-              onClick={() => setViewMode("grid")}
-              className={`gap-2 px-6 transition-all duration-300 ${viewMode === "grid" ? "shadow-gold" : "hover:border-primary/50"}`}
+              onClick={() => setContentType("images")}
+              className={`gap-2 px-8 transition-all duration-300 ${contentType === "images" ? "shadow-gold bg-gradient-to-r from-primary to-primary/80" : "hover:border-primary/50"}`}
             >
-              <Grid3X3 className="w-5 h-5" />
-              Grid View
+              <ImageIcon className="w-5 h-5" />
+              Images
             </Button>
             <Button
-              variant={viewMode === "carousel" ? "default" : "outline"}
+              variant={contentType === "videos" ? "default" : "outline"}
               size="lg"
-              onClick={() => setViewMode("carousel")}
-              className={`gap-2 px-6 transition-all duration-300 ${viewMode === "carousel" ? "shadow-gold" : "hover:border-primary/50"}`}
+              onClick={() => setContentType("videos")}
+              className={`gap-2 px-8 transition-all duration-300 ${contentType === "videos" ? "shadow-gold bg-gradient-to-r from-secondary to-secondary/80" : "hover:border-secondary/50"}`}
             >
-              <SlidersHorizontal className="w-5 h-5" />
-              Carousel
+              <Video className="w-5 h-5" />
+              Videos
             </Button>
-            {viewMode === "carousel" && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={toggleAutoplay}
-                  className="gap-2 px-6 border-secondary/50 hover:border-secondary"
-                >
-                  {isAutoplayPaused ? (
-                    <>
-                      <Play className="w-5 h-5 text-secondary" />
-                      Play
-                    </>
-                  ) : (
-                    <>
-                      <Pause className="w-5 h-5 text-secondary" />
-                      Pause
-                    </>
-                  )}
-                </Button>
-              </motion.div>
-            )}
           </motion.div>
 
+          {/* View Mode Toggle (only for images) */}
+          {contentType === "images" && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.3 }}
+              className="flex justify-center gap-3 mb-12"
+            >
+              <Button
+                variant={viewMode === "grid" ? "default" : "outline"}
+                size="lg"
+                onClick={() => setViewMode("grid")}
+                className={`gap-2 px-6 transition-all duration-300 ${viewMode === "grid" ? "shadow-gold" : "hover:border-primary/50"}`}
+              >
+                <Grid3X3 className="w-5 h-5" />
+                Grid View
+              </Button>
+              <Button
+                variant={viewMode === "carousel" ? "default" : "outline"}
+                size="lg"
+                onClick={() => setViewMode("carousel")}
+                className={`gap-2 px-6 transition-all duration-300 ${viewMode === "carousel" ? "shadow-gold" : "hover:border-primary/50"}`}
+              >
+                <SlidersHorizontal className="w-5 h-5" />
+                Carousel
+              </Button>
+              {viewMode === "carousel" && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={toggleAutoplay}
+                    className="gap-2 px-6 border-secondary/50 hover:border-secondary"
+                  >
+                    {isAutoplayPaused ? (
+                      <>
+                        <Play className="w-5 h-5 text-secondary" />
+                        Play
+                      </>
+                    ) : (
+                      <>
+                        <Pause className="w-5 h-5 text-secondary" />
+                        Pause
+                      </>
+                    )}
+                  </Button>
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+
+          {/* Videos Grid */}
+          {contentType === "videos" && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-8">
+              {SAMPLE_VIDEOS.map((video, index) => (
+                <motion.div
+                  key={video.id}
+                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ 
+                    duration: 0.5, 
+                    delay: index * 0.08,
+                    ease: [0.25, 0.46, 0.45, 0.94]
+                  }}
+                  whileHover={{ y: -8 }}
+                  className="group relative aspect-video overflow-hidden rounded-2xl cursor-pointer bg-muted shadow-elegant"
+                  onClick={() => setSelectedVideo(video)}
+                >
+                  {/* Thumbnail */}
+                  <img
+                    src={video.thumbnail}
+                    alt={video.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  
+                  {/* Play Button Overlay */}
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white/50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <Play className="w-8 h-8 text-white ml-1" fill="white" />
+                    </div>
+                  </div>
+                  
+                  {/* Title */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                    <p className="text-white font-medium text-sm">{video.title}</p>
+                  </div>
+                  
+                  {/* Hover Border Glow */}
+                  <div className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-secondary/50 transition-all duration-500" />
+                </motion.div>
+              ))}
+            </div>
+          )}
+
           {/* Grid View */}
-          {viewMode === "grid" && (
+          {contentType === "images" && viewMode === "grid" && (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {images.map((image, index) => (
                 <motion.div
@@ -490,7 +606,7 @@ const GallerySection = () => {
           )}
 
           {/* Carousel View */}
-          {viewMode === "carousel" && (
+          {contentType === "images" && viewMode === "carousel" && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -749,6 +865,45 @@ const GallerySection = () => {
             </p>
           </div>
         </div>
+      )}
+
+      {/* Video Lightbox Modal */}
+      {selectedVideo && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4"
+          onClick={() => setSelectedVideo(null)}
+        >
+          {/* Close Button */}
+          <button
+            onClick={() => setSelectedVideo(null)}
+            className="absolute top-4 right-4 z-10 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+          >
+            <span className="text-2xl">×</span>
+          </button>
+
+          {/* Video Container */}
+          <div 
+            className="relative w-full max-w-5xl aspect-video rounded-2xl overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <video
+              src={selectedVideo.video_url}
+              autoPlay
+              controls
+              loop
+              playsInline
+              className="w-full h-full object-contain bg-black"
+            />
+          </div>
+
+          {/* Video Title */}
+          <div className="absolute bottom-8 left-0 right-0 text-center">
+            <p className="text-white text-lg font-medium">{selectedVideo.title}</p>
+          </div>
+        </motion.div>
       )}
     </>
   );
