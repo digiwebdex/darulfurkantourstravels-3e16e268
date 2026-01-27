@@ -37,6 +37,63 @@ interface PackageDetailsModalProps {
   onBookNow?: (pkg: PackageDetails) => void;
 }
 
+// Helper component to format description text with proper sections
+const FormattedDescription = ({ text }: { text: string }) => {
+  // Parse the text into sections
+  const sections = text.split(/\*\*([^*]+)\*\*/g).filter(Boolean);
+  
+  const parsedSections: { title: string; items: string[] }[] = [];
+  let currentSection: { title: string; items: string[] } | null = null;
+  
+  sections.forEach((section, index) => {
+    const trimmed = section.trim();
+    if (!trimmed) return;
+    
+    // Check if this is a section title (odd indices after split are titles)
+    if (index % 2 === 1 || trimmed.endsWith(':')) {
+      // Save previous section
+      if (currentSection) {
+        parsedSections.push(currentSection);
+      }
+      currentSection = { title: trimmed.replace(/:$/, ''), items: [] };
+    } else if (currentSection) {
+      // Parse bullet points
+      const items = trimmed.split('•').filter(item => item.trim());
+      items.forEach(item => {
+        currentSection!.items.push(item.trim());
+      });
+    }
+  });
+  
+  // Add last section
+  if (currentSection) {
+    parsedSections.push(currentSection);
+  }
+
+  return (
+    <div className="space-y-4">
+      {parsedSections.map((section, idx) => (
+        <div key={idx} className="bg-muted/30 rounded-lg p-4">
+          <h5 className="font-semibold text-primary text-sm mb-2 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
+            {section.title}
+          </h5>
+          {section.items.length > 0 ? (
+            <ul className="space-y-1.5 ml-4">
+              {section.items.map((item, itemIdx) => (
+                <li key={itemIdx} className="text-sm text-foreground/80 flex items-start gap-2">
+                  <span className="text-primary mt-1">•</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const PackageDetailsModal = ({ isOpen, onClose, package_info, onBookNow }: PackageDetailsModalProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -230,11 +287,9 @@ const PackageDetailsModal = ({ isOpen, onClose, package_info, onBookNow }: Packa
 
                 {/* Description */}
                 {(package_info.full_description || package_info.description) && (
-                  <div>
-                    <h4 className="font-semibold text-sm text-muted-foreground mb-2">Description</h4>
-                    <p className="text-foreground leading-relaxed">
-                      {package_info.full_description || package_info.description}
-                    </p>
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-sm text-muted-foreground mb-2">Package Details</h4>
+                    <FormattedDescription text={package_info.full_description || package_info.description || ''} />
                   </div>
                 )}
 
