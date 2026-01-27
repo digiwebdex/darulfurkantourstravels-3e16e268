@@ -6,8 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/hooks/useAuth";
 import { SiteSettingsProvider } from "@/hooks/useSiteSettings";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import MyBookings from "./pages/MyBookings";
 import TrackOrder from "./pages/TrackOrder";
 import TrackVisa from "./pages/TrackVisa";
@@ -28,9 +30,11 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <AnalyticsTracker />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/my-bookings" element={<MyBookings />} />
                 <Route path="/track-order" element={<TrackOrder />} />
                 <Route path="/track-visa" element={<TrackVisa />} />
