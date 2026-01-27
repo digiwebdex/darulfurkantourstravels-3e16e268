@@ -36,7 +36,8 @@ import {
   MousePointerClick,
   Eye,
   ExternalLink,
-  Smartphone
+  Smartphone,
+  BarChart3
 } from "lucide-react";
 import { CURRENCY } from "@/lib/currency";
 import ImageUpload from "./ImageUpload";
@@ -71,6 +72,11 @@ interface Appearance {
   announcement_text: string;
   show_book_now_button: boolean;
   show_mobile_cta_bar: boolean;
+}
+
+interface AnalyticsSettings {
+  measurement_id: string;
+  is_enabled: boolean;
 }
 
 // Theme Toggle Icon Component
@@ -155,6 +161,13 @@ const AdminSettings = () => {
     smsNotifications: false,
   });
 
+  const [analytics, setAnalytics] = useState<AnalyticsSettings>({
+    measurement_id: "",
+    is_enabled: false,
+  });
+
+  const [savingAnalytics, setSavingAnalytics] = useState(false);
+
   useEffect(() => {
     fetchSettings();
   }, []);
@@ -182,6 +195,9 @@ const AdminSettings = () => {
               break;
             case "appearance":
               setAppearance(value as unknown as Appearance);
+              break;
+            case "analytics":
+              setAnalytics(value as unknown as AnalyticsSettings);
               break;
           }
         });
@@ -241,11 +257,35 @@ const AdminSettings = () => {
     }
   };
 
+  const handleSaveAnalytics = async () => {
+    setSavingAnalytics(true);
+    try {
+      // Validate measurement ID format if enabled
+      if (analytics.is_enabled && analytics.measurement_id) {
+        const trimmedId = analytics.measurement_id.trim();
+        if (!/^G-[A-Z0-9]+$/.test(trimmedId)) {
+          toast.error("Invalid Measurement ID format. It should start with 'G-' followed by letters and numbers.");
+          setSavingAnalytics(false);
+          return;
+        }
+      }
+      
+      await saveSetting("analytics", analytics as unknown as Record<string, unknown>, "integrations");
+      toast.success("Analytics settings saved successfully!");
+    } catch (error) {
+      console.error("Error saving analytics:", error);
+      toast.error("Failed to save analytics settings");
+    } finally {
+      setSavingAnalytics(false);
+    }
+  };
+
   const settingsTabs = [
     { value: "company", label: "Company", icon: Building2 },
     { value: "contact", label: "Contact", icon: Phone },
     { value: "social", label: "Social", icon: Share2 },
     { value: "appearance", label: "Appearance", icon: Palette },
+    { value: "analytics", label: "Analytics", icon: BarChart3 },
     { value: "notifications", label: "Notifications", icon: Bell },
     { value: "security", label: "Security", icon: Shield },
     { value: "database", label: "Database", icon: Database },
@@ -695,6 +735,107 @@ const AdminSettings = () => {
               <Button onClick={handleSaveAll} disabled={saving} className="gap-2">
                 {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 Save Changes
+              </Button>
+            </div>
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
+              <Card className="border-dashed">
+                <CardContent className="pt-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <BarChart3 className="w-5 h-5 text-primary" />
+                      <div>
+                        <Label className="text-base">Google Analytics</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Track visitor behavior and conversions
+                        </p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={analytics.is_enabled}
+                      onCheckedChange={(checked) => setAnalytics({ ...analytics, is_enabled: checked })}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {analytics.is_enabled && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="measurementId" className="flex items-center gap-2">
+                      <BarChart3 className="w-4 h-4" />
+                      Measurement ID
+                    </Label>
+                    <Input
+                      id="measurementId"
+                      value={analytics.measurement_id}
+                      onChange={(e) => setAnalytics({ ...analytics, measurement_id: e.target.value.toUpperCase() })}
+                      placeholder="G-XXXXXXXXXX"
+                      className={analytics.measurement_id && !/^G-[A-Z0-9]+$/.test(analytics.measurement_id.trim()) ? "border-destructive" : ""}
+                    />
+                    {analytics.measurement_id && !/^G-[A-Z0-9]+$/.test(analytics.measurement_id.trim()) && (
+                      <p className="text-xs text-destructive">
+                        Invalid format. Should be like "G-XXXXXXXXXX"
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      Find this in Google Analytics → Admin → Data Streams → Select stream → Measurement ID
+                    </p>
+                  </div>
+
+                  <Card className="bg-muted/50">
+                    <CardContent className="pt-4">
+                      <div className="space-y-3">
+                        <h4 className="font-medium text-sm">How to get your Measurement ID:</h4>
+                        <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
+                          <li>Go to <a href="https://analytics.google.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Google Analytics</a></li>
+                          <li>Select your property or create a new one</li>
+                          <li>Click Admin (⚙️) → Data Streams</li>
+                          <li>Select or create a Web stream</li>
+                          <li>Copy the Measurement ID (starts with G-)</li>
+                        </ol>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.open('https://analytics.google.com', '_blank')}
+                          className="flex items-center gap-2 mt-2"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          Open Google Analytics
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-primary/5 border-primary/20">
+                    <CardContent className="pt-4">
+                      <h4 className="font-medium text-sm mb-2">What's being tracked:</h4>
+                      <ul className="text-sm text-muted-foreground space-y-1">
+                        <li>✓ Page views on route changes</li>
+                        <li>✓ Package details views</li>
+                        <li>✓ Booking initiations</li>
+                        <li>✓ Completed purchases</li>
+                        <li>✓ Contact form submissions</li>
+                        <li>✓ Visa applications</li>
+                      </ul>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </motion.div>
+
+            <div className="flex justify-end">
+              <Button onClick={handleSaveAnalytics} disabled={savingAnalytics} className="gap-2">
+                {savingAnalytics ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                Save Analytics Settings
               </Button>
             </div>
           </TabsContent>
