@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { usePaymentProcessing } from "@/hooks/usePaymentProcessing";
@@ -74,6 +75,7 @@ interface BankDetails {
 
 const BookingModal = ({ isOpen, onClose, package_info }: BookingModalProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { initiatePayment, processing: paymentProcessing } = usePaymentProcessing();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -330,13 +332,10 @@ const BookingModal = ({ isOpen, onClose, package_info }: BookingModalProps) => {
         body: { bookingId: bookingData.id }
       }).catch(err => console.error("Notification error:", err));
 
-      // For installment bookings, show success and close
+      // For installment bookings, redirect to confirmation page
       if (isInstallment) {
-        toast({
-          title: "Booking Confirmed!",
-          description: `Your installment plan has been created. ${numberOfInstallments} installments of ${formatCurrency(Math.ceil((totalPrice - advanceAmount) / numberOfInstallments))} each.`,
-        });
-        resetFormAndClose();
+        onClose();
+        navigate(`/booking/confirmation/${bookingData.id}`);
         return;
       }
 
@@ -365,21 +364,15 @@ const BookingModal = ({ isOpen, onClose, package_info }: BookingModalProps) => {
           }
         }
 
-        toast({
-          title: "Booking Submitted!",
-          description: "Your bank transfer details have been submitted. We will verify your payment and confirm shortly.",
-        });
-        resetFormAndClose();
+        onClose();
+        navigate(`/booking/confirmation/${bookingData.id}`);
         return;
       }
 
-      // For cash payments
+      // For cash payments, redirect to confirmation page
       if (formData.paymentMethod === "cash") {
-        toast({
-          title: "Booking Confirmed!",
-          description: "Please visit our office to complete the cash payment.",
-        });
-        resetFormAndClose();
+        onClose();
+        navigate(`/booking/confirmation/${bookingData.id}`);
         return;
       }
 

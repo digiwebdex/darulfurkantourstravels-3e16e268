@@ -26,12 +26,14 @@ import {
   Upload,
   Plane,
   Globe,
-  CreditCard
+  CreditCard,
+  Download
 } from "lucide-react";
 import { formatCurrency } from "@/lib/currency";
 import OrderTrackingModal from "@/components/OrderTrackingModal";
 import BookingDocumentUpload from "@/components/BookingDocumentUpload";
 import InstallmentDetails from "@/components/InstallmentDetails";
+import { generateBookingPDF } from "@/utils/generateBookingPDF";
 import { cn } from "@/lib/utils";
 
 type TrackingStatus = 'order_submitted' | 'documents_received' | 'under_review' | 'approved' | 'processing' | 'completed';
@@ -45,10 +47,15 @@ interface Booking {
   passenger_count: number;
   travel_date: string | null;
   created_at: string;
+  guest_name?: string | null;
+  guest_email?: string | null;
+  guest_phone?: string | null;
+  payment_status?: string;
   packages: {
     title: string;
     type: string;
     duration_days: number;
+    price?: number;
   };
 }
 
@@ -152,10 +159,15 @@ const MyBookings = () => {
         passenger_count,
         travel_date,
         created_at,
+        guest_name,
+        guest_email,
+        guest_phone,
+        payment_status,
         packages (
           title,
           type,
-          duration_days
+          duration_days,
+          price
         )
       `)
       .eq("user_id", user?.id)
@@ -416,7 +428,16 @@ const MyBookings = () => {
                               <p className="text-xs text-muted-foreground">
                                 Booked on {new Date(booking.created_at).toLocaleDateString()}
                               </p>
-                              <div className="flex gap-2">
+                              <div className="flex flex-wrap gap-2">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  className="gap-2"
+                                  onClick={() => generateBookingPDF(booking)}
+                                >
+                                  <Download className="w-4 h-4" />
+                                  Receipt
+                                </Button>
                                 <Button 
                                   variant="outline" 
                                   size="sm"
