@@ -611,8 +611,8 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
             <Table className="w-full" style={{ minWidth: '1400px' }}>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="whitespace-nowrap">Date</TableHead>
-                  <TableHead className="whitespace-nowrap">Booking ID</TableHead>
+                  <TableHead className="whitespace-nowrap sticky left-0 bg-background z-20 min-w-[100px]">Date</TableHead>
+                  <TableHead className="whitespace-nowrap sticky left-[100px] bg-background z-20 min-w-[100px] border-r">Booking ID</TableHead>
                   <TableHead className="whitespace-nowrap min-w-[180px]">Customer</TableHead>
                   <TableHead className="whitespace-nowrap min-w-[150px]">Package</TableHead>
                   <TableHead className="whitespace-nowrap">Passengers</TableHead>
@@ -621,7 +621,7 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
                   <TableHead className="whitespace-nowrap">Documents</TableHead>
                   <TableHead className="whitespace-nowrap min-w-[140px]">Tracking</TableHead>
                   <TableHead className="whitespace-nowrap">Status</TableHead>
-                  <TableHead className="whitespace-nowrap">Actions</TableHead>
+                  <TableHead className="whitespace-nowrap sticky right-0 bg-background z-20 border-l">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -629,10 +629,10 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
                   const customerInfo = getCustomerInfo(booking);
                   return (
                   <TableRow key={booking.id}>
-                    <TableCell className="text-xs whitespace-nowrap">
+                    <TableCell className="text-xs whitespace-nowrap sticky left-0 bg-background z-10 min-w-[100px]">
                       {format(new Date(booking.created_at), "MMM dd, yyyy")}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="sticky left-[100px] bg-background z-10 min-w-[100px] border-r">
                       <Button
                         variant="link"
                         className="font-mono text-xs p-0 h-auto text-primary hover:underline"
@@ -750,7 +750,7 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
                       </Button>
                     </TableCell>
                     <TableCell>{getStatusBadge(booking.status)}</TableCell>
-                    <TableCell>
+                    <TableCell className="sticky right-0 bg-background z-10 border-l">
                       <Button
                         variant="ghost"
                         size="icon"

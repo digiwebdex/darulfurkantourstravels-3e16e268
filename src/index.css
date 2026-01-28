@@ -236,6 +236,7 @@
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--muted-foreground) / 0.4) hsl(var(--muted) / 0.3);
+  position: relative;
 }
 
 .admin-table-scroll::-webkit-scrollbar {
@@ -259,4 +260,20 @@
 .admin-table-scroll::-webkit-scrollbar-track {
   background: hsl(var(--muted) / 0.2);
   border-radius: 5px;
+}
+
+/* Sticky column shadows for visual depth */
+.admin-table-scroll td.sticky,
+.admin-table-scroll th.sticky {
+  box-shadow: none;
+}
+
+.admin-table-scroll td[class*="left-[100px]"],
+.admin-table-scroll th[class*="left-[100px]"] {
+  box-shadow: 2px 0 4px -2px hsl(var(--muted-foreground) / 0.1);
+}
+
+.admin-table-scroll td[class*="right-0"],
+.admin-table-scroll th[class*="right-0"] {
+  box-shadow: -2px 0 4px -2px hsl(var(--muted-foreground) / 0.1);
 }
