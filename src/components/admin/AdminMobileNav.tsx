@@ -20,6 +20,10 @@ import {
   Megaphone,
   UserCog,
   Calculator,
+  Activity,
+  AlertTriangle,
+  Share2,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -40,10 +44,13 @@ const menuItems = [
   { value: "package-sections", label: "Package Sections", icon: Layers },
   { value: "revenue", label: "Revenue", icon: Wallet },
   { value: "reports", label: "Reports & Analytics", icon: BarChart3 },
+  { value: "reconciliation", label: "Payment Reconciliation", icon: AlertTriangle },
   { value: "emi-report", label: "Installment Report", icon: Calculator },
   { value: "payments", label: "Payments", icon: Wallet },
   { value: "staff", label: "Staff Management", icon: UserCog },
+  { value: "audit-log", label: "Audit Log", icon: Activity },
   { value: "notifications", label: "Notifications", icon: Bell },
+  { value: "notification-retry", label: "Notification Retry", icon: MessageSquare },
   { value: "notices", label: "Notice Board", icon: Megaphone },
   { value: "sections", label: "Section Visibility", icon: Layers },
   { value: "menu", label: "Menu", icon: MenuIcon },
@@ -56,8 +63,10 @@ const menuItems = [
   { value: "visa", label: "Visa Countries", icon: Globe },
   { value: "contact", label: "Contact", icon: Phone },
   { value: "offices", label: "Offices", icon: Building2 },
+  { value: "social-networks", label: "Social Networks", icon: Share2 },
   { value: "footer", label: "Footer", icon: FileText },
   { value: "legal", label: "Legal Pages", icon: Scale },
+  { value: "backup", label: "Backup & Restore", icon: Shield },
   { value: "settings", label: "Settings", icon: Settings },
 ];
 

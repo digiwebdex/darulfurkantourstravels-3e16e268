@@ -44,6 +44,9 @@ import AdminStaffManagement from "@/components/admin/AdminStaffManagement";
 import AdminSocialNetworks from "@/components/admin/AdminSocialNetworks";
 import AdminBackupRestore from "@/components/admin/AdminBackupRestore";
 import AdminReportsAnalytics from "@/components/admin/AdminReportsAnalytics";
+import AdminAuditLog from "@/components/admin/AdminAuditLog";
+import AdminPaymentReconciliation from "@/components/admin/AdminPaymentReconciliation";
+import AdminNotificationRetry from "@/components/admin/AdminNotificationRetry";
 import { formatCurrency } from "@/lib/currency";
 
 interface Stats {
@@ -180,14 +183,20 @@ const AdminDashboard = () => {
         return <AdminRevenue />;
       case "reports":
         return <AdminReportsAnalytics />;
+      case "reconciliation":
+        return <AdminPaymentReconciliation />;
       case "emi-report":
         return <AdminEMIReport />;
       case "payments":
         return <AdminPaymentMethods />;
       case "staff":
         return <AdminStaffManagement />;
+      case "audit-log":
+        return <AdminAuditLog />;
       case "notifications":
         return <AdminNotifications />;
+      case "notification-retry":
+        return <AdminNotificationRetry />;
       case "sections":
         return <AdminSectionVisibility />;
       case "notices":

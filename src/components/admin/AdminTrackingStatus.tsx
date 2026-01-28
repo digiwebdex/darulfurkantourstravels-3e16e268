@@ -20,6 +20,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { logAdminAction, AuditActionTypes } from "@/utils/auditLogger";
 import { 
   FileText, 
   FileCheck, 
@@ -97,6 +98,20 @@ const AdminTrackingStatus = ({
           });
 
         if (historyError) throw historyError;
+
+        // Log to audit trail
+        const currentLabel = trackingStatusOptions.find(o => o.value === currentStatus)?.label;
+        const newLabel = trackingStatusOptions.find(o => o.value === newStatus)?.label;
+        
+        await logAdminAction({
+          actionType: AuditActionTypes.STATUS_CHANGE,
+          actionDescription: `Tracking status changed from "${currentLabel}" to "${newLabel}"`,
+          entityType: "booking",
+          entityId: bookingId,
+          bookingRef: bookingId.substring(0, 8).toUpperCase(),
+          oldValue: { status: currentStatus },
+          newValue: { status: newStatus, notes: notes || null },
+        });
 
         // Send notification if enabled
         if (sendNotification) {

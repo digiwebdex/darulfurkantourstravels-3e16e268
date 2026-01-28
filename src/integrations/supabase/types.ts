@@ -865,29 +865,41 @@ export type Database = {
       notification_logs: {
         Row: {
           booking_id: string | null
+          booking_type: string | null
           created_at: string
           error_message: string | null
           id: string
+          last_retry_at: string | null
+          message_content: string | null
           notification_type: string
           recipient: string
+          retry_count: number | null
           status: string
         }
         Insert: {
           booking_id?: string | null
+          booking_type?: string | null
           created_at?: string
           error_message?: string | null
           id?: string
+          last_retry_at?: string | null
+          message_content?: string | null
           notification_type: string
           recipient: string
+          retry_count?: number | null
           status: string
         }
         Update: {
           booking_id?: string | null
+          booking_type?: string | null
           created_at?: string
           error_message?: string | null
           id?: string
+          last_retry_at?: string | null
+          message_content?: string | null
           notification_type?: string
           recipient?: string
+          retry_count?: number | null
           status?: string
         }
         Relationships: [
@@ -1317,12 +1329,15 @@ export type Database = {
         Row: {
           action_description: string
           action_type: string
+          booking_ref: string | null
           created_at: string
           entity_id: string | null
           entity_type: string | null
           id: string
           ip_address: string | null
           metadata: Json | null
+          new_value: Json | null
+          old_value: Json | null
           staff_id: string | null
           user_agent: string | null
           user_id: string | null
@@ -1330,12 +1345,15 @@ export type Database = {
         Insert: {
           action_description: string
           action_type: string
+          booking_ref?: string | null
           created_at?: string
           entity_id?: string | null
           entity_type?: string | null
           id?: string
           ip_address?: string | null
           metadata?: Json | null
+          new_value?: Json | null
+          old_value?: Json | null
           staff_id?: string | null
           user_agent?: string | null
           user_id?: string | null
@@ -1343,12 +1361,15 @@ export type Database = {
         Update: {
           action_description?: string
           action_type?: string
+          booking_ref?: string | null
           created_at?: string
           entity_id?: string | null
           entity_type?: string | null
           id?: string
           ip_address?: string | null
           metadata?: Json | null
+          new_value?: Json | null
+          old_value?: Json | null
           staff_id?: string | null
           user_agent?: string | null
           user_id?: string | null
