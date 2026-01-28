@@ -228,3 +228,35 @@
   writing-mode: vertical-rl;
   text-orientation: mixed;
 }
+
+/* Custom scrollbar for admin tables */
+.admin-table-scroll {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground) / 0.4) hsl(var(--muted) / 0.3);
+}
+
+.admin-table-scroll::-webkit-scrollbar {
+  height: 10px;
+  background: hsl(var(--muted) / 0.3);
+  border-radius: 5px;
+}
+
+.admin-table-scroll::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.4);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.admin-table-scroll::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.6);
+  background-clip: padding-box;
+}
+
+.admin-table-scroll::-webkit-scrollbar-track {
+  background: hsl(var(--muted) / 0.2);
+  border-radius: 5px;
+}

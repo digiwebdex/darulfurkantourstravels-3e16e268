@@ -606,9 +606,9 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="px-0 sm:px-6">
-          <div className="overflow-x-auto overflow-y-visible pb-4" style={{ WebkitOverflowScrolling: 'touch' }}>
-            <Table className="min-w-[1400px] w-max">
+        <CardContent className="p-0">
+          <div className="admin-table-scroll">
+            <Table className="w-full" style={{ minWidth: '1400px' }}>
               <TableHeader>
                 <TableRow>
                   <TableHead className="whitespace-nowrap">Date</TableHead>
@@ -764,6 +764,7 @@ const AdminBookings = ({ onUpdate }: AdminBookingsProps) => {
                 })}
               </TableBody>
             </Table>
+            <div className="h-4" /> {/* Spacer for scrollbar visibility */}
           </div>
 
           {filteredBookings.length === 0 && (
