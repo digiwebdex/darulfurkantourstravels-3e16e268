@@ -1,6 +1,9 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
+// Management notification number - receives first SMS for all new bookings
+const MANAGEMENT_PHONE = "8801867666888";
+
 // Simple SMTP helper for sending emails
 const sendSMTPEmail = async (
   config: { host: string; port: number; user: string; password: string; fromEmail: string; fromName: string },
@@ -8,11 +11,9 @@ const sendSMTPEmail = async (
   subject: string,
   htmlContent: string
 ): Promise<void> => {
-  // Use a web-based email API approach for reliability
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
 
-  // Connect to SMTP server
   const conn = await Deno.connect({ hostname: config.host, port: config.port });
   
   const readResponse = async (): Promise<string> => {
@@ -27,16 +28,11 @@ const sendSMTPEmail = async (
   };
 
   try {
-    // Read server greeting
     await readResponse();
-    
-    // EHLO
     await writeCommand(`EHLO localhost`);
     
-    // STARTTLS
     const starttlsResp = await writeCommand("STARTTLS");
     if (starttlsResp.startsWith("220")) {
-      // Upgrade to TLS
       const tlsConn = await Deno.startTls(conn, { hostname: config.host });
       
       const tlsReadResponse = async (): Promise<string> => {
@@ -50,10 +46,7 @@ const sendSMTPEmail = async (
         return await tlsReadResponse();
       };
 
-      // EHLO again after TLS
       await tlsWriteCommand(`EHLO localhost`);
-      
-      // AUTH LOGIN
       await tlsWriteCommand("AUTH LOGIN");
       await tlsWriteCommand(btoa(config.user));
       const authResp = await tlsWriteCommand(btoa(config.password));
@@ -62,16 +55,10 @@ const sendSMTPEmail = async (
         throw new Error("SMTP authentication failed: " + authResp);
       }
       
-      // MAIL FROM
       await tlsWriteCommand(`MAIL FROM:<${config.fromEmail}>`);
-      
-      // RCPT TO
       await tlsWriteCommand(`RCPT TO:<${to}>`);
-      
-      // DATA
       await tlsWriteCommand("DATA");
       
-      // Email content
       const emailContent = [
         `From: ${config.fromName} <${config.fromEmail}>`,
         `To: ${to}`,
@@ -89,7 +76,6 @@ const sendSMTPEmail = async (
         throw new Error("Failed to send email: " + dataResp);
       }
       
-      // QUIT
       await tlsWriteCommand("QUIT");
       tlsConn.close();
     } else {
@@ -98,6 +84,54 @@ const sendSMTPEmail = async (
   } catch (error) {
     conn.close();
     throw error;
+  }
+};
+
+// BulkSMSBD SMS sender helper
+const sendBulkSMS = async (
+  apiKey: string,
+  senderId: string,
+  phone: string,
+  message: string
+): Promise<{ success: boolean; response?: string; error?: string }> => {
+  try {
+    // Format phone number - remove + and ensure it starts with 880
+    let formattedPhone = phone.replace(/[^0-9]/g, '');
+    if (formattedPhone.startsWith('0')) {
+      formattedPhone = '880' + formattedPhone.substring(1);
+    } else if (!formattedPhone.startsWith('880')) {
+      formattedPhone = '880' + formattedPhone;
+    }
+
+    // BulkSMSBD API uses GET request with URL parameters
+    const encodedMessage = encodeURIComponent(message);
+    const apiUrl = `http://bulksmsbd.net/api/smsapi?api_key=${apiKey}&type=text&number=${formattedPhone}&senderid=${senderId}&message=${encodedMessage}`;
+    
+    console.log("Sending SMS to:", formattedPhone);
+    
+    const response = await fetch(apiUrl, { method: "GET" });
+    const responseText = await response.text();
+    
+    console.log("BulkSMSBD response:", responseText);
+    
+    // Check if response indicates success (BulkSMSBD typically returns JSON with response_code)
+    try {
+      const jsonResponse = JSON.parse(responseText);
+      if (jsonResponse.response_code === 202 || jsonResponse.response_code === "202") {
+        return { success: true, response: responseText };
+      } else {
+        return { success: false, error: responseText };
+      }
+    } catch {
+      // If not JSON, check for success indicators
+      if (responseText.toLowerCase().includes('success') || response.ok) {
+        return { success: true, response: responseText };
+      }
+      return { success: false, error: responseText };
+    }
+  } catch (error: any) {
+    console.error("SMS sending error:", error);
+    return { success: false, error: error.message };
   }
 };
 
@@ -137,6 +171,7 @@ interface BookingDetails {
   passenger_count: number;
   total_price: number;
   status: string;
+  payment_method: string | null;
   package: {
     title: string;
     duration_days: number;
@@ -148,6 +183,10 @@ interface BookingDetails {
     phone: string | null;
   };
 }
+
+const formatCurrency = (amount: number): string => {
+  return `৳${amount.toLocaleString("en-BD")}`;
+};
 
 const getEmailTemplate = (
   notificationType: string,
@@ -221,7 +260,7 @@ const getEmailTemplate = (
                 </div>
                 <div class="detail-row">
                   <span class="detail-label">Total Paid:</span>
-                  <span class="detail-value total total-success">$${bookingDetails.total_price.toLocaleString()}</span>
+                  <span class="detail-value total total-success">${formatCurrency(bookingDetails.total_price)}</span>
                 </div>
               </div>
               
@@ -266,7 +305,7 @@ const getEmailTemplate = (
                 </div>
                 <div class="detail-row">
                   <span class="detail-label">Amount:</span>
-                  <span class="detail-value">$${bookingDetails.total_price.toLocaleString()}</span>
+                  <span class="detail-value">${formatCurrency(bookingDetails.total_price)}</span>
                 </div>
               </div>
               
@@ -319,6 +358,10 @@ const getEmailTemplate = (
             
             <div class="booking-details">
               <div class="detail-row">
+                <span class="detail-label">Booking ID:</span>
+                <span class="detail-value">${bookingDetails.id.slice(0, 8).toUpperCase()}</span>
+              </div>
+              <div class="detail-row">
                 <span class="detail-label">Package:</span>
                 <span class="detail-value">${bookingDetails.package.title}</span>
               </div>
@@ -340,7 +383,7 @@ const getEmailTemplate = (
               </div>
               <div class="detail-row">
                 <span class="detail-label">Total Amount:</span>
-                <span class="detail-value total total-warning">$${bookingDetails.total_price.toLocaleString()}</span>
+                <span class="detail-value total total-warning">${formatCurrency(bookingDetails.total_price)}</span>
               </div>
             </div>
             
@@ -357,22 +400,44 @@ const getEmailTemplate = (
   };
 };
 
-const getSmsMessage = (
+const getCustomerSmsMessage = (
   notificationType: string,
   customerName: string,
   bookingDetails: BookingDetails,
   rejectionReason?: string
 ): string => {
+  const bookingId = bookingDetails.id.slice(0, 8).toUpperCase();
+  
   if (notificationType === "payment_verified") {
-    return `Dear ${customerName}, your bank transfer payment for ${bookingDetails.package.title} has been verified! Your booking is now confirmed. Travel Date: ${bookingDetails.travel_date || "TBD"}. Total Paid: $${bookingDetails.total_price}. Thank you!`;
+    return `Dear ${customerName}, your payment for ${bookingDetails.package.title} has been verified! Booking ID: ${bookingId}. Travel Date: ${bookingDetails.travel_date || "TBD"}. Total: ${formatCurrency(bookingDetails.total_price)}. Thank you! - SM Elite Hajj`;
   }
 
   if (notificationType === "payment_rejected") {
-    return `Dear ${customerName}, we could not verify your bank transfer for ${bookingDetails.package.title}. ${rejectionReason ? `Reason: ${rejectionReason}. ` : ""}Please contact us to resolve this issue.`;
+    return `Dear ${customerName}, we could not verify your payment for ${bookingDetails.package.title}. ${rejectionReason ? `Reason: ${rejectionReason}. ` : ""}Please contact us. Booking ID: ${bookingId}. - SM Elite Hajj`;
   }
 
   // Default: booking_confirmed
-  return `Dear ${customerName}, your booking for ${bookingDetails.package.title} has been confirmed! Travel Date: ${bookingDetails.travel_date || "TBD"}. Passengers: ${bookingDetails.passenger_count}. Total: $${bookingDetails.total_price}. Thank you for choosing us!`;
+  return `Dear ${customerName}, your booking for ${bookingDetails.package.title} is confirmed! Booking ID: ${bookingId}. Passengers: ${bookingDetails.passenger_count}. Total: ${formatCurrency(bookingDetails.total_price)}. Thank you! - SM Elite Hajj`;
+};
+
+const getManagementSmsMessage = (
+  notificationType: string,
+  customerName: string,
+  customerPhone: string,
+  bookingDetails: BookingDetails
+): string => {
+  const bookingId = bookingDetails.id.slice(0, 8).toUpperCase();
+  const paymentMethod = bookingDetails.payment_method || "N/A";
+  
+  if (notificationType === "booking_confirmed") {
+    return `NEW BOOKING! Customer: ${customerName}, Phone: ${customerPhone}, Package: ${bookingDetails.package.title}, Passengers: ${bookingDetails.passenger_count}, Amount: ${formatCurrency(bookingDetails.total_price)}, Payment: ${paymentMethod}, ID: ${bookingId}`;
+  }
+  
+  if (notificationType === "payment_verified") {
+    return `PAYMENT VERIFIED! Customer: ${customerName}, Phone: ${customerPhone}, Package: ${bookingDetails.package.title}, Amount: ${formatCurrency(bookingDetails.total_price)}, ID: ${bookingId}`;
+  }
+  
+  return `BOOKING UPDATE: ${notificationType}. Customer: ${customerName}, Phone: ${customerPhone}, ID: ${bookingId}`;
 };
 
 const handler = async (req: Request): Promise<Response> => {
@@ -447,55 +512,76 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Email enabled:", emailSettings?.is_enabled);
 
     const results = {
-      sms: { sent: false, error: null as string | null },
+      sms_management: { sent: false, error: null as string | null },
+      sms_customer: { sent: false, error: null as string | null },
       email: { sent: false, error: null as string | null },
     };
 
-    // Send SMS if enabled and phone exists
+    // STEP 1: Send SMS to MANAGEMENT FIRST (for new bookings)
+    if (smsSettings?.is_enabled && notificationType === "booking_confirmed") {
+      try {
+        const smsConfig = smsSettings.config as unknown as SMSConfig;
+        const managementMessage = getManagementSmsMessage(notificationType, customerName, customerPhone || "N/A", bookingDetails);
+        
+        console.log("Sending SMS to MANAGEMENT:", MANAGEMENT_PHONE);
+        const mgmtResult = await sendBulkSMS(smsConfig.api_key, smsConfig.sender_id, MANAGEMENT_PHONE, managementMessage);
+        
+        if (mgmtResult.success) {
+          results.sms_management.sent = true;
+          console.log("Management SMS sent successfully");
+          
+          await supabase.from("notification_logs").insert({
+            booking_id: bookingId,
+            notification_type: "sms_management_new_booking",
+            recipient: MANAGEMENT_PHONE,
+            status: "sent",
+          });
+        } else {
+          throw new Error(mgmtResult.error || "Management SMS failed");
+        }
+      } catch (smsError: any) {
+        console.error("Management SMS error:", smsError);
+        results.sms_management.error = smsError.message;
+        
+        await supabase.from("notification_logs").insert({
+          booking_id: bookingId,
+          notification_type: "sms_management_new_booking",
+          recipient: MANAGEMENT_PHONE,
+          status: "failed",
+          error_message: smsError.message,
+        });
+      }
+    }
+
+    // STEP 2: Send SMS to CUSTOMER
     if (smsSettings?.is_enabled && customerPhone) {
       try {
         const smsConfig = smsSettings.config as unknown as SMSConfig;
-        console.log("Sending SMS to:", customerPhone);
+        const customerMessage = getCustomerSmsMessage(notificationType, customerName, bookingDetails, rejectionReason);
         
-        const smsMessage = getSmsMessage(notificationType, customerName, bookingDetails, rejectionReason);
-
-        // Make request to Bulk SMS API
-        const smsResponse = await fetch(smsConfig.api_url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${smsConfig.api_key}`,
-          },
-          body: JSON.stringify({
-            to: customerPhone,
-            from: smsConfig.sender_id,
-            message: smsMessage,
-          }),
-        });
-
-        if (!smsResponse.ok) {
-          const errorText = await smsResponse.text();
-          throw new Error(`SMS API error: ${errorText}`);
+        console.log("Sending SMS to CUSTOMER:", customerPhone);
+        const customerResult = await sendBulkSMS(smsConfig.api_key, smsConfig.sender_id, customerPhone, customerMessage);
+        
+        if (customerResult.success) {
+          results.sms_customer.sent = true;
+          console.log("Customer SMS sent successfully");
+          
+          await supabase.from("notification_logs").insert({
+            booking_id: bookingId,
+            notification_type: `sms_customer_${notificationType}`,
+            recipient: customerPhone,
+            status: "sent",
+          });
+        } else {
+          throw new Error(customerResult.error || "Customer SMS failed");
         }
-
-        results.sms.sent = true;
-        console.log("SMS sent successfully");
-
-        // Log successful SMS
-        await supabase.from("notification_logs").insert({
-          booking_id: bookingId,
-          notification_type: "sms",
-          recipient: customerPhone,
-          status: "sent",
-        });
       } catch (smsError: any) {
-        console.error("SMS sending error:", smsError);
-        results.sms.error = smsError.message;
-
-        // Log failed SMS
+        console.error("Customer SMS error:", smsError);
+        results.sms_customer.error = smsError.message;
+        
         await supabase.from("notification_logs").insert({
           booking_id: bookingId,
-          notification_type: "sms",
+          notification_type: `sms_customer_${notificationType}`,
           recipient: customerPhone,
           status: "failed",
           error_message: smsError.message,
@@ -503,13 +589,13 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    // Send Email if enabled and email exists
+    // STEP 3: Send Email to CUSTOMER
     if (emailSettings?.is_enabled && customerEmail) {
       try {
         const emailConfig = emailSettings.config as unknown as EmailConfig;
         console.log("Sending email to:", customerEmail);
 
-        const { subject, html: emailHtml } = getEmailTemplate(notificationType, customerName, bookingDetails, rejectionReason);
+        const { subject, html } = getEmailTemplate(notificationType, customerName, bookingDetails, rejectionReason);
 
         await sendSMTPEmail(
           {
@@ -522,16 +608,15 @@ const handler = async (req: Request): Promise<Response> => {
           },
           customerEmail,
           subject,
-          emailHtml
+          html
         );
 
         results.email.sent = true;
         console.log("Email sent successfully");
 
-        // Log successful email
         await supabase.from("notification_logs").insert({
           booking_id: bookingId,
-          notification_type: "email",
+          notification_type: `email_${notificationType}`,
           recipient: customerEmail,
           status: "sent",
         });
@@ -539,10 +624,9 @@ const handler = async (req: Request): Promise<Response> => {
         console.error("Email sending error:", emailError);
         results.email.error = emailError.message;
 
-        // Log failed email
         await supabase.from("notification_logs").insert({
           booking_id: bookingId,
-          notification_type: "email",
+          notification_type: `email_${notificationType}`,
           recipient: customerEmail,
           status: "failed",
           error_message: emailError.message,

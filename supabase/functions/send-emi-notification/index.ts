@@ -1,10 +1,138 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
-import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+// Simple SMTP helper for sending emails
+const sendSMTPEmail = async (
+  config: { host: string; port: number; user: string; password: string; fromEmail: string; fromName: string },
+  to: string,
+  subject: string,
+  htmlContent: string
+): Promise<void> => {
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+
+  const conn = await Deno.connect({ hostname: config.host, port: config.port });
+  
+  const readResponse = async (): Promise<string> => {
+    const buffer = new Uint8Array(1024);
+    const n = await conn.read(buffer);
+    return n ? decoder.decode(buffer.subarray(0, n)) : "";
+  };
+
+  const writeCommand = async (cmd: string): Promise<string> => {
+    await conn.write(encoder.encode(cmd + "\r\n"));
+    return await readResponse();
+  };
+
+  try {
+    await readResponse();
+    await writeCommand(`EHLO localhost`);
+    
+    const starttlsResp = await writeCommand("STARTTLS");
+    if (starttlsResp.startsWith("220")) {
+      const tlsConn = await Deno.startTls(conn, { hostname: config.host });
+      
+      const tlsReadResponse = async (): Promise<string> => {
+        const buffer = new Uint8Array(2048);
+        const n = await tlsConn.read(buffer);
+        return n ? decoder.decode(buffer.subarray(0, n)) : "";
+      };
+
+      const tlsWriteCommand = async (cmd: string): Promise<string> => {
+        await tlsConn.write(encoder.encode(cmd + "\r\n"));
+        return await tlsReadResponse();
+      };
+
+      await tlsWriteCommand(`EHLO localhost`);
+      await tlsWriteCommand("AUTH LOGIN");
+      await tlsWriteCommand(btoa(config.user));
+      const authResp = await tlsWriteCommand(btoa(config.password));
+      
+      if (!authResp.startsWith("235")) {
+        throw new Error("SMTP authentication failed: " + authResp);
+      }
+      
+      await tlsWriteCommand(`MAIL FROM:<${config.fromEmail}>`);
+      await tlsWriteCommand(`RCPT TO:<${to}>`);
+      await tlsWriteCommand("DATA");
+      
+      const emailContent = [
+        `From: ${config.fromName} <${config.fromEmail}>`,
+        `To: ${to}`,
+        `Subject: ${subject}`,
+        `MIME-Version: 1.0`,
+        `Content-Type: text/html; charset=UTF-8`,
+        ``,
+        htmlContent,
+        `.`
+      ].join("\r\n");
+      
+      const dataResp = await tlsWriteCommand(emailContent);
+      
+      if (!dataResp.startsWith("250")) {
+        throw new Error("Failed to send email: " + dataResp);
+      }
+      
+      await tlsWriteCommand("QUIT");
+      tlsConn.close();
+    } else {
+      throw new Error("STARTTLS not supported: " + starttlsResp);
+    }
+  } catch (error) {
+    conn.close();
+    throw error;
+  }
+};
+
+// BulkSMSBD SMS sender helper
+const sendBulkSMS = async (
+  apiKey: string,
+  senderId: string,
+  phone: string,
+  message: string
+): Promise<{ success: boolean; response?: string; error?: string }> => {
+  try {
+    // Format phone number - remove + and ensure it starts with 880
+    let formattedPhone = phone.replace(/[^0-9]/g, '');
+    if (formattedPhone.startsWith('0')) {
+      formattedPhone = '880' + formattedPhone.substring(1);
+    } else if (!formattedPhone.startsWith('880')) {
+      formattedPhone = '880' + formattedPhone;
+    }
+
+    // BulkSMSBD API uses GET request with URL parameters
+    const encodedMessage = encodeURIComponent(message);
+    const apiUrl = `http://bulksmsbd.net/api/smsapi?api_key=${apiKey}&type=text&number=${formattedPhone}&senderid=${senderId}&message=${encodedMessage}`;
+    
+    console.log("Sending SMS to:", formattedPhone);
+    
+    const response = await fetch(apiUrl, { method: "GET" });
+    const responseText = await response.text();
+    
+    console.log("BulkSMSBD response:", responseText);
+    
+    try {
+      const jsonResponse = JSON.parse(responseText);
+      if (jsonResponse.response_code === 202 || jsonResponse.response_code === "202") {
+        return { success: true, response: responseText };
+      } else {
+        return { success: false, error: responseText };
+      }
+    } catch {
+      if (responseText.toLowerCase().includes('success') || response.ok) {
+        return { success: true, response: responseText };
+      }
+      return { success: false, error: responseText };
+    }
+  } catch (error: any) {
+    console.error("SMS sending error:", error);
+    return { success: false, error: error.message };
+  }
 };
 
 interface EMINotificationRequest {
@@ -35,12 +163,7 @@ interface EmailConfig {
 }
 
 const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat("en-BD", {
-    style: "currency",
-    currency: "BDT",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount).replace("BDT", "৳");
+  return `৳${amount.toLocaleString("en-BD")}`;
 };
 
 const getNotificationContent = (
@@ -54,42 +177,42 @@ const getNotificationContent = (
     case "emi_plan_created":
       return {
         emoji: "📋",
-        subject: `EMI Plan Created - ${packageTitle}`,
-        smsText: `Dear ${customerName}, your EMI plan for ${packageTitle} has been created. Total ${data.totalEmis} installments of ${formatCurrency(data.amount || 0)} each. Booking ID: ${bookingId}`,
-        title: "EMI Plan Created",
+        subject: `Installment Plan Created - ${packageTitle}`,
+        smsText: `Dear ${customerName}, your installment plan for ${packageTitle} has been created. Total ${data.totalEmis} installments of ${formatCurrency(data.amount || 0)} each. ID: ${bookingId}. - SM Elite Hajj`,
+        title: "Installment Plan Created",
         description: `Your installment payment plan has been set up successfully.`,
       };
     case "payment_recorded":
       return {
         emoji: "✅",
-        subject: `EMI Payment Received - Installment ${data.installmentNumber}`,
-        smsText: `Dear ${customerName}, we received your EMI payment of ${formatCurrency(data.amount || 0)} for installment ${data.installmentNumber}. ${data.paidEmis}/${data.totalEmis} paid. Remaining: ${formatCurrency(data.remainingAmount || 0)}. Booking: ${bookingId}`,
+        subject: `Installment Payment Received - #${data.installmentNumber}`,
+        smsText: `Dear ${customerName}, we received your installment payment of ${formatCurrency(data.amount || 0)} (#${data.installmentNumber}). ${data.paidEmis}/${data.totalEmis} paid. Remaining: ${formatCurrency(data.remainingAmount || 0)}. ID: ${bookingId}. - SM Elite Hajj`,
         title: "Payment Received",
-        description: `Your EMI payment for installment ${data.installmentNumber} has been recorded.`,
+        description: `Your installment payment #${data.installmentNumber} has been recorded.`,
       };
     case "payment_due":
       return {
         emoji: "⏰",
-        subject: `EMI Payment Reminder - Installment ${data.installmentNumber} Due`,
-        smsText: `Dear ${customerName}, reminder: EMI payment of ${formatCurrency(data.amount || 0)} for installment ${data.installmentNumber} is due on ${data.dueDate}. Please pay on time. Booking: ${bookingId}`,
+        subject: `Installment Payment Reminder - #${data.installmentNumber} Due`,
+        smsText: `Dear ${customerName}, reminder: Installment #${data.installmentNumber} of ${formatCurrency(data.amount || 0)} is due on ${data.dueDate}. Please pay on time. ID: ${bookingId}. - SM Elite Hajj`,
         title: "Payment Reminder",
-        description: `Your EMI payment for installment ${data.installmentNumber} is due soon.`,
+        description: `Your installment payment #${data.installmentNumber} is due soon.`,
       };
     case "payment_overdue":
       return {
         emoji: "⚠️",
-        subject: `EMI Payment Overdue - Installment ${data.installmentNumber}`,
-        smsText: `Dear ${customerName}, your EMI payment of ${formatCurrency(data.amount || 0)} for installment ${data.installmentNumber} is overdue. Due date was ${data.dueDate}. Please pay immediately. Booking: ${bookingId}`,
+        subject: `Installment Payment Overdue - #${data.installmentNumber}`,
+        smsText: `Dear ${customerName}, your installment #${data.installmentNumber} of ${formatCurrency(data.amount || 0)} is OVERDUE (was due ${data.dueDate}). Please pay immediately. ID: ${bookingId}. - SM Elite Hajj`,
         title: "Payment Overdue",
-        description: `Your EMI payment for installment ${data.installmentNumber} is overdue.`,
+        description: `Your installment payment #${data.installmentNumber} is overdue.`,
       };
     default:
       return {
         emoji: "📢",
-        subject: `EMI Update - ${packageTitle}`,
-        smsText: `Dear ${customerName}, there's an update about your EMI plan for ${packageTitle}. Booking: ${bookingId}`,
-        title: "EMI Update",
-        description: `There's an update about your EMI plan.`,
+        subject: `Installment Update - ${packageTitle}`,
+        smsText: `Dear ${customerName}, there's an update about your installment plan for ${packageTitle}. ID: ${bookingId}. - SM Elite Hajj`,
+        title: "Installment Update",
+        description: `There's an update about your installment plan.`,
       };
   }
 };
@@ -175,46 +298,34 @@ const handler = async (req: Request): Promise<Response> => {
       notificationData
     );
 
-    // Send SMS if enabled and phone exists
+    // Send SMS to CUSTOMER only
     if (smsSettings?.is_enabled && customerPhone) {
       try {
         const smsConfig = smsSettings.config as unknown as SMSConfig;
-        console.log("Sending SMS to:", customerPhone);
+        console.log("Sending EMI SMS to CUSTOMER:", customerPhone);
 
-        const smsResponse = await fetch(smsConfig.api_url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${smsConfig.api_key}`,
-          },
-          body: JSON.stringify({
-            to: customerPhone,
-            from: smsConfig.sender_id,
-            message: content.smsText,
-          }),
-        });
+        const smsResult = await sendBulkSMS(smsConfig.api_key, smsConfig.sender_id, customerPhone, content.smsText);
 
-        if (!smsResponse.ok) {
-          const errorText = await smsResponse.text();
-          throw new Error(`SMS API error: ${errorText}`);
+        if (smsResult.success) {
+          results.sms.sent = true;
+          console.log("SMS sent successfully");
+
+          await supabase.from("notification_logs").insert({
+            booking_id: bookingId,
+            notification_type: `sms_customer_emi_${notificationType}`,
+            recipient: customerPhone,
+            status: "sent",
+          });
+        } else {
+          throw new Error(smsResult.error || "SMS failed");
         }
-
-        results.sms.sent = true;
-        console.log("SMS sent successfully");
-
-        await supabase.from("notification_logs").insert({
-          booking_id: bookingId,
-          notification_type: `sms_emi_${notificationType}`,
-          recipient: customerPhone,
-          status: "sent",
-        });
       } catch (smsError: any) {
         console.error("SMS sending error:", smsError);
         results.sms.error = smsError.message;
 
         await supabase.from("notification_logs").insert({
           booking_id: bookingId,
-          notification_type: `sms_emi_${notificationType}`,
+          notification_type: `sms_customer_emi_${notificationType}`,
           recipient: customerPhone,
           status: "failed",
           error_message: smsError.message,
@@ -222,23 +333,11 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    // Send Email if enabled and email exists
+    // Send Email to CUSTOMER
     if (emailSettings?.is_enabled && customerEmail) {
       try {
         const emailConfig = emailSettings.config as unknown as EmailConfig;
         console.log("Sending email to:", customerEmail);
-
-        const client = new SMTPClient({
-          connection: {
-            hostname: emailConfig.smtp_host,
-            port: emailConfig.smtp_port,
-            tls: emailConfig.smtp_port === 465,
-            auth: {
-              username: emailConfig.smtp_user,
-              password: emailConfig.smtp_password,
-            },
-          },
-        });
 
         const statusColor = notificationType === "payment_overdue" ? "#dc2626" : 
                            notificationType === "payment_due" ? "#f59e0b" : "#d4a853";
@@ -260,16 +359,16 @@ const handler = async (req: Request): Promise<Response> => {
                 <p>Dear ${customerName},</p>
                 
                 ${notificationType === "emi_plan_created" ? `
-                <p>Your EMI payment plan has been set up for your booking. Here are the details:</p>
+                <p>Your installment payment plan has been set up for your booking. Here are the details:</p>
                 <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid ${statusColor};">
                   <div style="margin-bottom: 10px;"><strong>Package:</strong> ${booking.package.title}</div>
                   <div style="margin-bottom: 10px;"><strong>Total Installments:</strong> ${notificationData.totalEmis}</div>
-                  <div style="margin-bottom: 10px;"><strong>Monthly EMI:</strong> ${formatCurrency(notificationData.amount || 0)}</div>
+                  <div style="margin-bottom: 10px;"><strong>Monthly Installment:</strong> ${formatCurrency(notificationData.amount || 0)}</div>
                 </div>
                 ` : ""}
                 
                 ${notificationType === "payment_recorded" ? `
-                <p>We have received your EMI payment. Thank you!</p>
+                <p>We have received your installment payment. Thank you!</p>
                 <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #22c55e;">
                   <div style="margin-bottom: 10px;"><strong>Installment Number:</strong> ${notificationData.installmentNumber}</div>
                   <div style="margin-bottom: 10px;"><strong>Amount Paid:</strong> ${formatCurrency(notificationData.amount || 0)}</div>
@@ -279,7 +378,7 @@ const handler = async (req: Request): Promise<Response> => {
                 ` : ""}
                 
                 ${notificationType === "payment_due" ? `
-                <p>This is a friendly reminder that your EMI payment is due soon.</p>
+                <p>This is a friendly reminder that your installment payment is due soon.</p>
                 <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
                   <div style="margin-bottom: 10px;"><strong>Installment Number:</strong> ${notificationData.installmentNumber}</div>
                   <div style="margin-bottom: 10px;"><strong>Amount Due:</strong> ${formatCurrency(notificationData.amount || 0)}</div>
@@ -289,7 +388,7 @@ const handler = async (req: Request): Promise<Response> => {
                 ` : ""}
                 
                 ${notificationType === "payment_overdue" ? `
-                <p>We noticed that your EMI payment is overdue. Please make the payment as soon as possible.</p>
+                <p>We noticed that your installment payment is overdue. Please make the payment as soon as possible.</p>
                 <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
                   <div style="margin-bottom: 10px;"><strong>Installment Number:</strong> ${notificationData.installmentNumber}</div>
                   <div style="margin-bottom: 10px;"><strong>Overdue Amount:</strong> ${formatCurrency(notificationData.amount || 0)}</div>
@@ -319,15 +418,20 @@ const handler = async (req: Request): Promise<Response> => {
           </html>
         `;
 
-        await client.send({
-          from: `${emailConfig.from_name} <${emailConfig.from_email}>`,
-          to: customerEmail,
-          subject: `${content.emoji} ${content.subject} - Booking ${booking.id.slice(0, 8).toUpperCase()}`,
-          content: content.smsText,
-          html: emailHtml,
-        });
+        await sendSMTPEmail(
+          {
+            host: emailConfig.smtp_host,
+            port: emailConfig.smtp_port,
+            user: emailConfig.smtp_user,
+            password: emailConfig.smtp_password,
+            fromEmail: emailConfig.from_email,
+            fromName: emailConfig.from_name,
+          },
+          customerEmail,
+          `${content.emoji} ${content.subject} - Booking ${booking.id.slice(0, 8).toUpperCase()}`,
+          emailHtml
+        );
 
-        await client.close();
         results.email.sent = true;
         console.log("Email sent successfully");
 

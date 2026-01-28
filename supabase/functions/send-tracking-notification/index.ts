@@ -89,6 +89,52 @@ const sendSMTPEmail = async (
   }
 };
 
+// BulkSMSBD SMS sender helper
+const sendBulkSMS = async (
+  apiKey: string,
+  senderId: string,
+  phone: string,
+  message: string
+): Promise<{ success: boolean; response?: string; error?: string }> => {
+  try {
+    // Format phone number - remove + and ensure it starts with 880
+    let formattedPhone = phone.replace(/[^0-9]/g, '');
+    if (formattedPhone.startsWith('0')) {
+      formattedPhone = '880' + formattedPhone.substring(1);
+    } else if (!formattedPhone.startsWith('880')) {
+      formattedPhone = '880' + formattedPhone;
+    }
+
+    // BulkSMSBD API uses GET request with URL parameters
+    const encodedMessage = encodeURIComponent(message);
+    const apiUrl = `http://bulksmsbd.net/api/smsapi?api_key=${apiKey}&type=text&number=${formattedPhone}&senderid=${senderId}&message=${encodedMessage}`;
+    
+    console.log("Sending SMS to:", formattedPhone);
+    
+    const response = await fetch(apiUrl, { method: "GET" });
+    const responseText = await response.text();
+    
+    console.log("BulkSMSBD response:", responseText);
+    
+    try {
+      const jsonResponse = JSON.parse(responseText);
+      if (jsonResponse.response_code === 202 || jsonResponse.response_code === "202") {
+        return { success: true, response: responseText };
+      } else {
+        return { success: false, error: responseText };
+      }
+    } catch {
+      if (responseText.toLowerCase().includes('success') || response.ok) {
+        return { success: true, response: responseText };
+      }
+      return { success: false, error: responseText };
+    }
+  } catch (error: any) {
+    console.error("SMS sending error:", error);
+    return { success: false, error: error.message };
+  }
+};
+
 interface NotificationRequest {
   bookingId: string;
   newStatus: string;
@@ -204,6 +250,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const statusLabel = trackingStatusLabels[newStatus] || newStatus;
     const statusEmoji = getStatusEmoji(newStatus);
+    const bookingIdShort = booking.id.slice(0, 8).toUpperCase();
 
     // Send WhatsApp if enabled
     if (whatsappSettings?.is_enabled && customerPhone) {
@@ -215,7 +262,7 @@ const handler = async (req: Request): Promise<Response> => {
         message = message
           .replace(/\{\{name\}\}/g, customerName)
           .replace(/\{\{status\}\}/g, `${statusEmoji} ${statusLabel}`)
-          .replace(/\{\{booking_id\}\}/g, booking.id.slice(0, 8).toUpperCase())
+          .replace(/\{\{booking_id\}\}/g, bookingIdShort)
           .replace(/\{\{package\}\}/g, booking.package?.title || 'N/A')
           .replace(/\{\{notes\}\}/g, notes || '');
 
@@ -246,7 +293,7 @@ const handler = async (req: Request): Promise<Response> => {
         results.whatsapp.sent = true;
         await supabase.from("notification_logs").insert({
           booking_id: bookingId,
-          notification_type: "whatsapp",
+          notification_type: "whatsapp_status_update",
           recipient: customerPhone,
           status: "sent",
         });
@@ -254,7 +301,7 @@ const handler = async (req: Request): Promise<Response> => {
         results.whatsapp.error = whatsappError.message;
         await supabase.from("notification_logs").insert({
           booking_id: bookingId,
-          notification_type: "whatsapp",
+          notification_type: "whatsapp_status_update",
           recipient: customerPhone,
           status: "failed",
           error_message: whatsappError.message,
@@ -262,41 +309,35 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    // Send SMS if enabled
+    // Send SMS to CUSTOMER only
     if (smsSettings?.is_enabled && customerPhone) {
       try {
         const smsConfig = smsSettings.config as unknown as SMSConfig;
-        let smsMessage = `${statusEmoji} Dear ${customerName}, your ${booking.package.title} booking status has been updated to: ${statusLabel}.`;
+        let smsMessage = `${statusEmoji} Dear ${customerName}, your ${booking.package.title} booking status: ${statusLabel}.`;
         if (notes) smsMessage += ` Note: ${notes}`;
-        smsMessage += ` Booking ID: ${booking.id.slice(0, 8).toUpperCase()}.`;
+        smsMessage += ` ID: ${bookingIdShort}. - SM Elite Hajj`;
 
-        const smsResponse = await fetch(smsConfig.api_url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${smsConfig.api_key}`,
-          },
-          body: JSON.stringify({
-            to: customerPhone,
-            from: smsConfig.sender_id,
-            message: smsMessage,
-          }),
-        });
-
-        if (!smsResponse.ok) throw new Error(`SMS API error: ${await smsResponse.text()}`);
-
-        results.sms.sent = true;
-        await supabase.from("notification_logs").insert({
-          booking_id: bookingId,
-          notification_type: "sms",
-          recipient: customerPhone,
-          status: "sent",
-        });
+        console.log("Sending tracking SMS to CUSTOMER:", customerPhone);
+        const smsResult = await sendBulkSMS(smsConfig.api_key, smsConfig.sender_id, customerPhone, smsMessage);
+        
+        if (smsResult.success) {
+          results.sms.sent = true;
+          console.log("Customer SMS sent successfully");
+          
+          await supabase.from("notification_logs").insert({
+            booking_id: bookingId,
+            notification_type: "sms_customer_status_update",
+            recipient: customerPhone,
+            status: "sent",
+          });
+        } else {
+          throw new Error(smsResult.error || "SMS failed");
+        }
       } catch (smsError: any) {
         results.sms.error = smsError.message;
         await supabase.from("notification_logs").insert({
           booking_id: bookingId,
-          notification_type: "sms",
+          notification_type: "sms_customer_status_update",
           recipient: customerPhone,
           status: "failed",
           error_message: smsError.message,
@@ -304,7 +345,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    // Send Email if enabled
+    // Send Email to CUSTOMER
     if (emailSettings?.is_enabled && customerEmail) {
       try {
         const emailConfig = emailSettings.config as unknown as EmailConfig;
@@ -355,7 +396,7 @@ const handler = async (req: Request): Promise<Response> => {
                   ${progressHtml}
                 </div>
                 <div style="background: white; padding: 20px; border-radius: 8px;">
-                  <div style="padding: 8px 0; border-bottom: 1px solid #eee;"><span style="color: #666;">Booking ID:</span> <strong>${booking.id.slice(0, 8).toUpperCase()}</strong></div>
+                  <div style="padding: 8px 0; border-bottom: 1px solid #eee;"><span style="color: #666;">Booking ID:</span> <strong>${bookingIdShort}</strong></div>
                   <div style="padding: 8px 0; border-bottom: 1px solid #eee;"><span style="color: #666;">Package:</span> <strong>${booking.package.title}</strong></div>
                   <div style="padding: 8px 0;"><span style="color: #666;">Travel Date:</span> <strong>${booking.travel_date || 'TBD'}</strong></div>
                 </div>
@@ -384,7 +425,7 @@ const handler = async (req: Request): Promise<Response> => {
 
         await supabase.from("notification_logs").insert({
           booking_id: bookingId,
-          notification_type: "email",
+          notification_type: "email_status_update",
           recipient: customerEmail,
           status: "sent",
         });
@@ -394,7 +435,7 @@ const handler = async (req: Request): Promise<Response> => {
 
         await supabase.from("notification_logs").insert({
           booking_id: bookingId,
-          notification_type: "email",
+          notification_type: "email_status_update",
           recipient: customerEmail,
           status: "failed",
           error_message: emailError.message,

@@ -213,17 +213,68 @@ const AdminNotifications = () => {
     }
   };
 
-  const getNotificationTypeIcon = (type: string) => {
-    switch (type) {
-      case "sms":
-        return <MessageSquare className="h-3 w-3" />;
-      case "email":
-        return <Mail className="h-3 w-3" />;
-      case "whatsapp":
-        return <WhatsAppIcon className="h-3 w-3" />;
-      default:
-        return <MessageSquare className="h-3 w-3" />;
+  const getNotificationTypeDisplay = (type: string) => {
+    // Parse notification type to show human-readable format
+    const isManagement = type.includes("management");
+    const isCustomer = type.includes("customer");
+    
+    let channel = "📋";
+    let label = type;
+    let recipientBadge = null;
+    
+    if (type.includes("sms")) {
+      channel = "📱";
+      label = "SMS";
+    } else if (type.includes("email")) {
+      channel = "📧";
+      label = "Email";
+    } else if (type.includes("whatsapp")) {
+      channel = "💬";
+      label = "WhatsApp";
     }
+    
+    // Determine notification purpose
+    if (type.includes("new_booking") || type.includes("booking_confirmed")) {
+      label += " - New Booking";
+    } else if (type.includes("status_update")) {
+      label += " - Status Update";
+    } else if (type.includes("payment_verified")) {
+      label += " - Payment Verified";
+    } else if (type.includes("emi") || type.includes("installment")) {
+      if (type.includes("reminder")) {
+        label += " - Installment Reminder";
+      } else if (type.includes("overdue")) {
+        label += " - Installment Overdue";
+      } else if (type.includes("payment_recorded")) {
+        label += " - Payment Received";
+      } else if (type.includes("plan_created")) {
+        label += " - Plan Created";
+      } else {
+        label += " - Installment";
+      }
+    }
+    
+    if (isManagement) {
+      recipientBadge = <Badge className="bg-purple-100 text-purple-800 text-[10px] ml-1">Management</Badge>;
+    } else if (isCustomer) {
+      recipientBadge = <Badge className="bg-blue-100 text-blue-800 text-[10px] ml-1">Customer</Badge>;
+    }
+    
+    return (
+      <div className="flex flex-col gap-1">
+        <span className="flex items-center gap-1 text-xs font-medium">
+          {channel} {label}
+        </span>
+        {recipientBadge}
+      </div>
+    );
+  };
+
+  const getNotificationTypeIcon = (type: string) => {
+    if (type.includes("sms")) return <MessageSquare className="h-3 w-3" />;
+    if (type.includes("email")) return <Mail className="h-3 w-3" />;
+    if (type.includes("whatsapp")) return <WhatsAppIcon className="h-3 w-3" />;
+    return <MessageSquare className="h-3 w-3" />;
   };
 
   if (loading) {
@@ -613,10 +664,7 @@ const AdminNotifications = () => {
                     {logs.map((log) => (
                       <TableRow key={log.id}>
                         <TableCell>
-                          <Badge variant="outline" className="flex items-center gap-1 w-fit">
-                            {getNotificationTypeIcon(log.notification_type)}
-                            {log.notification_type.toUpperCase()}
-                          </Badge>
+                          {getNotificationTypeDisplay(log.notification_type)}
                         </TableCell>
                         <TableCell className="font-mono text-sm">{log.recipient}</TableCell>
                         <TableCell>{getStatusBadge(log.status)}</TableCell>

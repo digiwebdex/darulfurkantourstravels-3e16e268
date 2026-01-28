@@ -1,9 +1,66 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+// BulkSMSBD SMS sender helper
+const sendBulkSMS = async (
+  apiKey: string,
+  senderId: string,
+  phone: string,
+  message: string
+): Promise<{ success: boolean; response?: string; error?: string }> => {
+  try {
+    // Format phone number - remove + and ensure it starts with 880
+    let formattedPhone = phone.replace(/[^0-9]/g, '');
+    if (formattedPhone.startsWith('0')) {
+      formattedPhone = '880' + formattedPhone.substring(1);
+    } else if (!formattedPhone.startsWith('880')) {
+      formattedPhone = '880' + formattedPhone;
+    }
+
+    // BulkSMSBD API uses GET request with URL parameters
+    const encodedMessage = encodeURIComponent(message);
+    const apiUrl = `http://bulksmsbd.net/api/smsapi?api_key=${apiKey}&type=text&number=${formattedPhone}&senderid=${senderId}&message=${encodedMessage}`;
+    
+    console.log("Sending SMS to:", formattedPhone);
+    
+    const response = await fetch(apiUrl, { method: "GET" });
+    const responseText = await response.text();
+    
+    console.log("BulkSMSBD response:", responseText);
+    
+    try {
+      const jsonResponse = JSON.parse(responseText);
+      if (jsonResponse.response_code === 202 || jsonResponse.response_code === "202") {
+        return { success: true, response: responseText };
+      } else {
+        return { success: false, error: responseText };
+      }
+    } catch {
+      if (responseText.toLowerCase().includes('success') || response.ok) {
+        return { success: true, response: responseText };
+      }
+      return { success: false, error: responseText };
+    }
+  } catch (error: any) {
+    console.error("SMS sending error:", error);
+    return { success: false, error: error.message };
+  }
+};
+
+interface SMSConfig {
+  provider: string;
+  api_url: string;
+  api_key: string;
+  sender_id: string;
+}
+
+const formatCurrency = (amount: number): string => {
+  return `৳${amount.toLocaleString("en-BD")}`;
 };
 
 serve(async (req) => {
@@ -22,6 +79,8 @@ serve(async (req) => {
     
     const todayStr = today.toISOString().split("T")[0];
     const threeDaysStr = threeDaysFromNow.toISOString().split("T")[0];
+
+    console.log("EMI Reminder check - Today:", todayStr, "3 days from now:", threeDaysStr);
 
     // Find installments due in the next 3 days
     const { data: upcomingInstallments, error: upcomingError } = await supabase
@@ -74,6 +133,8 @@ serve(async (req) => {
       ...(overdueInstallments || []).map(i => ({ ...i, type: "overdue" })),
     ];
 
+    console.log("Total installments to process:", allInstallments.length);
+
     if (allInstallments.length === 0) {
       return new Response(
         JSON.stringify({ message: "No reminders to send", sent: 0 }),
@@ -85,7 +146,7 @@ serve(async (req) => {
     const emiPaymentIds = [...new Set(allInstallments.map(i => i.emi_payment_id))];
     const { data: emiPayments } = await supabase
       .from("emi_payments")
-      .select("id, booking_id, number_of_emis")
+      .select("id, booking_id, number_of_emis, paid_emis, remaining_amount")
       .in("id", emiPaymentIds);
 
     if (!emiPayments) {
@@ -99,7 +160,7 @@ serve(async (req) => {
     const bookingIds = [...new Set(emiPayments.map(e => e.booking_id))];
     const { data: bookings } = await supabase
       .from("bookings")
-      .select("id, guest_name, guest_email, guest_phone, user_id")
+      .select("id, guest_name, guest_email, guest_phone, user_id, package:packages(title)")
       .in("id", bookingIds);
 
     // Get user profiles for registered users
@@ -113,17 +174,25 @@ serve(async (req) => {
       profiles = profileData || [];
     }
 
-    // Check notification settings
+    // Check SMS notification settings
     const { data: notificationSettings } = await supabase
       .from("notification_settings")
       .select("*")
-      .eq("is_enabled", true);
+      .eq("setting_type", "sms")
+      .eq("is_enabled", true)
+      .single();
 
-    const emailEnabled = notificationSettings?.some(s => s.setting_type === "email");
-    const smsEnabled = notificationSettings?.some(s => s.setting_type === "sms");
+    if (!notificationSettings) {
+      console.log("SMS notifications are disabled");
+      return new Response(
+        JSON.stringify({ message: "SMS notifications disabled", sent: 0 }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
+    const smsConfig = notificationSettings.config as unknown as SMSConfig;
     let sentCount = 0;
-    const notifications: any[] = [];
+    let failedCount = 0;
 
     for (const installment of allInstallments) {
       const emiPayment = emiPayments.find(e => e.id === installment.emi_payment_id);
@@ -133,16 +202,21 @@ serve(async (req) => {
       if (!booking) continue;
 
       const profile = profiles.find(p => p.id === booking.user_id);
-      const customerEmail = profile?.email || booking.guest_email;
       const customerPhone = profile?.phone || booking.guest_phone;
       const customerName = profile?.full_name || booking.guest_name || "Customer";
+      const packageTitle = (booking.package as any)?.title || "Package";
 
+      if (!customerPhone) {
+        console.log("No phone number for booking:", booking.id);
+        continue;
+      }
+
+      const bookingIdShort = booking.id.slice(0, 8).toUpperCase();
       const dueDate = new Date(installment.due_date);
-      const formattedDate = dueDate.toLocaleDateString("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
+      const formattedDate = dueDate.toLocaleDateString("en-GB", {
         day: "numeric",
+        month: "short",
+        year: "numeric",
       });
 
       const isOverdue = installment.type === "overdue";
@@ -150,43 +224,46 @@ serve(async (req) => {
         ? Math.floor((today.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24))
         : 0;
 
-      const subject = isOverdue
-        ? `⚠️ EMI Payment Overdue - Installment #${installment.installment_number}`
-        : `📅 EMI Payment Reminder - Installment #${installment.installment_number}`;
+      let message: string;
+      if (isOverdue) {
+        message = `⚠️ Dear ${customerName}, your installment #${installment.installment_number} of ${formatCurrency(installment.amount)} for ${packageTitle} is ${daysOverdue} days OVERDUE (was due ${formattedDate}). Please pay immediately. ID: ${bookingIdShort}. - SM Elite Hajj`;
+      } else {
+        message = `⏰ Dear ${customerName}, reminder: Installment #${installment.installment_number} of ${formatCurrency(installment.amount)} for ${packageTitle} is due on ${formattedDate}. Please pay on time. ID: ${bookingIdShort}. - SM Elite Hajj`;
+      }
 
-      const message = isOverdue
-        ? `Dear ${customerName},\n\nYour EMI installment #${installment.installment_number} of ৳${installment.amount} was due on ${formattedDate} and is now ${daysOverdue} days overdue.\n\nPlease make the payment as soon as possible to avoid any penalties.\n\nThank you,\nSM Elite Hajj`
-        : `Dear ${customerName},\n\nThis is a friendly reminder that your EMI installment #${installment.installment_number} of ৳${installment.amount} is due on ${formattedDate}.\n\nPlease ensure timely payment to maintain your payment schedule.\n\nThank you,\nSM Elite Hajj`;
+      console.log(`Sending ${isOverdue ? 'OVERDUE' : 'REMINDER'} SMS to:`, customerPhone);
+      
+      const smsResult = await sendBulkSMS(smsConfig.api_key, smsConfig.sender_id, customerPhone, message);
 
-      // Log notification
-      if (customerEmail || customerPhone) {
-        notifications.push({
+      if (smsResult.success) {
+        sentCount++;
+        await supabase.from("notification_logs").insert({
           booking_id: booking.id,
-          notification_type: isOverdue ? "emi_overdue" : "emi_reminder",
-          recipient: customerEmail || customerPhone,
+          notification_type: isOverdue ? "sms_customer_emi_overdue" : "sms_customer_emi_reminder",
+          recipient: customerPhone,
           status: "sent",
         });
-        sentCount++;
-
-        console.log(`Notification sent to ${customerEmail || customerPhone}:`, {
-          subject,
-          installment: installment.installment_number,
-          amount: installment.amount,
-          dueDate: formattedDate,
-          type: installment.type,
+        console.log("SMS sent successfully to:", customerPhone);
+      } else {
+        failedCount++;
+        await supabase.from("notification_logs").insert({
+          booking_id: booking.id,
+          notification_type: isOverdue ? "sms_customer_emi_overdue" : "sms_customer_emi_reminder",
+          recipient: customerPhone,
+          status: "failed",
+          error_message: smsResult.error,
         });
+        console.error("SMS failed for:", customerPhone, smsResult.error);
       }
     }
 
-    // Log all notifications
-    if (notifications.length > 0) {
-      await supabase.from("notification_logs").insert(notifications);
-    }
+    console.log(`EMI reminders completed. Sent: ${sentCount}, Failed: ${failedCount}`);
 
     return new Response(
       JSON.stringify({
         message: "EMI reminders processed",
         sent: sentCount,
+        failed: failedCount,
         upcoming: upcomingInstallments?.length || 0,
         overdue: overdueInstallments?.length || 0,
       }),
