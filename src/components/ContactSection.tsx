@@ -56,7 +56,7 @@ const ContactSection = () => {
   useEffect(() => {
     fetchContactInfo();
     fetchOfficeLocations();
-  }, []);
+  }, [language]);
 
   const fetchContactInfo = async () => {
     const { data } = await supabase

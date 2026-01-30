@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Notice {
   id: string;
@@ -31,6 +32,7 @@ interface Notice {
 }
 
 const NoticeBoard = () => {
+  const { language } = useTranslation();
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedNotice, setExpandedNotice] = useState<string | null>(null);
@@ -38,7 +40,7 @@ const NoticeBoard = () => {
 
   useEffect(() => {
     fetchNotices();
-  }, []);
+  }, [language]);
 
   const fetchNotices = async () => {
     try {

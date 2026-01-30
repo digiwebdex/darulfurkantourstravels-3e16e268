@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/accordion";
 import { HelpCircle } from "lucide-react";
 import IslamicBorder from "./IslamicBorder";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface FAQItem {
   id: string;
@@ -34,10 +35,12 @@ const FAQSection = () => {
     description: "Find answers to common questions about our Hajj and Umrah services."
   });
 
+  const { language } = useTranslation();
+  
   useEffect(() => {
     fetchFaqs();
     fetchSectionHeader();
-  }, []);
+  }, [language]);
 
   const fetchSectionHeader = async () => {
     const { data } = await supabase

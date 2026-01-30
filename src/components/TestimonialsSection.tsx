@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/carousel";
 import IslamicBorder from "./IslamicBorder";
 import OptimizedImage from "./ui/optimized-image";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Testimonial {
   id: string;
@@ -30,6 +31,7 @@ interface SectionHeader {
 }
 
 const TestimonialsSection = () => {
+  const { language } = useTranslation();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [sectionHeader, setSectionHeader] = useState<SectionHeader>({
@@ -42,7 +44,7 @@ const TestimonialsSection = () => {
   useEffect(() => {
     fetchTestimonials();
     fetchSectionHeader();
-  }, []);
+  }, [language]);
 
   const fetchSectionHeader = async () => {
     const { data } = await supabase

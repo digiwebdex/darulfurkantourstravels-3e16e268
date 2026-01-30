@@ -35,7 +35,7 @@ interface VisaCountry {
 type ProcessingTimeFilter = "all" | "fast" | "medium" | "slow";
 
 const VisaServices = () => {
-  const { t, isRTL } = useTranslation();
+  const { t, isRTL, language } = useTranslation();
   const [countries, setCountries] = useState<VisaCountry[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCountry, setSelectedCountry] = useState<VisaCountry | null>(null);
@@ -59,10 +59,10 @@ const VisaServices = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-
+  
   useEffect(() => {
     fetchCountries();
-  }, []);
+  }, [language]);
 
   const fetchCountries = async () => {
     const { data } = await supabase

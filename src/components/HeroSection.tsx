@@ -97,7 +97,7 @@ const HeroSection = () => {
 
   useEffect(() => {
     fetchHeroContent();
-  }, []);
+  }, [language]);
 
   // Autoplay logic
   useEffect(() => {

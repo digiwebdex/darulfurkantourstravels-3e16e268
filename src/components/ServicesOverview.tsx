@@ -107,7 +107,7 @@ const ServicesOverview = () => {
     fetchServices();
     fetchParentCompanySettings();
     fetchSectionHeaderSettings();
-  }, []);
+  }, [language]);
 
   const fetchSectionHeaderSettings = async () => {
     const { data } = await supabase
