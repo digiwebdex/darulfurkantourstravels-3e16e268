@@ -96,9 +96,9 @@ const ServicesOverview = () => {
     is_enabled: false
   });
   const [sectionHeader, setSectionHeader] = useState<SectionHeaderSettings>({
-    badge_text: "Why Choose Us",
-    title: "Our Service",
-    arabic_text: "خدماتنا"
+    badge_text: "কেন আমাদের বেছে নেবেন",
+    title: "আমাদের সেবাসমূহ",
+    arabic_text: ""
   });
 
   useEffect(() => {
@@ -117,9 +117,9 @@ const ServicesOverview = () => {
     if (data?.setting_value) {
       const settings = data.setting_value as unknown as SectionHeaderSettings;
       setSectionHeader({
-        badge_text: settings.badge_text || "Why Choose Us",
-        title: settings.title || "Our Service",
-        arabic_text: settings.arabic_text || "خدماتنا"
+        badge_text: settings.badge_text || "কেন আমাদের বেছে নেবেন",
+        title: settings.title || "আমাদের সেবাসমূহ",
+        arabic_text: settings.arabic_text || ""
       });
     }
   };
@@ -152,14 +152,14 @@ const ServicesOverview = () => {
       setServices(data);
     } else {
       setServices([
-        { id: "1", icon_name: "Plane", title: "Flight Booking", description: "Premium airlines with comfortable travel arrangements to Saudi Arabia", link_url: null, order_index: 0 },
-        { id: "2", icon_name: "Hotel", title: "Hotel Accommodation", description: "Hand-picked hotels near Haram for convenient access to worship", link_url: null, order_index: 1 },
-        { id: "3", icon_name: "Shield", title: "Visa Processing", description: "100% success rate in Hajj & Umrah visa processing", link_url: "#visa", order_index: 2 },
-        { id: "4", icon_name: "Users", title: "Expert Guides", description: "Experienced Islamic scholars to guide you through rituals", link_url: null, order_index: 3 },
-        { id: "5", icon_name: "Clock", title: "24/7 Support", description: "Round-the-clock assistance throughout your spiritual journey", link_url: "#contact", order_index: 4 },
-        { id: "6", icon_name: "HeartHandshake", title: "Complete Care", description: "From departure to return, we handle every detail with care", link_url: null, order_index: 5 },
-        { id: "7", icon_name: "Ticket", title: "Air Ticket", description: "Affordable air tickets to destinations worldwide with trusted airlines", link_url: null, order_index: 6 },
-        { id: "8", icon_name: "Map", title: "Tour Package", description: "Exciting tour packages to explore beautiful destinations around the world", link_url: null, order_index: 7 },
+        { id: "1", icon_name: "Plane", title: "ফ্লাইট বুকিং", description: "সৌদি আরবে আরামদায়ক ভ্রমণের জন্য প্রিমিয়াম এয়ারলাইন্স", link_url: null, order_index: 0 },
+        { id: "2", icon_name: "Hotel", title: "হোটেল বুকিং", description: "হারামের কাছে হ্যান্ডপিকড হোটেল সুবিধাজনক ইবাদতের জন্য", link_url: null, order_index: 1 },
+        { id: "3", icon_name: "Shield", title: "ভিসা প্রসেসিং", description: "হজ্জ ও উমরাহ ভিসা প্রসেসিংয়ে ১০০% সফলতার হার", link_url: "#visa", order_index: 2 },
+        { id: "4", icon_name: "Users", title: "অভিজ্ঞ গাইড", description: "আচার-অনুষ্ঠানে পথ দেখাতে অভিজ্ঞ ইসলামিক স্কলার", link_url: null, order_index: 3 },
+        { id: "5", icon_name: "Clock", title: "২৪/৭ সাপোর্ট", description: "আপনার পবিত্র যাত্রায় সার্বক্ষণিক সহায়তা", link_url: "#contact", order_index: 4 },
+        { id: "6", icon_name: "HeartHandshake", title: "সম্পূর্ণ যত্ন", description: "রওনা থেকে ফিরে আসা পর্যন্ত প্রতিটি বিষয়ে যত্ন নিই", link_url: null, order_index: 5 },
+        { id: "7", icon_name: "Ticket", title: "এয়ার টিকেট", description: "বিশ্বস্ত এয়ারলাইন্সে বিশ্বব্যাপী সাশ্রয়ী মূল্যে এয়ার টিকেট", link_url: null, order_index: 6 },
+        { id: "8", icon_name: "Map", title: "ট্যুর প্যাকেজ", description: "বিশ্বের সুন্দর গন্তব্যগুলি অন্বেষণ করতে উত্তেজনাপূর্ণ ট্যুর প্যাকেজ", link_url: null, order_index: 7 },
       ]);
     }
     setLoading(false);

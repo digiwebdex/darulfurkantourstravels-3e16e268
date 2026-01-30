@@ -19,16 +19,16 @@ interface SectionSettings {
 
 const HajjPackages = () => {
   const [settings, setSettings] = useState<SectionSettings>({
-    title: "Hajj Packages 2026",
-    subtitle: "حج",
-    description: "Premium Hajj packages for the sacred pilgrimage to Makkah. Experience the journey of a lifetime with complete care and guidance.",
-    badge_text: "Hajj Packages",
+    title: "হজ্জ প্যাকেজ ২০২৬",
+    subtitle: "",
+    description: "পবিত্র মক্কায় হজ্জের জন্য প্রিমিয়াম প্যাকেজ। সম্পূর্ণ যত্ন এবং গাইডেন্স সহ জীবনের সবচেয়ে গুরুত্বপূর্ণ যাত্রার অভিজ্ঞতা নিন।",
+    badge_text: "হজ্জ প্যাকেজ",
     image_url: null,
     stats: [
-      { value: "10+", label: "Hajj Years Experience" },
-      { value: "5000+", label: "Happy Pilgrims" }
+      { value: "১০+", label: "বছরের হজ্জ অভিজ্ঞতা" },
+      { value: "৫০০০+", label: "সন্তুষ্ট হাজী" }
     ],
-    success_rate: "100%"
+    success_rate: "১০০%"
   });
 
   useEffect(() => {
@@ -91,7 +91,7 @@ const HajjPackages = () => {
                 className="absolute -bottom-8 -right-8 bg-secondary text-secondary-foreground p-6 rounded-2xl shadow-gold"
               >
                 <div className="font-heading text-3xl font-bold">{settings.success_rate}</div>
-                <div className="text-sm font-medium">Success Rate</div>
+                <div className="text-sm font-medium">সফলতার হার</div>
               </motion.div>
               
               {/* Another floating element */}
@@ -103,7 +103,7 @@ const HajjPackages = () => {
                 className="absolute -top-4 -left-4 bg-card text-foreground p-4 rounded-xl shadow-elegant"
               >
                 <div className="text-2xl mb-1">🕋</div>
-                <div className="text-xs font-medium">Hotels Near<br />Masjid al-Haram</div>
+                <div className="text-xs font-medium">মসজিদুল হারামের<br />কাছে হোটেল</div>
               </motion.div>
             </motion.div>
 
@@ -122,7 +122,7 @@ const HajjPackages = () => {
               <h2 className="font-calligraphy text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mt-3 mb-4">
                 {settings.title}
               </h2>
-              <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">{settings.subtitle}</span>
+              {settings.subtitle && <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">{settings.subtitle}</span>}
               <p className="text-muted-foreground mb-8 leading-relaxed text-lg">
                 {settings.description}
               </p>
