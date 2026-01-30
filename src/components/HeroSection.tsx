@@ -224,19 +224,27 @@ const HeroSection = () => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Background Images with Fade Transition */}
-      <div className="absolute inset-0">
+      {/* Background Images with Smooth Fade Transition */}
+      <div className="absolute inset-0 overflow-hidden">
         {slides.map((slide, index) => (
           <div
             key={slide.id}
-            className={`absolute inset-0 transition-opacity duration-1000 ${
-              index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
-            }`}
+            className="absolute inset-0"
+            style={{
+              opacity: index === currentSlide ? 1 : 0,
+              zIndex: index === currentSlide ? 10 : 0,
+              transition: 'opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              willChange: 'opacity',
+            }}
           >
             <img
               src={slide.background_image_url || defaultHeroImages[index % 3]}
               alt=""
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transform-gpu"
+              style={{
+                transform: 'scale(1.01)', // Slight scale to prevent edge flicker
+                willChange: 'transform',
+              }}
               loading={index === 0 ? "eager" : "lazy"}
             />
           </div>
