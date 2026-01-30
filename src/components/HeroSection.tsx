@@ -7,10 +7,10 @@ import { motion, AnimatePresence, Easing } from "framer-motion";
 import { useTranslation } from "@/hooks/useTranslation";
 import HeroCurveWave from "./HeroCurveWave";
 
-// Import hero images
-import heroKaaba from "@/assets/hero-kaaba-new.jpg";
+// Import hero images (brighter set)
+import heroKaaba from "@/assets/hero-kaaba.jpg";
 import heroMedina from "@/assets/hero-medina-new.jpg";
-import heroHajj from "@/assets/hero-hajj-new.jpg";
+import heroHajj from "@/assets/hero-hajj-banner.jpg";
 
 const defaultHeroImages = [heroKaaba, heroMedina, heroHajj];
 const WHATSAPP_NUMBER = "8801339080532";
@@ -238,7 +238,7 @@ const HeroSection = () => {
             <img
               src={slide.background_image_url || defaultHeroImages[index % 3]}
               alt=""
-              className="w-full h-full object-cover transform-gpu scale-105"
+                className="w-full h-full object-cover transform-gpu scale-105 filter brightness-110 contrast-105"
               loading={index === 0 ? "eager" : "lazy"}
             />
           </div>

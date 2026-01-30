@@ -104,7 +104,7 @@ const MainNavbar = () => {
 
   return (
     <nav 
-      className={`bg-white/98 backdrop-blur-md shadow-lg transition-all duration-300 ${isScrolled ? 'py-2' : 'py-3'}`}
+      className={`bg-background shadow-lg border-b border-border/60 transition-all duration-300 ${isScrolled ? 'py-2' : 'py-3'}`}
       dir={isRTL ? "rtl" : "ltr"}
     >
       <div className="container flex items-center justify-between px-4">
@@ -116,7 +116,7 @@ const MainNavbar = () => {
           <img 
             src={logoSrc} 
             alt={getCompanyName()} 
-            className={`object-contain rounded-xl ring-2 ring-primary/20 p-1 bg-white shadow-md group-hover:ring-primary/40 transition-all duration-300 ${isScrolled ? 'h-10' : 'h-12 md:h-14'}`}
+            className={`object-contain rounded-xl ring-2 ring-primary/20 p-1 bg-background shadow-md group-hover:ring-primary/40 transition-all duration-300 ${isScrolled ? 'h-10' : 'h-12 md:h-14'}`}
           />
           <div className="flex flex-col">
             <span className={`font-heading font-bold text-primary group-hover:text-primary/80 transition-all duration-300 leading-tight ${isScrolled ? 'text-sm md:text-base' : 'text-base md:text-lg'}`}>
