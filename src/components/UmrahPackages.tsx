@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import DynamicPackages from "./DynamicPackages";
 import IslamicBorder from "./IslamicBorder";
 import OptimizedImage from "./ui/optimized-image";
-import medinaImage from "@/assets/medina-mosque.jpg";
+import medinaImage from "@/assets/medina-mosque-new.jpg";
 import { supabase } from "@/integrations/supabase/client";
 
 interface SectionSettings {
