@@ -47,7 +47,7 @@ const defaultSettings: SiteSettings = {
     logo_url: "",
   },
   contactDetails: {
-    email: "info@darulfurkantours.com",
+    email: "digiwebdex@gmail.com",
     phone: "+880 1741-719932",
     whatsapp: "+880 1339-080532",
     address: "৩৮২, বাগানবাড়ি, স্বাধীনতা সরণি, উত্তর বাড্ডা, ঢাকা ১২১২",
