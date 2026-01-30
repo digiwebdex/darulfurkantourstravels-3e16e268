@@ -1,16 +1,18 @@
-import { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
-import { ChevronDown, Play, Star } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import heroImage from "@/assets/hero-kaaba-new.jpg";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence, Easing } from "framer-motion";
+import { useTranslation } from "@/hooks/useTranslation";
 
-// Lazy load non-critical components
-const HeroServiceTiles = lazy(() => import("./HeroServiceTiles"));
-const Dialog = lazy(() => import("@/components/ui/dialog").then(m => ({ default: m.Dialog })));
-const DialogContent = lazy(() => import("@/components/ui/dialog").then(m => ({ default: m.DialogContent })));
-const DialogTitle = lazy(() => import("@/components/ui/dialog").then(m => ({ default: m.DialogTitle })));
+// Import hero images
+import heroKaaba from "@/assets/hero-kaaba-new.jpg";
+import heroMedina from "@/assets/hero-medina-new.jpg";
+import heroHajj from "@/assets/hero-hajj-new.jpg";
+
+// Default hero images array
+const defaultHeroImages = [heroKaaba, heroMedina, heroHajj];
 
 interface HeroSlide {
   id: string;
@@ -25,128 +27,79 @@ interface HeroSlide {
   background_image_url?: string;
   video_url?: string;
   stats?: { number: string; label: string }[];
-  slide_type?: string;
-  order_index?: number;
 }
 
-const defaultSlides: HeroSlide[] = [
-  {
-    id: "default-1",
-    title: "Your Sacred Journey",
-    subtitle: "Begins Here",
-    description: "Experience the spiritual journey of a lifetime with SM Elite Hajj. We provide premium Hajj & Umrah packages with complete care and guidance.",
-    badge_text: "Govt. Approved Hajj & Umrah Agency",
-    primary_button_text: "Explore Hajj Packages",
-    primary_button_link: "#hajj",
-    secondary_button_text: "View Umrah Packages",
-    secondary_button_link: "#umrah",
-    stats: [
-      { number: "10+", label: "Years Experience" },
-      { number: "5000+", label: "Happy Pilgrims" },
-      { number: "100%", label: "Satisfaction Rate" },
-      { number: "24/7", label: "Support Available" },
-    ],
-    slide_type: "general",
-    order_index: 0,
-  },
-];
-
 const HeroSection = () => {
-  const [slides, setSlides] = useState<HeroSlide[]>(defaultSlides);
+  const { t, language } = useTranslation();
+  
+  const getDefaultSlides = useCallback((): HeroSlide[] => [
+    {
+      id: "default-1",
+      title: t("hero", "title", "দারুল ফুরকান ট্যুরস এবং ট্রাভেলস"),
+      subtitle: t("hero", "subtitle", "আপনার পবিত্র যাত্রার সঙ্গী"),
+      description: t("hero", "description", "হজ্জ ও উমরাহ প্যাকেজের জন্য বাংলাদেশের বিশ্বস্ত প্রতিষ্ঠান। আমরা প্রিমিয়াম সার্ভিস ও সম্পূর্ণ গাইডেন্স প্রদান করি।"),
+      badge_text: t("hero", "badge", "সরকার অনুমোদিত হজ্জ ও উমরাহ এজেন্সি"),
+      primary_button_text: t("packages", "hajj_title", "হজ্জ প্যাকেজ দেখুন"),
+      primary_button_link: "#hajj",
+      secondary_button_text: t("packages", "umrah_title", "উমরাহ প্যাকেজ দেখুন"),
+      secondary_button_link: "#umrah",
+      background_image_url: heroKaaba,
+      stats: [
+        { number: "১০+", label: t("common", "experience", "বছরের অভিজ্ঞতা") },
+        { number: "৫০০০+", label: t("common", "pilgrims", "সন্তুষ্ট হাজী") },
+        { number: "১০০%", label: t("common", "satisfaction", "সন্তুষ্টি হার") },
+        { number: "২৪/৭", label: t("common", "support", "সাপোর্ট") },
+      ],
+    },
+    {
+      id: "default-2",
+      title: t("packages", "umrah_title", "উমরাহ ২০২৬"),
+      subtitle: t("packages", "special_offer", "বিশেষ অফার"),
+      description: t("packages", "lottery_text", "হজ্জের পর উমরাহ প্যাকেজ - লটারি ভিত্তিক ফ্রি উমরাহের সুযোগ। প্রতি ৫০ জনে ১ জন বিজয়ী!"),
+      badge_text: t("packages", "booking_offer", "বিশেষ ছাড়"),
+      primary_button_text: t("common", "view_details", "প্যাকেজ দেখুন"),
+      primary_button_link: "#packages",
+      background_image_url: heroMedina,
+      stats: [
+        { number: "৳১,৩৫,০০০", label: t("packages", "transit_flight", "ট্রানজিট ফ্লাইট থেকে") },
+        { number: "৳১,৪৫,০০০", label: t("packages", "direct_flight", "ডাইরেক্ট ফ্লাইট থেকে") },
+      ],
+    },
+    {
+      id: "default-3",
+      title: t("packages", "hajj_title", "হজ্জ ২০২৬"),
+      subtitle: t("common", "book_now", "এখনই বুকিং করুন"),
+      description: "পবিত্র হজ্জ ২০২৬ এর জন্য আজই আপনার আসন নিশ্চিত করুন। সীমিত আসন।",
+      badge_text: "সীমিত আসন",
+      primary_button_text: t("common", "book_now", "বুকিং করুন"),
+      primary_button_link: "#hajj",
+      background_image_url: heroHajj,
+      stats: [
+        { number: "৫ স্টার", label: t("packages", "hotel", "হোটেল") },
+        { number: "VIP", label: "সার্ভিস" },
+        { number: "৩ বেলা", label: t("packages", "meals", "খাবার") },
+      ],
+    },
+  ], [t]);
+
+  const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [autoplayInterval, setAutoplayInterval] = useState(3000);
-  const [transitionDuration, setTransitionDuration] = useState(0.6);
   const [isHovered, setIsHovered] = useState(false);
-  const [layoutMode, setLayoutMode] = useState<"centered" | "split-screen">("split-screen");
-  const [heroTheme, setHeroTheme] = useState<"dark" | "light">("dark");
-  const [showServiceTiles, setShowServiceTiles] = useState(true);
-  const [heroHeight, setHeroHeight] = useState<"60vh" | "70vh" | "80vh" | "100vh">("70vh");
-  const [heroHeightMobile, setHeroHeightMobile] = useState<"50vh" | "60vh" | "70vh" | "80vh" | "100vh">("60vh");
-  const [imageFocalPoint, setImageFocalPoint] = useState<"top" | "center" | "bottom">("center");
-  const [heroTopMargin, setHeroTopMargin] = useState<string>("0");
-  const [isMobile, setIsMobile] = useState(false);
   const autoplayRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+    setSlides(getDefaultSlides());
+  }, [language, getDefaultSlides]);
 
   useEffect(() => {
     fetchHeroContent();
-    fetchSliderSettings();
   }, []);
 
-  const fetchSliderSettings = async () => {
-    const { data } = await supabase
-      .from("site_settings")
-      .select("setting_key, setting_value")
-      .in("setting_key", [
-        "hero_autoplay_interval", 
-        "hero_transition_speed", 
-        "hero_layout_mode",
-        "hero_theme",
-        "hero_show_service_tiles",
-        "hero_height",
-        "hero_height_mobile",
-        "hero_image_focal_point",
-        "hero_top_margin"
-      ]);
-
-    if (data) {
-      data.forEach((item) => {
-        const value = String(item.setting_value).replace(/"/g, "");
-        switch (item.setting_key) {
-          case "hero_autoplay_interval":
-            setAutoplayInterval((parseInt(value, 10) || 6) * 1000);
-            break;
-          case "hero_transition_speed":
-            switch (value) {
-              case "fast": setTransitionDuration(0.4); break;
-              case "slow": setTransitionDuration(0.8); break;
-              default: setTransitionDuration(0.6);
-            }
-            break;
-          case "hero_layout_mode":
-            setLayoutMode(value === "centered" ? "centered" : "split-screen");
-            break;
-          case "hero_theme":
-            setHeroTheme(value === "light" ? "light" : "dark");
-            break;
-          case "hero_show_service_tiles":
-            setShowServiceTiles(value !== "false");
-            break;
-          case "hero_height":
-            if (value === "60vh" || value === "70vh" || value === "80vh" || value === "100vh") {
-              setHeroHeight(value);
-            }
-            break;
-          case "hero_height_mobile":
-            if (value === "50vh" || value === "60vh" || value === "70vh" || value === "80vh" || value === "100vh") {
-              setHeroHeightMobile(value);
-            }
-            break;
-          case "hero_image_focal_point":
-            if (value === "top" || value === "center" || value === "bottom") {
-              setImageFocalPoint(value);
-            }
-            break;
-          case "hero_top_margin":
-            setHeroTopMargin(value);
-            break;
-        }
-      });
-    }
-  };
-
-  // Simplified autoplay with single timeout instead of 50ms interval
+  // Autoplay logic
   useEffect(() => {
     if (!isAutoPlaying || slides.length <= 1 || isHovered) {
       if (autoplayRef.current) clearTimeout(autoplayRef.current);
@@ -155,12 +108,12 @@ const HeroSection = () => {
     
     autoplayRef.current = setTimeout(() => {
       setCurrentSlide(curr => (curr + 1) % slides.length);
-    }, autoplayInterval);
+    }, 5000);
 
     return () => {
       if (autoplayRef.current) clearTimeout(autoplayRef.current);
     };
-  }, [isAutoPlaying, slides.length, autoplayInterval, currentSlide, isHovered]);
+  }, [isAutoPlaying, slides.length, currentSlide, isHovered]);
 
   const fetchHeroContent = async () => {
     setIsLoading(true);
@@ -171,7 +124,7 @@ const HeroSection = () => {
       .order("order_index", { ascending: true });
     
     if (data && data.length > 0) {
-      const formattedSlides = data.map((item) => ({
+      const formattedSlides = data.map((item, index) => ({
         id: item.id,
         title: item.title,
         subtitle: item.subtitle || undefined,
@@ -181,34 +134,14 @@ const HeroSection = () => {
         primary_button_link: item.primary_button_link || undefined,
         secondary_button_text: item.secondary_button_text || undefined,
         secondary_button_link: item.secondary_button_link || undefined,
-        background_image_url: item.background_image_url || undefined,
+        background_image_url: item.background_image_url || defaultHeroImages[index % 3],
         video_url: item.video_url || undefined,
         stats: Array.isArray(item.stats) ? item.stats as { number: string; label: string }[] : undefined,
-        slide_type: (item as any).slide_type || "general",
-        order_index: (item as any).order_index || 0,
       }));
       setSlides(formattedSlides);
     }
     setIsLoading(false);
   };
-
-  const HeroSkeleton = () => (
-    <div className="relative z-10 container text-center pt-32 pb-20">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-center mb-8">
-          <Skeleton className="h-10 w-64 rounded-full bg-primary-foreground/10" />
-        </div>
-        <div className="space-y-4 mb-8">
-          <Skeleton className="h-16 md:h-20 w-3/4 mx-auto bg-primary-foreground/10" />
-          <Skeleton className="h-12 md:h-16 w-1/2 mx-auto bg-secondary/20" />
-        </div>
-        <div className="space-y-3 mb-12">
-          <Skeleton className="h-6 w-full max-w-2xl mx-auto bg-primary-foreground/10" />
-          <Skeleton className="h-6 w-4/5 max-w-xl mx-auto bg-primary-foreground/10" />
-        </div>
-      </div>
-    </div>
-  );
 
   const goToSlide = useCallback((index: number) => {
     setCurrentSlide(index);
@@ -228,8 +161,7 @@ const HeroSection = () => {
     setTimeout(() => setIsAutoPlaying(true), 10000);
   }, [slides.length]);
 
-  const minSwipeDistance = 50;
-
+  // Touch handlers
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
@@ -242,376 +174,208 @@ const HeroSection = () => {
   const onTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
     const distance = touchStart - touchEnd;
-    if (distance > minSwipeDistance) goToNext();
-    else if (distance < -minSwipeDistance) goToPrevious();
+    if (distance > 50) goToNext();
+    else if (distance < -50) goToPrevious();
   };
 
-  const getEmbedUrl = (url: string) => {
-    if (!url) return "";
-    const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&\s]+)/);
-    if (youtubeMatch) return `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=1`;
-    return url;
-  };
+  const defaultContent = getDefaultSlides()[0];
+  const content = slides[currentSlide] || defaultContent;
+  const backgroundImage = content.background_image_url || heroKaaba;
 
-  const isYouTubeUrl = (url: string) => url?.includes("youtube.com") || url?.includes("youtu.be");
-
-  const content = slides[currentSlide] || defaultSlides[0];
-  const backgroundImage = content.background_image_url || heroImage;
-  const isLight = heroTheme === "light";
-
-  // Simple fade animation for content - no complex exits
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.08 },
+      transition: { staggerChildren: 0.1 },
     },
+    exit: { opacity: 0 },
   };
 
+  const easeValue: Easing = [0.25, 0.1, 0.25, 1];
+  
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.4, ease: "easeOut" as const },
+      transition: { duration: 0.5, ease: easeValue },
     },
   };
 
-  // Light theme text colors
-  const textPrimary = isLight ? "text-foreground" : "text-primary-foreground";
-  const textSecondary = isLight ? "text-muted-foreground" : "text-primary-foreground/85";
-  const textMuted = isLight ? "text-muted-foreground" : "text-primary-foreground/70";
-
-  // Use responsive height
-  const currentHeight = isMobile ? heroHeightMobile : heroHeight;
-  const topMarginStyle = heroTopMargin !== "0" ? `${heroTopMargin}px` : "0";
+  if (isLoading && slides.length === 0) {
+    return (
+      <section className="relative min-h-screen flex items-center justify-center bg-primary">
+        <div className="container text-center">
+          <Skeleton className="h-12 w-64 mx-auto mb-4 bg-primary-foreground/10" />
+          <Skeleton className="h-8 w-48 mx-auto mb-8 bg-primary-foreground/10" />
+          <Skeleton className="h-6 w-96 mx-auto bg-primary-foreground/10" />
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section 
-      id="home" 
-      className={`relative flex items-center justify-center overflow-hidden ${isLight ? "bg-background" : ""}`}
-      style={{ height: currentHeight, marginTop: topMarginStyle }}
+    <section
+      id="home"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Background - Conditional based on theme */}
-      {isLight ? (
-        /* Light Theme Background - Static decorations instead of infinite animations */
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-hero-light hero-light-pattern" />
-          
-          {/* Static geometric accents - removed infinite rotation */}
-          <div className="absolute -top-32 -right-32 w-96 h-96 border border-emerald-200/40 rounded-full" />
-          <div className="absolute -bottom-48 -left-48 w-[500px] h-[500px] border border-amber-200/30 rounded-full" />
-
-          {/* Static accent shapes */}
-          <div className="absolute top-20 left-[15%] w-0 h-0 border-l-[40px] border-l-transparent border-b-[70px] border-b-emerald-500/20 border-r-[40px] border-r-transparent" />
-          <div className="absolute bottom-32 right-[10%] w-0 h-0 border-l-[30px] border-l-transparent border-t-[50px] border-t-amber-400/25 border-r-[30px] border-r-transparent" />
-          <div className="absolute top-1/3 right-[5%] w-16 h-16 bg-emerald-500/10 rounded-full" />
-          <div className="absolute bottom-1/4 left-[8%] w-12 h-12 bg-amber-400/15 rounded-full" />
-          
-          {/* Background image with CSS transition instead of Framer Motion */}
-          <div 
-            className="absolute right-0 top-0 w-1/2 h-full opacity-10 transition-opacity duration-500"
-            style={{ willChange: 'opacity' }}
+      {/* Background Images with Fade Transition */}
+      <div className="absolute inset-0">
+        {slides.map((slide, index) => (
+          <div
+            key={slide.id}
+            className={`absolute inset-0 transition-opacity duration-1000 ${
+              index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
+            }`}
           >
             <img
-              src={backgroundImage}
+              src={slide.background_image_url || defaultHeroImages[index % 3]}
               alt=""
               className="w-full h-full object-cover"
-              style={{ objectPosition: imageFocalPoint }}
-              draggable={false}
-              loading="eager"
+              loading={index === 0 ? "eager" : "lazy"}
             />
-            <div className="absolute inset-0 bg-gradient-to-l from-transparent to-background" />
           </div>
-        </div>
-      ) : (
-        /* Dark Theme Background - Simple CSS transition for slide */
-        <div className="absolute inset-0 bg-primary overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-emerald-900/90 z-[1]" />
-          
-          {/* Background images - stacked with CSS transitions */}
-          {slides.map((slide, index) => (
-            <div
-              key={slide.id}
-              className="absolute inset-0 z-[2] transition-transform duration-700 ease-out"
-              style={{
-                transform: `translateX(${(index - currentSlide) * 100}%)`,
-              }}
-            >
-              <img
-                src={slide.background_image_url || heroImage}
-                alt="Hero background"
-                className="w-full h-full object-cover"
-                style={{ objectPosition: imageFocalPoint }}
-                draggable={false}
-                loading={index === 0 ? "eager" : "lazy"}
-              />
-            </div>
-          ))}
+        ))}
+        
+        {/* Overlay Gradients */}
+        <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/70 to-primary/40 z-20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-transparent to-primary/60 z-20" />
+      </div>
 
-          {/* Overlay gradients */}
-          <div className="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/50 to-transparent z-[3]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-transparent to-primary/60 z-[3]" />
-        </div>
-      )}
-
-      {/* Content - Conditional Layout */}
-      {isLoading ? (
-        <HeroSkeleton />
-      ) : layoutMode === "centered" ? (
-        /* Full-Width Centered Layout */
-        <div className={`relative z-10 container text-center pt-48 md:pt-52 lg:pt-56 pb-20 ${textPrimary}`}>
+      {/* Content */}
+      <div className="relative z-30 container pt-24 pb-16">
+        <AnimatePresence mode="wait">
           <motion.div
-            key={`content-centered-${currentSlide}`}
+            key={currentSlide}
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="max-w-4xl mx-auto"
+            exit="exit"
+            className="text-center max-w-4xl mx-auto"
+          >
+            {/* Badge */}
+            {content.badge_text && (
+              <motion.div variants={itemVariants} className="mb-6">
+                <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium bg-accent/20 text-accent border border-accent/30 backdrop-blur-sm">
+                  <Star className="w-4 h-4 fill-current" />
+                  {content.badge_text}
+                </span>
+              </motion.div>
+            )}
+
+            {/* Title */}
+            <motion.h1
+              variants={itemVariants}
+              className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary-foreground mb-4 leading-tight"
             >
-              {/* Badge */}
-              {content.badge_text && (
-                <motion.div variants={itemVariants} className="mb-8">
-                  <span className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-medium border shadow-lg
-                    ${isLight 
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
-                      : "bg-secondary/15 text-secondary border-secondary/25 backdrop-blur-md shadow-secondary/10"
-                    }`}>
-                    <Star className={`w-4 h-4 ${isLight ? "text-emerald-600" : ""} fill-current`} />
-                    {content.badge_text}
-                  </span>
-                </motion.div>
+              {content.title}
+              {content.subtitle && (
+                <span className="block mt-2 text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-accent font-semibold">
+                  {content.subtitle}
+                </span>
               )}
-              
-              {/* Title */}
-              <motion.h1
-                variants={itemVariants}
-                className={`font-arabic text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 leading-tight tracking-wide overflow-visible ${textPrimary}`}
-              >
-                <span className="inline-block">{content.title}</span>
-                {content.subtitle && (
-                  <span className={`block mt-2 font-kufi pb-2 text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl ${isLight ? "text-emerald-600" : "text-gradient-gold"}`}>
-                    {content.subtitle}
-                  </span>
-                )}
-              </motion.h1>
-              
-              {/* Description */}
+            </motion.h1>
+
+            {/* Description */}
+            {content.description && (
               <motion.p
                 variants={itemVariants}
-                className={`text-sm xs:text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-8 sm:mb-12 leading-relaxed px-2 sm:px-0 ${textSecondary}`}
+                className="text-base sm:text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto mb-8 leading-relaxed"
               >
                 {content.description}
               </motion.p>
+            )}
 
-              {/* Service Tiles */}
-              {showServiceTiles && (
-                <motion.div variants={itemVariants} className="mb-10">
-                  <Suspense fallback={<div className="h-16 animate-pulse bg-muted/20 rounded-lg" />}>
-                    <HeroServiceTiles theme={heroTheme} />
-                  </Suspense>
-                </motion.div>
-              )}
-
-              {/* Video CTA */}
-              {content.video_url && (
-                <motion.button
-                  variants={itemVariants}
-                  onClick={() => setIsVideoOpen(true)}
-                  className={`inline-flex items-center gap-3 transition-colors group ${textMuted} hover:${textPrimary}`}
+            {/* CTA Buttons */}
+            <motion.div variants={itemVariants} className="flex flex-wrap justify-center gap-4 mb-10">
+              {content.primary_button_text && (
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 py-6 text-lg rounded-full shadow-lg shadow-accent/30"
                 >
-                  <span className={`w-14 h-14 rounded-full flex items-center justify-center transition-all group-hover:scale-110
-                    ${isLight 
-                      ? "bg-white border border-slate-200 group-hover:border-emerald-300" 
-                      : "bg-primary-foreground/10 backdrop-blur-md border border-primary-foreground/20 group-hover:bg-primary-foreground/20 group-hover:border-secondary/40"
-                    }`}>
-                    <Play className="w-5 h-5 fill-current ml-1" />
-                  </span>
-                  <span className="font-medium">Watch Video</span>
-                </motion.button>
+                  <a href={content.primary_button_link || "#"}>
+                    {content.primary_button_text}
+                  </a>
+                </Button>
               )}
-
-              {/* Stats */}
-              {content.stats && content.stats.length > 0 && (
-                <motion.div
-                  variants={itemVariants}
-                  className={`grid grid-cols-2 md:grid-cols-4 gap-8 mt-20 pt-12 border-t ${isLight ? "border-slate-200" : "border-primary-foreground/15"}`}
+              {content.secondary_button_text && (
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 px-8 py-6 text-lg rounded-full"
                 >
-                  {content.stats.map((stat) => (
-                    <div
-                      key={stat.label}
-                      className="text-center group cursor-default"
-                    >
-                      <div className={`font-kufi text-4xl md:text-5xl font-bold mb-2 ${isLight ? "text-emerald-600" : "text-secondary"}`}>
-                        {stat.number}
-                      </div>
-                      <div className={`text-sm md:text-base ${textMuted}`}>
-                        {stat.label}
-                      </div>
-                    </div>
-                  ))}
-                </motion.div>
+                  <a href={content.secondary_button_link || "#"}>
+                    {content.secondary_button_text}
+                  </a>
+                </Button>
               )}
             </motion.div>
-        </div>
-      ) : (
-        /* Split-Screen Layout */
-        <div className="relative z-10 w-full min-h-screen flex items-center pt-32 md:pt-36 lg:pt-40">
-          <div className="container">
-            <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-              {/* Left Side - Content */}
+
+            {/* Stats */}
+            {content.stats && content.stats.length > 0 && (
               <motion.div
-                key={`content-${currentSlide}`}
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                className={`text-left order-2 lg:order-1 ${textPrimary}`}
+                variants={itemVariants}
+                className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8 border-t border-primary-foreground/20"
               >
-                  {/* Badge */}
-                  {content.badge_text && (
-                    <motion.div variants={itemVariants} className="mb-6">
-                      <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border shadow-lg
-                        ${isLight 
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
-                          : "bg-secondary/15 text-secondary border-secondary/25 backdrop-blur-md shadow-secondary/10"
-                        }`}>
-                        <Star className={`w-3.5 h-3.5 ${isLight ? "text-emerald-600" : ""} fill-current`} />
-                        {content.badge_text}
-                      </span>
-                    </motion.div>
-                  )}
-                  
-                  {/* Title */}
-                  <motion.h1
-                    variants={itemVariants}
-                    className={`font-arabic text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 leading-tight tracking-wide overflow-visible ${textPrimary}`}
-                  >
-                    <span className="inline-block">{content.title}</span>
-                    {content.subtitle && (
-                      <span className={`block mt-1 font-kufi pb-1 text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl ${isLight ? "text-emerald-600" : "text-gradient-gold"}`}>
-                        {content.subtitle}
-                      </span>
-                    )}
-                  </motion.h1>
-                  
-                  {/* Description */}
-                  <motion.p
-                    variants={itemVariants}
-                    className={`text-sm xs:text-base md:text-lg max-w-lg mb-6 sm:mb-8 leading-relaxed ${textSecondary}`}
-                  >
-                    {content.description}
-                  </motion.p>
-
-                  {/* Service Tiles - Compact for split view */}
-                  {showServiceTiles && (
-                    <motion.div variants={itemVariants} className="mb-8">
-                      <Suspense fallback={<div className="h-16 animate-pulse bg-muted/20 rounded-lg" />}>
-                        <HeroServiceTiles theme={heroTheme} />
-                      </Suspense>
-                    </motion.div>
-                  )}
-
-                  {/* Video CTA */}
-                  {content.video_url && (
-                    <motion.button
-                      variants={itemVariants}
-                      onClick={() => setIsVideoOpen(true)}
-                      className={`inline-flex items-center gap-3 transition-colors group mb-8 ${textMuted}`}
-                    >
-                      <span className={`w-12 h-12 rounded-full flex items-center justify-center transition-all group-hover:scale-110
-                        ${isLight 
-                          ? "bg-white border border-slate-200 group-hover:border-emerald-300" 
-                          : "bg-primary-foreground/10 backdrop-blur-md border border-primary-foreground/20 group-hover:bg-primary-foreground/20 group-hover:border-secondary/40"
-                        }`}>
-                        <Play className="w-4 h-4 fill-current ml-0.5" />
-                      </span>
-                      <span className="font-medium text-sm">Watch Video</span>
-                    </motion.button>
-                  )}
-
-                  {/* Stats - Compact */}
-                  {content.stats && content.stats.length > 0 && (
-                    <motion.div
-                      variants={itemVariants}
-                      className={`flex flex-wrap gap-6 pt-6 border-t ${isLight ? "border-slate-200" : "border-primary-foreground/15"}`}
-                    >
-                      {content.stats.slice(0, 3).map((stat) => (
-                        <div
-                          key={stat.label}
-                          className="text-left group cursor-default"
-                        >
-                          <div className={`font-kufi text-2xl md:text-3xl font-bold mb-1 ${isLight ? "text-emerald-600" : "text-secondary"}`}>
-                            {stat.number}
-                          </div>
-                          <div className={`text-xs md:text-sm ${textMuted}`}>
-                            {stat.label}
-                          </div>
-                        </div>
-                      ))}
-                    </motion.div>
-                  )}
-              </motion.div>
-
-              {/* Right Side - Image with CSS slide transition */}
-              <div className="relative order-1 lg:order-2 hidden lg:block overflow-hidden rounded-2xl">
-                <div className="relative flex transition-transform duration-700 ease-out"
-                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-                >
-                  {slides.map((slide, index) => (
-                    <div key={slide.id} className="flex-shrink-0 w-full">
-                      <div className={`relative rounded-2xl overflow-hidden shadow-2xl ${isLight ? "shadow-slate-300/50" : "shadow-black/30"}`}>
-                        <div className={`absolute inset-0 border-2 rounded-2xl z-10 ${isLight ? "border-slate-200" : "border-secondary/20"}`} />
-                        <img
-                          src={slide.background_image_url || heroImage}
-                          alt="Hero feature"
-                          className="w-full h-auto max-h-[500px] object-cover"
-                          style={{ objectPosition: imageFocalPoint }}
-                          loading={index === 0 ? "eager" : "lazy"}
-                          draggable={false}
-                        />
-                        <div className={`absolute top-4 right-4 px-3 py-1.5 rounded-full text-xs font-medium z-20
-                          ${isLight 
-                            ? "bg-white/90 text-emerald-700 border border-emerald-200" 
-                            : "bg-secondary/90 text-primary-foreground"
-                          }`}>
-                          <Star className="w-3 h-3 inline mr-1 fill-current" />
-                          Premium Experience
-                        </div>
-                      </div>
+                {content.stats.map((stat, index) => (
+                  <div key={index} className="text-center">
+                    <div className="text-2xl md:text-3xl font-bold text-accent mb-1">
+                      {stat.number}
                     </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+                    <div className="text-sm text-primary-foreground/70">
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Navigation Arrows */}
+      {slides.length > 1 && (
+        <>
+          <button
+            onClick={goToPrevious}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full bg-background/20 backdrop-blur-sm border border-primary-foreground/20 flex items-center justify-center text-primary-foreground hover:bg-background/30 transition-colors"
+            aria-label="Previous slide"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button
+            onClick={goToNext}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full bg-background/20 backdrop-blur-sm border border-primary-foreground/20 flex items-center justify-center text-primary-foreground hover:bg-background/30 transition-colors"
+            aria-label="Next slide"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        </>
       )}
 
-      {/* Video Modal - Lazy Loaded */}
-      {isVideoOpen && (
-        <Suspense fallback={null}>
-          <Dialog open={isVideoOpen} onOpenChange={setIsVideoOpen}>
-            <DialogContent className="max-w-4xl p-0 bg-black border-none">
-              <DialogTitle className="sr-only">Watch Video</DialogTitle>
-              <div className="relative aspect-video">
-                {content.video_url && isYouTubeUrl(content.video_url) ? (
-                  <iframe
-                    src={isVideoOpen ? getEmbedUrl(content.video_url) : ""}
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : content.video_url ? (
-                  <video src={content.video_url} controls autoPlay className="w-full h-full" />
-                ) : null}
-              </div>
-            </DialogContent>
-          </Dialog>
-        </Suspense>
+      {/* Slide Indicators */}
+      {slides.length > 1 && (
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 flex gap-3">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => goToSlide(index)}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                index === currentSlide
+                  ? "w-8 bg-accent"
+                  : "w-2 bg-primary-foreground/40 hover:bg-primary-foreground/60"
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
       )}
     </section>
   );
