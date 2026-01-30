@@ -19,16 +19,16 @@ interface SectionSettings {
 
 const UmrahPackages = () => {
   const [settings, setSettings] = useState<SectionSettings>({
-    title: "Umrah Packages",
-    subtitle: "عمرة",
-    description: "Year-round Umrah packages with flexible options. Visit the holy cities of Makkah and Madinah with our expert guidance and premium services.",
-    badge_text: "Umrah Packages",
+    title: "উমরাহ প্যাকেজ ২০২৬",
+    subtitle: "",
+    description: "সারা বছর উমরাহ প্যাকেজ নমনীয় অপশন সহ। আমাদের বিশেষজ্ঞ গাইডেন্স এবং প্রিমিয়াম সেবা সহ পবিত্র মক্কা ও মদিনা সফর করুন।",
+    badge_text: "উমরাহ প্যাকেজ",
     image_url: null,
     stats: [
-      { value: "15+", label: "Umrah Years Experience" },
-      { value: "3000+", label: "Happy Pilgrims" }
+      { value: "১৫+", label: "বছরের উমরাহ অভিজ্ঞতা" },
+      { value: "৩০০০+", label: "সন্তুষ্ট হাজী" }
     ],
-    success_rate: "100%"
+    success_rate: "১০০%"
   });
 
   useEffect(() => {
@@ -78,7 +78,7 @@ const UmrahPackages = () => {
               <h2 className="font-calligraphy text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mt-3 mb-4">
                 {settings.title}
               </h2>
-              <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">{settings.subtitle}</span>
+              {settings.subtitle && <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">{settings.subtitle}</span>}
               <p className="text-muted-foreground mb-8 leading-relaxed text-lg">
                 {settings.description}
               </p>
@@ -137,7 +137,7 @@ const UmrahPackages = () => {
                 className="absolute -bottom-8 -left-8 bg-secondary text-secondary-foreground p-6 rounded-2xl shadow-gold"
               >
                 <div className="font-heading text-3xl font-bold">{settings.success_rate}</div>
-                <div className="text-sm font-medium">Success Rate</div>
+                <div className="text-sm font-medium">সফলতার হার</div>
               </motion.div>
               
               {/* Another floating element */}
@@ -149,7 +149,7 @@ const UmrahPackages = () => {
                 className="absolute -top-4 -right-4 bg-card text-foreground p-4 rounded-xl shadow-elegant"
               >
                 <div className="text-2xl mb-1">🕌</div>
-                <div className="text-xs font-medium">Hotels Near<br />Masjid Nabawi</div>
+                <div className="text-xs font-medium">মসজিদে নববীর<br />কাছে হোটেল</div>
               </motion.div>
             </motion.div>
           </div>

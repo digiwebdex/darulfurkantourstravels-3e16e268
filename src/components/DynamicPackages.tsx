@@ -124,7 +124,7 @@ const ExpandablePackageCard = ({
                 htmlFor={`compare-${pkg.id}`} 
                 className="text-[10px] sm:text-xs font-medium cursor-pointer text-foreground hidden xs:inline"
               >
-                Compare
+                তুলনা
               </label>
             </div>
           </div>
@@ -182,7 +182,7 @@ const ExpandablePackageCard = ({
               <h3 className="font-display text-base sm:text-xl font-bold tracking-wide mb-2 sm:mb-3 text-white line-clamp-2">{pkg.title}</h3>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                 <Badge variant="secondary" className="bg-white/20 text-white border-0 whitespace-nowrap text-[10px] sm:text-xs">
-                  {pkg.duration_days} Days
+                  {pkg.duration_days} দিন
                 </Badge>
                 {pkg.hotel_rating && (
                   <div className="flex items-center gap-0.5">
@@ -193,7 +193,7 @@ const ExpandablePackageCard = ({
                 )}
                 {pkg.stock < 10 && (
                   <Badge className="bg-secondary/80 text-secondary-foreground whitespace-nowrap text-[10px] sm:text-xs">
-                    Only {pkg.stock} left
+                    মাত্র {pkg.stock}টি বাকি
                   </Badge>
                 )}
               </div>
@@ -202,7 +202,7 @@ const ExpandablePackageCard = ({
             {/* Price badge */}
             <div className="absolute -bottom-4 sm:-bottom-5 right-3 sm:right-4 bg-secondary text-secondary-foreground px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg shadow-gold z-10">
               <span className="text-lg sm:text-2xl font-bold">{formatCurrency(pkg.price)}</span>
-              <span className="text-[10px] sm:text-xs block opacity-80">per person</span>
+              <span className="text-[10px] sm:text-xs block opacity-80">প্রতি জন</span>
             </div>
           </CardHeader>
 
@@ -238,17 +238,17 @@ const ExpandablePackageCard = ({
               className="flex items-center gap-1 text-xs sm:text-sm font-medium mt-2 sm:mt-3 text-primary hover:text-primary/80 transition-colors"
               whileTap={{ scale: 0.98 }}
             >
-              {isExpanded ? (
-                <>
-                  <ChevronUp className="w-3 h-3 sm:w-4 sm:h-4" />
-                  Show less
-                </>
-              ) : (
-                <>
-                  <span className="text-base sm:text-lg font-bold mr-1">+</span>
-                  {remainingCount} more
-                </>
-              )}
+            {isExpanded ? (
+              <>
+                <ChevronUp className="w-3 h-3 sm:w-4 sm:h-4" />
+                কম দেখুন
+              </>
+            ) : (
+              <>
+                <span className="text-base sm:text-lg font-bold mr-1">+</span>
+                আরও {remainingCount}টি
+              </>
+            )}
             </motion.button>
           )}
         </CardContent>
@@ -265,7 +265,7 @@ const ExpandablePackageCard = ({
               className="w-full group-hover:border-primary transition-colors text-xs sm:text-sm h-8 sm:h-9"
             >
               <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-              View Details
+              বিস্তারিত দেখুন
             </Button>
           )}
           {pkg.show_book_now !== false && (
@@ -275,10 +275,10 @@ const ExpandablePackageCard = ({
                 e.stopPropagation();
                 onBookNow(pkg);
               }}
-              className="w-full bg-gradient-primary hover:opacity-90 shadow-gold group-hover:scale-105 transition-transform text-xs sm:text-sm h-8 sm:h-9"
-            >
-              Book Now
-            </Button>
+            className="w-full bg-gradient-primary hover:opacity-90 shadow-gold group-hover:scale-105 transition-transform text-xs sm:text-sm h-8 sm:h-9"
+          >
+            এখনই বুক করুন
+          </Button>
           )}
         </CardFooter>
       </Card>
@@ -397,7 +397,7 @@ const DynamicPackages = ({ type }: DynamicPackagesProps) => {
   if (packages.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">No {type} packages available at the moment.</p>
+        <p className="text-muted-foreground">এই মুহূর্তে কোনো {type === 'hajj' ? 'হজ্জ' : 'উমরাহ'} প্যাকেজ পাওয়া যাচ্ছে না।</p>
       </div>
     );
   }
@@ -416,7 +416,7 @@ const DynamicPackages = ({ type }: DynamicPackagesProps) => {
             <div className="container mx-auto flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <Badge variant="secondary" className="text-sm">
-                  {comparePackages.length}/{MAX_COMPARE} selected
+                  {comparePackages.length}/{MAX_COMPARE} নির্বাচিত
                 </Badge>
                 <div className="flex items-center gap-2">
                   {comparePackages.map((pkg) => (
@@ -440,7 +440,7 @@ const DynamicPackages = ({ type }: DynamicPackagesProps) => {
                   size="sm"
                   onClick={() => setComparePackages([])}
                 >
-                  Clear All
+                  সব মুছুন
                 </Button>
                 <Button
                   size="sm"
@@ -449,7 +449,7 @@ const DynamicPackages = ({ type }: DynamicPackagesProps) => {
                   className="bg-gradient-primary"
                 >
                   <GitCompare className="w-4 h-4 mr-2" />
-                  Compare ({comparePackages.length})
+                  তুলনা করুন ({comparePackages.length})
                 </Button>
               </div>
             </div>
@@ -466,20 +466,20 @@ const DynamicPackages = ({ type }: DynamicPackagesProps) => {
         className="flex justify-between items-center mb-6"
       >
         <p className="text-sm text-muted-foreground hidden sm:block">
-          Select packages to compare (max {MAX_COMPARE})
+          তুলনার জন্য প্যাকেজ নির্বাচন করুন (সর্বোচ্চ {MAX_COMPARE}টি)
         </p>
         <div className="flex items-center gap-2 ml-auto">
           <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
           <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
             <SelectTrigger className="w-[180px] bg-background">
-              <SelectValue placeholder="Sort by" />
+              <SelectValue placeholder="সাজান" />
             </SelectTrigger>
             <SelectContent className="bg-background border">
-              <SelectItem value="price-asc">Price: Low to High</SelectItem>
-              <SelectItem value="price-desc">Price: High to Low</SelectItem>
-              <SelectItem value="duration-asc">Duration: Shortest</SelectItem>
-              <SelectItem value="duration-desc">Duration: Longest</SelectItem>
-              <SelectItem value="rating-desc">Rating: Highest</SelectItem>
+              <SelectItem value="price-asc">মূল্য: কম থেকে বেশি</SelectItem>
+              <SelectItem value="price-desc">মূল্য: বেশি থেকে কম</SelectItem>
+              <SelectItem value="duration-asc">সময়কাল: সংক্ষিপ্ত</SelectItem>
+              <SelectItem value="duration-desc">সময়কাল: দীর্ঘ</SelectItem>
+              <SelectItem value="rating-desc">রেটিং: সর্বোচ্চ</SelectItem>
             </SelectContent>
           </Select>
         </div>
