@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence, Easing } from "framer-motion";
 import { useTranslation } from "@/hooks/useTranslation";
+import HeroCurveWave from "./HeroCurveWave";
 
 // Import hero images
 import heroKaaba from "@/assets/hero-kaaba-new.jpg";
@@ -383,6 +384,9 @@ const HeroSection = () => {
           ))}
         </div>
       )}
+
+      {/* Curved Wave Transition */}
+      <HeroCurveWave />
     </section>
   );
 };
