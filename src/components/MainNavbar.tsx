@@ -104,7 +104,7 @@ const MainNavbar = () => {
 
   return (
     <nav 
-      className={`bg-card/98 backdrop-blur-md shadow-lg transition-all duration-300 ${isScrolled ? 'py-2' : 'py-3'}`}
+      className={`bg-background/98 backdrop-blur-md shadow-lg transition-all duration-300 ${isScrolled ? 'py-2' : 'py-3'}`}
       dir={isRTL ? "rtl" : "ltr"}
     >
       <div className="container flex items-center justify-between px-4">
