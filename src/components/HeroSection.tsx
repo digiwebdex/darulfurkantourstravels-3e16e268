@@ -268,10 +268,10 @@ const HeroSection = () => {
           >
             {/* Badge */}
             {content.badge_text && (
-              <motion.div variants={itemVariants} className="mb-6">
-                <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium bg-accent/20 text-accent border border-accent/30 backdrop-blur-sm">
-                  <Star className="w-4 h-4 fill-current" />
-                  {content.badge_text}
+              <motion.div variants={itemVariants} className="mb-4 sm:mb-6 px-2">
+                <span className="inline-flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium bg-accent/20 text-accent border border-accent/30 backdrop-blur-sm">
+                  <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-current flex-shrink-0" />
+                  <span className="text-center leading-tight">{content.badge_text}</span>
                 </span>
               </motion.div>
             )}
@@ -279,11 +279,11 @@ const HeroSection = () => {
             {/* Title */}
             <motion.h1
               variants={itemVariants}
-              className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-primary-foreground mb-4 leading-tight whitespace-nowrap"
+              className="font-heading text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-primary-foreground mb-3 sm:mb-4 leading-tight px-2 sm:px-0"
             >
               {content.title}
               {content.subtitle && (
-                <span className="block mt-2 text-xl sm:text-2xl md:text-3xl lg:text-4xl text-accent font-semibold whitespace-normal">
+                <span className="block mt-1 sm:mt-2 text-lg sm:text-xl md:text-3xl lg:text-4xl text-accent font-semibold">
                   {content.subtitle}
                 </span>
               )}
