@@ -208,30 +208,30 @@ const Header = () => {
         dir={isRTL ? "rtl" : "ltr"}
       >
         {/* Top Bar */}
-        <div className={`bg-primary text-primary-foreground overflow-hidden transition-all duration-300 ${isScrolled ? 'h-0 py-0' : 'h-auto py-1.5 sm:py-2'}`}>
-          <div className="container flex justify-between items-center text-xs sm:text-sm">
+        <div className={`bg-primary text-primary-foreground transition-all duration-300 ${isScrolled ? 'max-h-0 py-0 opacity-0' : 'max-h-20 py-1.5 sm:py-2 opacity-100'}`}>
+          <div className="container flex justify-between items-center text-xs sm:text-sm px-3 sm:px-4">
             {/* Contact Info - Left */}
-            <div className="flex items-center gap-2 sm:gap-4 md:gap-6">
-              <a href={`tel:+8801339080532`} className="flex items-center gap-1 sm:gap-1.5 hover:text-secondary transition-colors">
-                <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" />
-                <span className="text-[10px] sm:text-xs md:text-sm">01339-080532</span>
+            <div className="flex items-center gap-3 sm:gap-4 md:gap-6 min-w-0">
+              <a href={`tel:+8801339080532`} className="flex items-center gap-1 sm:gap-1.5 hover:text-secondary transition-colors shrink-0">
+                <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                <span className="text-[11px] sm:text-xs md:text-sm whitespace-nowrap">01339-080532</span>
               </a>
-              <a href={`tel:+8801741719932`} className="hidden sm:flex items-center gap-1.5 hover:text-secondary transition-colors">
-                <Phone className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                <span className="text-xs md:text-sm">01741-719932</span>
+              <a href={`tel:+8801741719932`} className="hidden md:flex items-center gap-1.5 hover:text-secondary transition-colors shrink-0">
+                <Phone className="w-4 h-4 shrink-0" />
+                <span className="text-sm whitespace-nowrap">01741-719932</span>
               </a>
               <a 
                 href={`https://wa.me/${WHATSAPP_NUMBER}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 sm:gap-1.5 hover:text-[#25D366] transition-colors"
+                className="flex items-center gap-1 sm:gap-1.5 hover:text-[#25D366] transition-colors shrink-0"
               >
-                <MessageCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" />
-                <span className="text-[10px] sm:text-xs md:text-sm">{t("common", "whatsapp")}</span>
+                <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                <span className="text-[11px] sm:text-xs md:text-sm whitespace-nowrap">{t("common", "whatsapp")}</span>
               </a>
             </div>
             {/* Language Switcher - Right */}
-            <div className="flex items-center">
+            <div className="flex items-center shrink-0">
               <LanguageSwitcher variant="compact" className="text-primary-foreground hover:text-secondary h-7 w-7 sm:h-8 sm:w-8" />
             </div>
           </div>
