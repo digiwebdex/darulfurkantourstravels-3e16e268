@@ -1,12 +1,109 @@
+import { useState, lazy, Suspense } from "react";
 import { motion } from "framer-motion";
-import { Plane, Check, Gift, Calendar, MapPin, Phone, Clock, Star, Sparkles } from "lucide-react";
+import { 
+  Plane, Hotel, Bus, UtensilsCrossed, Gift, Star, Calendar, 
+  CheckCircle2, Clock, Users, Award, Sparkles, MapPin, Check
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/hooks/useTranslation";
 import { formatCurrency } from "@/lib/currency";
 import MakkahIcon from "./icons/MakkahIcon";
 
+const BookingModal = lazy(() => import("@/components/BookingModal"));
+
 const DarulFurkanPackages = () => {
-  const packageInclusions = [
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<any>(null);
+  const { t, language, isRTL } = useTranslation();
+
+  const handleBookNow = (pkg: any) => {
+    setSelectedPackage(pkg);
+    setIsBookingModalOpen(true);
+  };
+
+  // Localized content
+  const content = {
+    bn: {
+      sectionBadge: "২০২৬ হজ্জ পরবর্তী উমরাহ প্যাকেজ",
+      sectionTitle: "Umrah Package",
+      sectionTitleHighlight: "2026",
+      sectionSubtitle: "হজ্জ পরবর্তী উমরাহ প্যাকেজ - সম্পূর্ণ সেবা সহ পবিত্র ভূমিতে আপনার যাত্রা",
+      lotteryTitle: "লটারির মাধ্যমে ফ্রি উমরাহ!",
+      lotterySubtitle: "প্রতি ৫০ জনে একজন সুযোগ পাবেন",
+      specialOffer: "Special Offer Period",
+      offerDates: "২৪ জানুয়ারি - ১০ ফেব্রুয়ারি",
+      includesTitle: "প্যাকেজের অন্তর্ভুক্ত",
+      includesSubtitle: "Package Includes",
+      packagePrice: "Package Price",
+      flightDate: "Flight Date",
+      bookNow: "Book Now",
+      selectPackage: "Select Package",
+      itikafBadge: "পবিত্র রমজানে ইতেকাফ",
+      itikafTitle: "Itikaf Packages",
+      contactTitle: "Darul Furkan Tours & Travels",
+      contactSubtitle: "যোগাযোগ করুন",
+      address: "Address",
+      addressText: "382, Baganbari, Swadhinata Sarani,\nUttar Badda, Dhaka 1212",
+      phone: "Phone",
+      specialOfferLabel: "Special Offer",
+      discountText: "বিশেষ ছাড় চলছে!",
+    },
+    en: {
+      sectionBadge: "Umrah Package After Hajj 2026",
+      sectionTitle: "Umrah Package",
+      sectionTitleHighlight: "2026",
+      sectionSubtitle: "Post-Hajj Umrah Package - Complete service for your journey to the Holy Land",
+      lotteryTitle: "Free Umrah via Lottery!",
+      lotterySubtitle: "1 in every 50 gets the opportunity",
+      specialOffer: "Special Offer Period",
+      offerDates: "24 January - 10 February",
+      includesTitle: "Package Includes",
+      includesSubtitle: "What's Included",
+      packagePrice: "Package Price",
+      flightDate: "Flight Date",
+      bookNow: "Book Now",
+      selectPackage: "Select Package",
+      itikafBadge: "Holy Ramadan Itikaf",
+      itikafTitle: "Itikaf Packages",
+      contactTitle: "Darul Furkan Tours & Travels",
+      contactSubtitle: "Contact Us",
+      address: "Address",
+      addressText: "382, Baganbari, Swadhinata Sarani,\nUttar Badda, Dhaka 1212",
+      phone: "Phone",
+      specialOfferLabel: "Special Offer",
+      discountText: "Special discount available!",
+    },
+    ar: {
+      sectionBadge: "باقة العمرة بعد الحج ٢٠٢٦",
+      sectionTitle: "باقة العمرة",
+      sectionTitleHighlight: "٢٠٢٦",
+      sectionSubtitle: "باقة العمرة بعد الحج - خدمة كاملة لرحلتك إلى الأراضي المقدسة",
+      lotteryTitle: "عمرة مجانية عبر القرعة!",
+      lotterySubtitle: "فرصة لـ ١ من كل ٥٠",
+      specialOffer: "فترة العرض الخاص",
+      offerDates: "٢٤ يناير - ١٠ فبراير",
+      includesTitle: "تشمل الباقة",
+      includesSubtitle: "ما هو مشمول",
+      packagePrice: "سعر الباقة",
+      flightDate: "تاريخ الرحلة",
+      bookNow: "احجز الآن",
+      selectPackage: "اختر الباقة",
+      itikafBadge: "اعتكاف رمضان المبارك",
+      itikafTitle: "باقات الاعتكاف",
+      contactTitle: "دار الفرقان للسفر والسياحة",
+      contactSubtitle: "اتصل بنا",
+      address: "العنوان",
+      addressText: "٣٨٢، باغانباري، شارع الاستقلال،\nأوتار بادا، دكا ١٢١٢",
+      phone: "الهاتف",
+      specialOfferLabel: "عرض خاص",
+      discountText: "خصم خاص متاح!",
+    },
+  };
+
+  const c = content[language as keyof typeof content] || content.bn;
+
+  const packageInclusions = language === "bn" ? [
     "ভিসা (Visa)",
     "এয়ার টিকেট (Air Ticket)",
     "রিয়াজুল জান্নাহ (Riyazul Jannah)",
@@ -14,32 +111,76 @@ const DarulFurkanPackages = () => {
     "ট্রান্সপোর্ট (Transport)",
     "জিয়ারাহ (Ziyarah)",
     "৩ বেলা খাবার (3 Meals/Day)",
+  ] : language === "ar" ? [
+    "تأشيرة",
+    "تذكرة طيران",
+    "رياض الجنة",
+    "فندق",
+    "مواصلات",
+    "زيارة",
+    "٣ وجبات يومياً",
+  ] : [
+    "Visa",
+    "Air Ticket",
+    "Riyazul Jannah",
+    "Hotel",
+    "Transport",
+    "Ziyarah",
+    "3 Meals/Day",
   ];
 
   const flightPackages = [
     {
       type: "Transit Flight",
       typeBn: "ট্রানজিট ফ্লাইট",
+      typeAr: "رحلة ترانزيت",
       price: 135000,
       flightDate: "10 June 2026",
       flightDateBn: "১০ জুন ২০২৬",
+      flightDateAr: "١٠ يونيو ٢٠٢٦",
       highlight: false,
     },
     {
       type: "Direct Flight",
       typeBn: "ডিরেক্ট ফ্লাইট",
+      typeAr: "رحلة مباشرة",
       price: 145000,
       flightDate: "15 June 2026",
       flightDateBn: "১৫ জুন ২০২৬",
+      flightDateAr: "١٥ يونيو ٢٠٢٦",
       highlight: true,
     },
   ];
 
   const itikafPackages = [
-    { days: 15, daysBn: "১৫ দিন", price: 165000, label: "15 Days Itikaf" },
-    { days: 20, daysBn: "২০ দিন", price: 170000, label: "20 Days Itikaf" },
-    { days: 30, daysBn: "৩০ দিন", price: 192000, label: "30 Days Itikaf" },
+    { days: 15, daysBn: "১৫ দিন", daysAr: "١٥ يوم", daysEn: "15 Days", price: 165000, label: "15 Days Itikaf", labelBn: "১৫ দিনের ইতেকাফ", labelAr: "اعتكاف ١٥ يوم" },
+    { days: 20, daysBn: "২০ দিন", daysAr: "٢٠ يوم", daysEn: "20 Days", price: 170000, label: "20 Days Itikaf", labelBn: "২০ দিনের ইতেকাফ", labelAr: "اعتكاف ٢٠ يوم" },
+    { days: 30, daysBn: "৩০ দিন", daysAr: "٣٠ يوم", daysEn: "30 Days", price: 192000, label: "30 Days Itikaf", labelBn: "৩০ দিনের ইতেকাফ", labelAr: "اعتكاف ٣٠ يوم" },
   ];
+
+  const getFlightType = (pkg: typeof flightPackages[0]) => {
+    if (language === "bn") return pkg.typeBn;
+    if (language === "ar") return pkg.typeAr;
+    return pkg.type;
+  };
+
+  const getFlightDate = (pkg: typeof flightPackages[0]) => {
+    if (language === "bn") return pkg.flightDateBn;
+    if (language === "ar") return pkg.flightDateAr;
+    return pkg.flightDate;
+  };
+
+  const getItikafDays = (pkg: typeof itikafPackages[0]) => {
+    if (language === "bn") return pkg.daysBn;
+    if (language === "ar") return pkg.daysAr;
+    return pkg.daysEn;
+  };
+
+  const getItikafLabel = (pkg: typeof itikafPackages[0]) => {
+    if (language === "bn") return pkg.labelBn;
+    if (language === "ar") return pkg.labelAr;
+    return pkg.label;
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -59,7 +200,11 @@ const DarulFurkanPackages = () => {
   };
 
   return (
-    <section id="umrah-packages" className="py-20 bg-gradient-to-b from-background via-muted/30 to-background relative overflow-hidden">
+    <section 
+      id="umrah-packages" 
+      className="py-20 bg-gradient-to-b from-background via-muted/30 to-background relative overflow-hidden"
+      dir={isRTL ? "rtl" : "ltr"}
+    >
       {/* Decorative Background */}
       <div className="absolute inset-0 islamic-star-pattern opacity-30" />
       <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
@@ -75,13 +220,13 @@ const DarulFurkanPackages = () => {
         >
           <Badge className="mb-4 bg-primary/10 text-primary border-primary/20 px-4 py-2 text-sm font-semibold">
             <Sparkles className="w-4 h-4 mr-2" />
-            ২০২৬ হজ্জ পরবর্তী উমরাহ প্যাকেজ
+            {c.sectionBadge}
           </Badge>
           <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
-            Umrah Package <span className="text-gradient-green">2026</span>
+            {c.sectionTitle} <span className="text-gradient-green">{c.sectionTitleHighlight}</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            হজ্জ পরবর্তী উমরাহ প্যাকেজ - সম্পূর্ণ সেবা সহ পবিত্র ভূমিতে আপনার যাত্রা
+            {c.sectionSubtitle}
           </p>
         </motion.div>
 
@@ -100,17 +245,17 @@ const DarulFurkanPackages = () => {
               </div>
               <div>
                 <h3 className="text-2xl md:text-3xl font-bold mb-1">
-                  লটারির মাধ্যমে ফ্রি উমরাহ!
+                  {c.lotteryTitle}
                 </h3>
                 <p className="text-primary-foreground/80 text-lg">
-                  প্রতি ৫০ জনে একজন সুযোগ পাবেন
+                  {c.lotterySubtitle}
                 </p>
               </div>
             </div>
             <div className="bg-secondary/20 backdrop-blur-sm rounded-xl px-6 py-4 border border-secondary/30">
-              <p className="text-sm text-primary-foreground/70 mb-1">Special Offer Period</p>
+              <p className="text-sm text-primary-foreground/70 mb-1">{c.specialOffer}</p>
               <p className="text-xl md:text-2xl font-bold">
-                ২৪ জানুয়ারি - ১০ ফেব্রুয়ারি
+                {c.offerDates}
               </p>
             </div>
           </div>
@@ -131,8 +276,8 @@ const DarulFurkanPackages = () => {
                   <MakkahIcon className="w-7 h-7 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-heading text-xl font-bold text-foreground">প্যাকেজের অন্তর্ভুক্ত</h3>
-                  <p className="text-sm text-muted-foreground">Package Includes</p>
+                  <h3 className="font-heading text-xl font-bold text-foreground">{c.includesTitle}</h3>
+                  <p className="text-sm text-muted-foreground">{c.includesSubtitle}</p>
                 </div>
               </div>
               
@@ -174,9 +319,9 @@ const DarulFurkanPackages = () => {
                   }`}
                 >
                   {pkg.highlight && (
-                    <div className="absolute top-0 right-0">
-                      <div className="bg-secondary text-foreground text-xs font-bold px-4 py-1 rounded-bl-xl">
-                        RECOMMENDED
+                    <div className={`absolute top-0 ${isRTL ? 'left-0' : 'right-0'}`}>
+                      <div className={`bg-secondary text-foreground text-xs font-bold px-4 py-1 ${isRTL ? 'rounded-br-xl' : 'rounded-bl-xl'}`}>
+                        {language === "bn" ? "সুপারিশকৃত" : language === "ar" ? "موصى به" : "RECOMMENDED"}
                       </div>
                     </div>
                   )}
@@ -191,13 +336,13 @@ const DarulFurkanPackages = () => {
                         <Plane className="w-7 h-7" />
                       </div>
                       <div>
-                        <h4 className="font-heading text-xl font-bold text-foreground">{pkg.typeBn}</h4>
+                        <h4 className="font-heading text-xl font-bold text-foreground">{getFlightType(pkg)}</h4>
                         <p className="text-sm text-muted-foreground">{pkg.type}</p>
                       </div>
                     </div>
 
                     <div className="mb-6">
-                      <p className="text-sm text-muted-foreground mb-1">Package Price</p>
+                      <p className="text-sm text-muted-foreground mb-1">{c.packagePrice}</p>
                       <div className="flex items-baseline gap-2">
                         <span className={`text-4xl md:text-5xl font-bold ${
                           pkg.highlight ? "text-gradient-gold" : "text-gradient-green"
@@ -211,12 +356,19 @@ const DarulFurkanPackages = () => {
                     <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-xl mb-6">
                       <Calendar className="w-5 h-5 text-primary" />
                       <div>
-                        <p className="text-xs text-muted-foreground">Flight Date</p>
-                        <p className="font-semibold text-foreground">{pkg.flightDateBn}</p>
+                        <p className="text-xs text-muted-foreground">{c.flightDate}</p>
+                        <p className="font-semibold text-foreground">{getFlightDate(pkg)}</p>
                       </div>
                     </div>
 
                     <Button 
+                      onClick={() => handleBookNow({ 
+                        id: pkg.highlight ? "direct" : "transit", 
+                        title: getFlightType(pkg), 
+                        price: pkg.price, 
+                        type: "umrah",
+                        duration_days: 14
+                      })}
                       className={`w-full ${
                         pkg.highlight 
                           ? "bg-gradient-gold hover:opacity-90 text-foreground" 
@@ -224,7 +376,7 @@ const DarulFurkanPackages = () => {
                       }`}
                       size="lg"
                     >
-                      Book Now
+                      {c.bookNow}
                     </Button>
                   </div>
                 </motion.div>
@@ -243,10 +395,10 @@ const DarulFurkanPackages = () => {
           <div className="text-center mb-10">
             <Badge className="mb-3 bg-secondary/10 text-secondary border-secondary/20">
               <Star className="w-4 h-4 mr-2" />
-              পবিত্র রমজানে ইতেকাফ
+              {c.itikafBadge}
             </Badge>
             <h3 className="font-heading text-3xl md:text-4xl font-bold text-foreground">
-              Itikaf Packages
+              {c.itikafTitle}
             </h3>
           </div>
 
@@ -266,9 +418,9 @@ const DarulFurkanPackages = () => {
                 </div>
                 
                 <h4 className="font-heading text-2xl font-bold text-foreground mb-2">
-                  {pkg.daysBn}
+                  {getItikafDays(pkg)}
                 </h4>
-                <p className="text-muted-foreground mb-6">{pkg.label}</p>
+                <p className="text-muted-foreground mb-6">{getItikafLabel(pkg)}</p>
                 
                 <div className="mb-6">
                   <span className="text-3xl md:text-4xl font-bold text-gradient-green">
@@ -277,8 +429,18 @@ const DarulFurkanPackages = () => {
                   <span className="text-muted-foreground">/-</span>
                 </div>
 
-                <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-                  Select Package
+                <Button 
+                  onClick={() => handleBookNow({ 
+                    id: `itikaf-${pkg.days}`, 
+                    title: getItikafLabel(pkg), 
+                    price: pkg.price, 
+                    type: "umrah",
+                    duration_days: pkg.days
+                  })}
+                  variant="outline" 
+                  className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                >
+                  {c.selectPackage}
                 </Button>
               </motion.div>
             ))}
@@ -294,9 +456,9 @@ const DarulFurkanPackages = () => {
         >
           <div className="text-center mb-8">
             <h3 className="font-heading text-2xl md:text-3xl font-bold mb-2">
-              Darul Furkan Tours & Travels
+              {c.contactTitle}
             </h3>
-            <p className="text-primary-foreground/80">যোগাযোগ করুন</p>
+            <p className="text-primary-foreground/80">{c.contactSubtitle}</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 text-center">
@@ -305,20 +467,19 @@ const DarulFurkanPackages = () => {
                 <MapPin className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-sm text-primary-foreground/70 mb-1">Address</p>
-                <p className="font-medium">
-                  382, Baganbari, Swadhinata Sarani,<br />
-                  Uttar Badda, Dhaka 1212
+                <p className="text-sm text-primary-foreground/70 mb-1">{c.address}</p>
+                <p className="font-medium whitespace-pre-line">
+                  {c.addressText}
                 </p>
               </div>
             </div>
 
             <div className="flex flex-col items-center gap-3">
               <div className="w-12 h-12 bg-primary-foreground/10 rounded-full flex items-center justify-center">
-                <Phone className="w-6 h-6" />
+                <span className="text-xl">📞</span>
               </div>
               <div>
-                <p className="text-sm text-primary-foreground/70 mb-1">Phone</p>
+                <p className="text-sm text-primary-foreground/70 mb-1">{c.phone}</p>
                 <a href="tel:+8801741719932" className="block font-bold text-xl hover:text-secondary transition-colors">
                   01741-719932
                 </a>
@@ -333,16 +494,33 @@ const DarulFurkanPackages = () => {
                 <Gift className="w-6 h-6 text-foreground" />
               </div>
               <div>
-                <p className="text-sm text-primary-foreground/70 mb-1">Special Offer</p>
+                <p className="text-sm text-primary-foreground/70 mb-1">{c.specialOfferLabel}</p>
                 <p className="font-bold text-secondary">
-                  ২৪ জানুয়ারি - ১০ ফেব্রুয়ারি
+                  {c.offerDates}
                 </p>
-                <p className="text-sm text-primary-foreground/80">বিশেষ ছাড় চলছে!</p>
+                <p className="text-sm text-primary-foreground/80">{c.discountText}</p>
               </div>
             </div>
           </div>
         </motion.div>
       </div>
+
+      {/* Booking Modal */}
+      <Suspense fallback={null}>
+        {isBookingModalOpen && selectedPackage && (
+          <BookingModal
+            isOpen={isBookingModalOpen}
+            onClose={() => setIsBookingModalOpen(false)}
+            package_info={{
+              id: selectedPackage.id,
+              title: selectedPackage.title,
+              price: selectedPackage.price,
+              type: selectedPackage.type,
+              duration_days: selectedPackage.duration_days,
+            }}
+          />
+        )}
+      </Suspense>
     </section>
   );
 };

@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/hooks/useAuth";
 import { SiteSettingsProvider } from "@/hooks/useSiteSettings";
+import { TranslationProvider } from "@/hooks/useTranslation";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
 import FacebookPixel from "@/components/FacebookPixel";
 import Index from "./pages/Index";
@@ -25,35 +26,37 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem storageKey="sm-elite-hajj-theme">
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem storageKey="darul-furkan-theme">
       <AuthProvider>
         <SiteSettingsProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <AnalyticsTracker />
-              <FacebookPixel />
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/my-bookings" element={<MyBookings />} />
-                <Route path="/profile" element={<ProfileSettings />} />
-                <Route path="/track-order" element={<TrackOrder />} />
-                <Route path="/track-visa" element={<TrackVisa />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/booking/confirmation/:bookingId" element={<BookingConfirmation />} />
-                <Route path="/legal/:pageKey" element={<LegalPage />} />
-                <Route path="/payment/success" element={<PaymentResult />} />
-                <Route path="/payment/failed" element={<PaymentResult />} />
-                <Route path="/payment/cancelled" element={<PaymentResult />} />
-                <Route path="/payment/callback" element={<PaymentResult />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
+          <TranslationProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <AnalyticsTracker />
+                <FacebookPixel />
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/my-bookings" element={<MyBookings />} />
+                  <Route path="/profile" element={<ProfileSettings />} />
+                  <Route path="/track-order" element={<TrackOrder />} />
+                  <Route path="/track-visa" element={<TrackVisa />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/booking/confirmation/:bookingId" element={<BookingConfirmation />} />
+                  <Route path="/legal/:pageKey" element={<LegalPage />} />
+                  <Route path="/payment/success" element={<PaymentResult />} />
+                  <Route path="/payment/failed" element={<PaymentResult />} />
+                  <Route path="/payment/cancelled" element={<PaymentResult />} />
+                  <Route path="/payment/callback" element={<PaymentResult />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </TooltipProvider>
+          </TranslationProvider>
         </SiteSettingsProvider>
       </AuthProvider>
     </ThemeProvider>
