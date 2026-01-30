@@ -196,7 +196,7 @@ const getEmailTemplate = (
 ): { subject: string; html: string } => {
   const baseStyles = `
     <style>
-      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+      body { font-family: 'Noto Sans Bengali', Arial, sans-serif; line-height: 1.8; color: #333; }
       .container { max-width: 600px; margin: 0 auto; padding: 20px; }
       .header { padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
       .header-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
@@ -210,66 +210,77 @@ const getEmailTemplate = (
       .total { font-size: 1.2em; font-weight: bold; }
       .total-success { color: #22c55e; }
       .total-warning { color: #d4a853; }
-      .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+      .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; background: #1a4d2e; color: white; border-radius: 0 0 10px 10px; }
+      .footer a { color: #d4a853; }
+      .company-name { font-size: 1.5em; font-weight: bold; margin-bottom: 5px; }
       .alert-box { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 15px; margin: 20px 0; }
       .alert-text { color: #dc2626; }
     </style>
   `;
 
+  const footerHtml = `
+    <div class="footer">
+      <p class="company-name">দারুল ফুরকান ট্যুরস এন্ড ট্রাভেলস</p>
+      <p>Darul Furkan Tours & Travels</p>
+      <p>📍 ৩৮২, বাগানবাড়ি, স্বাধীনতা সরণি, উত্তর বাড্ডা, ঢাকা ১২১২</p>
+      <p>📞 01741-719932 | 01339-080532</p>
+      <p>✉️ <a href="mailto:digiwebdex@gmail.com">digiwebdex@gmail.com</a></p>
+      <p>🌐 <a href="https://darulfurkan.com">www.darulfurkan.com</a></p>
+    </div>
+  `;
+
   if (notificationType === "payment_verified") {
     return {
-      subject: `Payment Verified - ${bookingDetails.package.title}`,
+      subject: `পেমেন্ট নিশ্চিত হয়েছে - ${bookingDetails.package.title} | দারুল ফুরকান ট্যুরস`,
       html: `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="utf-8">
-          <title>Payment Verified</title>
+          <title>পেমেন্ট নিশ্চিত</title>
           ${baseStyles}
         </head>
         <body>
           <div class="container">
             <div class="header header-success">
-              <h1>Payment Verified! ✓</h1>
-              <p>Your bank transfer has been confirmed</p>
+              <h1>পেমেন্ট নিশ্চিত হয়েছে! ✓</h1>
+              <p>আপনার ব্যাংক ট্রান্সফার সফলভাবে যাচাই করা হয়েছে</p>
             </div>
             <div class="content">
-              <p>Dear ${customerName},</p>
-              <p>Great news! Your bank transfer payment has been verified and your booking is now confirmed.</p>
+              <p>প্রিয় ${customerName},</p>
+              <p>সুসংবাদ! আপনার ব্যাংক ট্রান্সফার পেমেন্ট যাচাই করা হয়েছে এবং আপনার বুকিং এখন নিশ্চিত।</p>
               
               <div class="booking-details">
                 <div class="detail-row">
-                  <span class="detail-label">Package:</span>
+                  <span class="detail-label">প্যাকেজ:</span>
                   <span class="detail-value">${bookingDetails.package.title}</span>
                 </div>
                 <div class="detail-row">
-                  <span class="detail-label">Type:</span>
-                  <span class="detail-value">${bookingDetails.package.type.charAt(0).toUpperCase() + bookingDetails.package.type.slice(1)}</span>
+                  <span class="detail-label">ধরন:</span>
+                  <span class="detail-value">${bookingDetails.package.type === 'hajj' ? 'হজ্জ' : 'উমরাহ'}</span>
                 </div>
                 <div class="detail-row">
-                  <span class="detail-label">Duration:</span>
-                  <span class="detail-value">${bookingDetails.package.duration_days} Days</span>
+                  <span class="detail-label">সময়কাল:</span>
+                  <span class="detail-value">${bookingDetails.package.duration_days} দিন</span>
                 </div>
                 <div class="detail-row">
-                  <span class="detail-label">Travel Date:</span>
-                  <span class="detail-value">${bookingDetails.travel_date || "To be confirmed"}</span>
+                  <span class="detail-label">যাত্রার তারিখ:</span>
+                  <span class="detail-value">${bookingDetails.travel_date || "শীঘ্রই জানানো হবে"}</span>
                 </div>
                 <div class="detail-row">
-                  <span class="detail-label">Passengers:</span>
-                  <span class="detail-value">${bookingDetails.passenger_count}</span>
+                  <span class="detail-label">যাত্রী সংখ্যা:</span>
+                  <span class="detail-value">${bookingDetails.passenger_count} জন</span>
                 </div>
                 <div class="detail-row">
-                  <span class="detail-label">Total Paid:</span>
+                  <span class="detail-label">মোট পরিশোধিত:</span>
                   <span class="detail-value total total-success">${formatCurrency(bookingDetails.total_price)}</span>
                 </div>
               </div>
               
-              <p>We will contact you soon with further details about your trip. If you have any questions, please don't hesitate to reach out.</p>
-              <p>Thank you for choosing us for your spiritual journey!</p>
+              <p>আমরা শীঘ্রই আপনার যাত্রার বিস্তারিত তথ্য নিয়ে যোগাযোগ করব। কোনো প্রশ্ন থাকলে অনুগ্রহ করে যোগাযোগ করুন।</p>
+              <p>আপনার পবিত্র যাত্রায় আমাদের বেছে নেওয়ার জন্য ধন্যবাদ!</p>
             </div>
-            <div class="footer">
-              <p>This is an automated email. Please do not reply directly to this email.</p>
-            </div>
+            ${footerHtml}
           </div>
         </body>
         </html>
@@ -279,55 +290,53 @@ const getEmailTemplate = (
 
   if (notificationType === "payment_rejected") {
     return {
-      subject: `Payment Issue - Action Required - ${bookingDetails.package.title}`,
+      subject: `পেমেন্ট সমস্যা - আপনার পদক্ষেপ প্রয়োজন - ${bookingDetails.package.title}`,
       html: `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="utf-8">
-          <title>Payment Issue</title>
+          <title>পেমেন্ট সমস্যা</title>
           ${baseStyles}
         </head>
         <body>
           <div class="container">
             <div class="header header-error">
-              <h1>Payment Verification Failed</h1>
-              <p>Action required for your booking</p>
+              <h1>পেমেন্ট যাচাই ব্যর্থ হয়েছে</h1>
+              <p>আপনার বুকিংয়ের জন্য পদক্ষেপ প্রয়োজন</p>
             </div>
             <div class="content">
-              <p>Dear ${customerName},</p>
-              <p>Unfortunately, we were unable to verify your bank transfer payment for the following booking:</p>
+              <p>প্রিয় ${customerName},</p>
+              <p>দুঃখিত, আমরা নিম্নলিখিত বুকিংয়ের জন্য আপনার ব্যাংক ট্রান্সফার পেমেন্ট যাচাই করতে পারিনি:</p>
               
               <div class="booking-details">
                 <div class="detail-row">
-                  <span class="detail-label">Package:</span>
+                  <span class="detail-label">প্যাকেজ:</span>
                   <span class="detail-value">${bookingDetails.package.title}</span>
                 </div>
                 <div class="detail-row">
-                  <span class="detail-label">Amount:</span>
+                  <span class="detail-label">পরিমাণ:</span>
                   <span class="detail-value">${formatCurrency(bookingDetails.total_price)}</span>
                 </div>
               </div>
               
               ${rejectionReason ? `
               <div class="alert-box">
-                <p><strong>Reason:</strong></p>
+                <p><strong>কারণ:</strong></p>
                 <p class="alert-text">${rejectionReason}</p>
               </div>
               ` : ""}
               
-              <p>Please contact us to resolve this issue or make a new payment. You can:</p>
+              <p>এই সমস্যা সমাধান করতে বা নতুন পেমেন্ট করতে অনুগ্রহ করে আমাদের সাথে যোগাযোগ করুন। আপনি পারেন:</p>
               <ul>
-                <li>Re-submit your bank transfer with correct details</li>
-                <li>Contact our support team for assistance</li>
-                <li>Choose an alternative payment method</li>
+                <li>সঠিক তথ্য দিয়ে পুনরায় ব্যাংক ট্রান্সফার জমা দিন</li>
+                <li>আমাদের সাপোর্ট টিমের সাথে যোগাযোগ করুন</li>
+                <li>বিকল্প পেমেন্ট পদ্ধতি বেছে নিন</li>
               </ul>
               
-              <p>We apologize for any inconvenience and are here to help.</p>
+              <p>অসুবিধার জন্য আমরা ক্ষমাপ্রার্থী এবং সাহায্য করতে প্রস্তুত।</p>
             </div>
-            <div class="footer">
-              <p>This is an automated email. Please do not reply directly to this email.</p>
-            </div>
+            ${footerHtml}
           </div>
         </body>
         </html>
@@ -337,62 +346,60 @@ const getEmailTemplate = (
 
   // Default: booking_confirmed
   return {
-    subject: `Booking Confirmation - ${bookingDetails.package.title}`,
+    subject: `বুকিং নিশ্চিত হয়েছে - ${bookingDetails.package.title} | দারুল ফুরকান ট্যুরস`,
     html: `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
-        <title>Booking Confirmation</title>
+        <title>বুকিং নিশ্চিত</title>
         ${baseStyles}
       </head>
       <body>
         <div class="container">
           <div class="header header-warning">
-            <h1>Booking Confirmed! ✓</h1>
-            <p>Thank you for your reservation</p>
+            <h1>বুকিং নিশ্চিত হয়েছে! ✓</h1>
+            <p>আপনার রিজার্ভেশনের জন্য ধন্যবাদ</p>
           </div>
           <div class="content">
-            <p>Dear ${customerName},</p>
-            <p>We are pleased to confirm your booking. Here are your booking details:</p>
+            <p>প্রিয় ${customerName},</p>
+            <p>আপনার বুকিং নিশ্চিত করতে পেরে আমরা আনন্দিত। এখানে আপনার বুকিংয়ের বিবরণ:</p>
             
             <div class="booking-details">
               <div class="detail-row">
-                <span class="detail-label">Booking ID:</span>
+                <span class="detail-label">বুকিং আইডি:</span>
                 <span class="detail-value">${bookingDetails.id.slice(0, 8).toUpperCase()}</span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Package:</span>
+                <span class="detail-label">প্যাকেজ:</span>
                 <span class="detail-value">${bookingDetails.package.title}</span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Type:</span>
-                <span class="detail-value">${bookingDetails.package.type.charAt(0).toUpperCase() + bookingDetails.package.type.slice(1)}</span>
+                <span class="detail-label">ধরন:</span>
+                <span class="detail-value">${bookingDetails.package.type === 'hajj' ? 'হজ্জ' : 'উমরাহ'}</span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Duration:</span>
-                <span class="detail-value">${bookingDetails.package.duration_days} Days</span>
+                <span class="detail-label">সময়কাল:</span>
+                <span class="detail-value">${bookingDetails.package.duration_days} দিন</span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Travel Date:</span>
-                <span class="detail-value">${bookingDetails.travel_date || "To be confirmed"}</span>
+                <span class="detail-label">যাত্রার তারিখ:</span>
+                <span class="detail-value">${bookingDetails.travel_date || "শীঘ্রই জানানো হবে"}</span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Passengers:</span>
-                <span class="detail-value">${bookingDetails.passenger_count}</span>
+                <span class="detail-label">যাত্রী সংখ্যা:</span>
+                <span class="detail-value">${bookingDetails.passenger_count} জন</span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Total Amount:</span>
+                <span class="detail-label">মোট পরিমাণ:</span>
                 <span class="detail-value total total-warning">${formatCurrency(bookingDetails.total_price)}</span>
               </div>
             </div>
             
-            <p>If you have any questions about your booking, please don't hesitate to contact us.</p>
-            <p>We look forward to serving you!</p>
+            <p>আপনার বুকিং সম্পর্কে কোনো প্রশ্ন থাকলে অনুগ্রহ করে আমাদের সাথে যোগাযোগ করুন।</p>
+            <p>আপনাকে সেবা দিতে পেরে আমরা আনন্দিত!</p>
           </div>
-          <div class="footer">
-            <p>This is an automated confirmation email. Please do not reply to this email.</p>
-          </div>
+          ${footerHtml}
         </div>
       </body>
       </html>
@@ -409,15 +416,15 @@ const getCustomerSmsMessage = (
   const bookingId = bookingDetails.id.slice(0, 8).toUpperCase();
   
   if (notificationType === "payment_verified") {
-    return `Dear ${customerName}, your payment for ${bookingDetails.package.title} has been verified! Booking ID: ${bookingId}. Travel Date: ${bookingDetails.travel_date || "TBD"}. Total: ${formatCurrency(bookingDetails.total_price)}. Thank you! - S M Elite Hajj Limited`;
+    return `প্রিয় ${customerName}, আপনার ${bookingDetails.package.title} এর পেমেন্ট নিশ্চিত হয়েছে! বুকিং আইডি: ${bookingId}. যাত্রার তারিখ: ${bookingDetails.travel_date || "শীঘ্রই জানানো হবে"}. মোট: ${formatCurrency(bookingDetails.total_price)}. ধন্যবাদ! - দারুল ফুরকান ট্যুরস`;
   }
 
   if (notificationType === "payment_rejected") {
-    return `Dear ${customerName}, we could not verify your payment for ${bookingDetails.package.title}. ${rejectionReason ? `Reason: ${rejectionReason}. ` : ""}Please contact us. Booking ID: ${bookingId}. - S M Elite Hajj Limited`;
+    return `প্রিয় ${customerName}, ${bookingDetails.package.title} এর পেমেন্ট যাচাই করা সম্ভব হয়নি। ${rejectionReason ? `কারণ: ${rejectionReason}. ` : ""}অনুগ্রহ করে যোগাযোগ করুন। বুকিং আইডি: ${bookingId}. - দারুল ফুরকান ট্যুরস`;
   }
 
   // Default: booking_confirmed
-  return `Dear ${customerName}, your booking for ${bookingDetails.package.title} is confirmed! Booking ID: ${bookingId}. Passengers: ${bookingDetails.passenger_count}. Total: ${formatCurrency(bookingDetails.total_price)}. Thank you! - S M Elite Hajj Limited`;
+  return `প্রিয় ${customerName}, ${bookingDetails.package.title} এর বুকিং নিশ্চিত হয়েছে! বুকিং আইডি: ${bookingId}. যাত্রী: ${bookingDetails.passenger_count} জন. মোট: ${formatCurrency(bookingDetails.total_price)}. ধন্যবাদ! - দারুল ফুরকান ট্যুরস`;
 };
 
 const getManagementSmsMessage = (
@@ -430,14 +437,14 @@ const getManagementSmsMessage = (
   const paymentMethod = bookingDetails.payment_method || "N/A";
   
   if (notificationType === "booking_confirmed") {
-    return `NEW BOOKING! Customer: ${customerName}, Phone: ${customerPhone}, Package: ${bookingDetails.package.title}, Passengers: ${bookingDetails.passenger_count}, Amount: ${formatCurrency(bookingDetails.total_price)}, Payment: ${paymentMethod}, ID: ${bookingId}`;
+    return `নতুন বুকিং! গ্রাহক: ${customerName}, ফোন: ${customerPhone}, প্যাকেজ: ${bookingDetails.package.title}, যাত্রী: ${bookingDetails.passenger_count} জন, টাকা: ${formatCurrency(bookingDetails.total_price)}, পেমেন্ট: ${paymentMethod}, আইডি: ${bookingId}`;
   }
   
   if (notificationType === "payment_verified") {
-    return `PAYMENT VERIFIED! Customer: ${customerName}, Phone: ${customerPhone}, Package: ${bookingDetails.package.title}, Amount: ${formatCurrency(bookingDetails.total_price)}, ID: ${bookingId}`;
+    return `পেমেন্ট নিশ্চিত! গ্রাহক: ${customerName}, ফোন: ${customerPhone}, প্যাকেজ: ${bookingDetails.package.title}, টাকা: ${formatCurrency(bookingDetails.total_price)}, আইডি: ${bookingId}`;
   }
   
-  return `BOOKING UPDATE: ${notificationType}. Customer: ${customerName}, Phone: ${customerPhone}, ID: ${bookingId}`;
+  return `বুকিং আপডেট: ${notificationType}. গ্রাহক: ${customerName}, ফোন: ${customerPhone}, আইডি: ${bookingId}`;
 };
 
 const handler = async (req: Request): Promise<Response> => {
