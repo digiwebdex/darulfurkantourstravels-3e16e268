@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,8 +11,8 @@ import heroKaaba from "@/assets/hero-kaaba-new.jpg";
 import heroMedina from "@/assets/hero-medina-new.jpg";
 import heroHajj from "@/assets/hero-hajj-new.jpg";
 
-// Default hero images array
 const defaultHeroImages = [heroKaaba, heroMedina, heroHajj];
+const WHATSAPP_NUMBER = "8801339080532";
 
 interface HeroSlide {
   id: string;
@@ -99,7 +99,6 @@ const HeroSection = () => {
     fetchHeroContent();
   }, [language]);
 
-  // Autoplay logic
   useEffect(() => {
     if (!isAutoPlaying || slides.length <= 1 || isHovered) {
       if (autoplayRef.current) clearTimeout(autoplayRef.current);
@@ -161,7 +160,6 @@ const HeroSection = () => {
     setTimeout(() => setIsAutoPlaying(true), 10000);
   }, [slides.length]);
 
-  // Touch handlers
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
@@ -180,7 +178,6 @@ const HeroSection = () => {
 
   const defaultContent = getDefaultSlides()[0];
   const content = slides[currentSlide] || defaultContent;
-  const backgroundImage = content.background_image_url || heroKaaba;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -224,7 +221,7 @@ const HeroSection = () => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Background Images with Smooth Fade Transition */}
+      {/* Background Images */}
       <div className="absolute inset-0 overflow-hidden">
         {slides.map((slide, index) => (
           <div
@@ -240,23 +237,23 @@ const HeroSection = () => {
             <img
               src={slide.background_image_url || defaultHeroImages[index % 3]}
               alt=""
-              className="w-full h-full object-cover transform-gpu"
-              style={{
-                transform: 'scale(1.01)', // Slight scale to prevent edge flicker
-                willChange: 'transform',
-              }}
+              className="w-full h-full object-cover transform-gpu scale-105"
               loading={index === 0 ? "eager" : "lazy"}
             />
           </div>
         ))}
         
-        {/* Overlay Gradients */}
-        <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/70 to-primary/40 z-20" />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-transparent to-primary/60 z-20" />
+        {/* Premium Overlays - Green + Gold */}
+        <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/60 to-transparent z-20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/70 via-transparent to-primary/50 z-20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/40 via-transparent to-primary z-20" />
+        
+        {/* Gold Accent Glow */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-1/3 bg-accent/10 blur-3xl z-15" />
       </div>
 
       {/* Content */}
-      <div className="relative z-30 container pt-24 pb-16">
+      <div className="relative z-30 container px-4 pt-32 pb-20">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
@@ -268,10 +265,10 @@ const HeroSection = () => {
           >
             {/* Badge */}
             {content.badge_text && (
-              <motion.div variants={itemVariants} className="mb-4 sm:mb-6 px-2">
-                <span className="inline-flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium bg-accent/20 text-accent border border-accent/30 backdrop-blur-sm">
-                  <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-current flex-shrink-0" />
-                  <span className="text-center leading-tight">{content.badge_text}</span>
+              <motion.div variants={itemVariants} className="mb-6">
+                <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium bg-accent/20 text-accent border border-accent/40 backdrop-blur-sm shadow-gold">
+                  <Star className="w-4 h-4 fill-current" />
+                  {content.badge_text}
                 </span>
               </motion.div>
             )}
@@ -279,11 +276,11 @@ const HeroSection = () => {
             {/* Title */}
             <motion.h1
               variants={itemVariants}
-              className="font-heading text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-primary-foreground mb-3 sm:mb-4 leading-tight px-2 sm:px-0"
+              className="font-heading text-2xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary-foreground mb-4 leading-tight"
             >
               {content.title}
               {content.subtitle && (
-                <span className="block mt-1 sm:mt-2 text-lg sm:text-xl md:text-3xl lg:text-4xl text-accent font-semibold">
+                <span className="block mt-2 text-xl sm:text-2xl md:text-3xl lg:text-4xl text-accent font-semibold">
                   {content.subtitle}
                 </span>
               )}
@@ -293,37 +290,38 @@ const HeroSection = () => {
             {content.description && (
               <motion.p
                 variants={itemVariants}
-                className="text-base sm:text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto mb-8 leading-relaxed"
+                className="text-base sm:text-lg md:text-xl text-primary-foreground/85 max-w-2xl mx-auto mb-8 leading-relaxed"
               >
                 {content.description}
               </motion.p>
             )}
 
             {/* CTA Buttons */}
-            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 mb-8 sm:mb-10 px-4 sm:px-0">
+            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 mb-10">
               {content.primary_button_text && (
                 <Button
                   asChild
                   size="lg"
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-full shadow-lg shadow-accent/30 w-full sm:w-auto"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 py-6 text-lg rounded-full shadow-lg"
                 >
                   <a href={content.primary_button_link || "#"}>
                     {content.primary_button_text}
                   </a>
                 </Button>
               )}
-              {content.secondary_button_text && (
+              <a 
+                href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Button
-                  asChild
-                  variant="outline"
                   size="lg"
-                  className="bg-transparent border-2 border-accent text-accent hover:bg-accent/10 px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-full w-full sm:w-auto"
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold px-8 py-6 text-lg rounded-full shadow-gold gap-2"
                 >
-                  <a href={content.secondary_button_link || "#"}>
-                    {content.secondary_button_text}
-                  </a>
+                  <MessageCircle className="w-5 h-5" />
+                  WhatsApp
                 </Button>
-              )}
+              </a>
             </motion.div>
 
             {/* Stats */}
@@ -353,14 +351,14 @@ const HeroSection = () => {
         <>
           <button
             onClick={goToPrevious}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full bg-background/20 backdrop-blur-sm border border-primary-foreground/20 flex items-center justify-center text-primary-foreground hover:bg-background/30 transition-colors"
+            className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-40 w-12 h-12 md:w-14 md:h-14 rounded-full bg-card/20 backdrop-blur-sm border border-primary-foreground/30 flex items-center justify-center text-primary-foreground hover:bg-card/30 hover:border-accent transition-all"
             aria-label="Previous slide"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full bg-background/20 backdrop-blur-sm border border-primary-foreground/20 flex items-center justify-center text-primary-foreground hover:bg-background/30 transition-colors"
+            className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-40 w-12 h-12 md:w-14 md:h-14 rounded-full bg-card/20 backdrop-blur-sm border border-primary-foreground/30 flex items-center justify-center text-primary-foreground hover:bg-card/30 hover:border-accent transition-all"
             aria-label="Next slide"
           >
             <ChevronRight className="w-6 h-6" />
@@ -375,10 +373,10 @@ const HeroSection = () => {
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`h-2 rounded-full transition-all duration-300 ${
+              className={`h-2.5 rounded-full transition-all duration-300 ${
                 index === currentSlide
-                  ? "w-8 bg-accent"
-                  : "w-2 bg-primary-foreground/40 hover:bg-primary-foreground/60"
+                  ? "w-10 bg-accent shadow-gold"
+                  : "w-2.5 bg-primary-foreground/40 hover:bg-primary-foreground/60"
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />
