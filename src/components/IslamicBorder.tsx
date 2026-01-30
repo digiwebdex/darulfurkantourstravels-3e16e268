@@ -11,83 +11,86 @@ const IslamicBorder = ({ children, className = "", variant = "both" }: IslamicBo
     <div className={`relative ${className}`}>
       {/* Top Border */}
       {(variant === "top" || variant === "both") && (
-        <div className="absolute top-0 left-0 right-0 h-16 overflow-hidden pointer-events-none z-20">
-          {/* Animated geometric line */}
+        <div className="absolute top-0 left-0 right-0 h-12 overflow-hidden pointer-events-none z-20">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="absolute inset-x-0 top-0 flex justify-center"
+            className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center items-center"
           >
             <svg 
-              viewBox="0 0 1200 60" 
-              className="w-full max-w-6xl h-16"
+              viewBox="0 0 1200 40" 
+              className="w-full max-w-5xl h-10"
               preserveAspectRatio="xMidYMid meet"
             >
-              {/* Left decorative star */}
+              {/* Left small star */}
               <motion.g
                 initial={{ scale: 0, rotate: -180 }}
                 whileInView={{ scale: 1, rotate: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.2 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
               >
                 <polygon 
-                  points="60,30 66,18 78,18 68,10 72,0 60,6 48,0 52,10 42,18 54,18" 
-                  className="fill-secondary/30"
+                  points="80,20 84,12 92,12 86,6 88,0 80,4 72,0 74,6 68,12 76,12" 
+                  className="fill-secondary"
                 />
               </motion.g>
               
-              {/* Left geometric pattern line */}
+              {/* Left zigzag line */}
               <motion.path
-                d="M90,30 L150,30 L165,15 L180,30 L240,30 L255,15 L270,30 L330,30 L345,15 L360,30 L420,30 L435,15 L450,30 L510,30 L525,15 L540,30"
-                className="stroke-secondary/40 fill-none"
+                d="M110,20 L160,20 L175,8 L190,20 L220,20 L235,8 L250,20 L280,20 L295,8 L310,20 L340,20 L355,8 L370,20 L400,20 L415,8 L430,20 L460,20 L475,8 L490,20 L520,20 L535,8 L550,20"
+                className="stroke-secondary fill-none"
                 strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 initial={{ pathLength: 0 }}
                 whileInView={{ pathLength: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 1.5, delay: 0.3 }}
+                transition={{ duration: 1.2, delay: 0.3 }}
               />
               
-              {/* Center ornament */}
+              {/* Center 4-pointed star */}
               <motion.g
                 initial={{ scale: 0, opacity: 0 }}
                 whileInView={{ scale: 1, opacity: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.5 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
               >
-                {/* Central 8-pointed star */}
+                {/* Outer star shape */}
                 <polygon 
-                  points="600,10 608,22 620,22 612,30 620,38 608,38 600,50 592,38 580,38 588,30 580,22 592,22" 
-                  className="fill-secondary/50"
+                  points="600,2 608,14 620,20 608,26 600,38 592,26 580,20 592,14" 
+                  className="fill-secondary"
                 />
                 {/* Inner diamond */}
                 <polygon 
-                  points="600,20 608,30 600,40 592,30" 
-                  className="fill-primary/30"
+                  points="600,10 606,20 600,30 594,20" 
+                  className="fill-primary"
                 />
               </motion.g>
               
-              {/* Right geometric pattern line */}
+              {/* Right zigzag line */}
               <motion.path
-                d="M660,30 L720,30 L735,15 L750,30 L810,30 L825,15 L840,30 L900,30 L915,15 L930,30 L990,30 L1005,15 L1020,30 L1080,30 L1095,15 L1110,30"
-                className="stroke-secondary/40 fill-none"
+                d="M650,20 L680,20 L695,8 L710,20 L740,20 L755,8 L770,20 L800,20 L815,8 L830,20 L860,20 L875,8 L890,20 L920,20 L935,8 L950,20 L980,20 L995,8 L1010,20 L1040,20 L1055,8 L1070,20 L1090,20"
+                className="stroke-secondary fill-none"
                 strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 initial={{ pathLength: 0 }}
                 whileInView={{ pathLength: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 1.5, delay: 0.3 }}
+                transition={{ duration: 1.2, delay: 0.3 }}
               />
               
-              {/* Right decorative star */}
+              {/* Right small star */}
               <motion.g
                 initial={{ scale: 0, rotate: 180 }}
                 whileInView={{ scale: 1, rotate: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.2 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
               >
                 <polygon 
-                  points="1140,30 1146,18 1158,18 1148,10 1152,0 1140,6 1128,0 1132,10 1122,18 1134,18" 
-                  className="fill-secondary/30"
+                  points="1120,20 1124,12 1132,12 1126,6 1128,0 1120,4 1112,0 1114,6 1108,12 1116,12" 
+                  className="fill-secondary"
                 />
               </motion.g>
             </svg>
@@ -100,80 +103,84 @@ const IslamicBorder = ({ children, className = "", variant = "both" }: IslamicBo
       
       {/* Bottom Border */}
       {(variant === "bottom" || variant === "both") && (
-        <div className="absolute bottom-0 left-0 right-0 h-16 overflow-hidden pointer-events-none z-20">
+        <div className="absolute bottom-0 left-0 right-0 h-12 overflow-hidden pointer-events-none z-20">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="absolute inset-x-0 bottom-0 flex justify-center"
+            className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center items-center"
           >
             <svg 
-              viewBox="0 0 1200 60" 
-              className="w-full max-w-6xl h-16 rotate-180"
+              viewBox="0 0 1200 40" 
+              className="w-full max-w-5xl h-10 rotate-180"
               preserveAspectRatio="xMidYMid meet"
             >
-              {/* Left decorative star */}
+              {/* Left small star */}
               <motion.g
                 initial={{ scale: 0, rotate: -180 }}
                 whileInView={{ scale: 1, rotate: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.4 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
               >
                 <polygon 
-                  points="60,30 66,18 78,18 68,10 72,0 60,6 48,0 52,10 42,18 54,18" 
-                  className="fill-secondary/20"
+                  points="80,20 84,12 92,12 86,6 88,0 80,4 72,0 74,6 68,12 76,12" 
+                  className="fill-secondary/80"
                 />
               </motion.g>
               
-              {/* Geometric wave pattern */}
+              {/* Left zigzag line */}
               <motion.path
-                d="M90,30 L150,30 L165,15 L180,30 L240,30 L255,15 L270,30 L330,30 L345,15 L360,30 L420,30 L435,15 L450,30 L510,30 L525,15 L540,30"
-                className="stroke-secondary/30 fill-none"
+                d="M110,20 L160,20 L175,8 L190,20 L220,20 L235,8 L250,20 L280,20 L295,8 L310,20 L340,20 L355,8 L370,20 L400,20 L415,8 L430,20 L460,20 L475,8 L490,20 L520,20 L535,8 L550,20"
+                className="stroke-secondary/80 fill-none"
                 strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 initial={{ pathLength: 0 }}
                 whileInView={{ pathLength: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 1.5, delay: 0.5 }}
+                transition={{ duration: 1.2, delay: 0.5 }}
               />
               
-              {/* Center ornament */}
+              {/* Center 4-pointed star */}
               <motion.g
                 initial={{ scale: 0, opacity: 0 }}
                 whileInView={{ scale: 1, opacity: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.7 }}
+                transition={{ duration: 0.5, delay: 0.7 }}
               >
                 <polygon 
-                  points="600,10 608,22 620,22 612,30 620,38 608,38 600,50 592,38 580,38 588,30 580,22 592,22" 
-                  className="fill-secondary/40"
+                  points="600,2 608,14 620,20 608,26 600,38 592,26 580,20 592,14" 
+                  className="fill-secondary/80"
                 />
                 <polygon 
-                  points="600,20 608,30 600,40 592,30" 
-                  className="fill-primary/20"
+                  points="600,10 606,20 600,30 594,20" 
+                  className="fill-primary/80"
                 />
               </motion.g>
               
-              {/* Right geometric wave pattern */}
+              {/* Right zigzag line */}
               <motion.path
-                d="M660,30 L720,30 L735,15 L750,30 L810,30 L825,15 L840,30 L900,30 L915,15 L930,30 L990,30 L1005,15 L1020,30 L1080,30 L1095,15 L1110,30"
-                className="stroke-secondary/30 fill-none"
+                d="M650,20 L680,20 L695,8 L710,20 L740,20 L755,8 L770,20 L800,20 L815,8 L830,20 L860,20 L875,8 L890,20 L920,20 L935,8 L950,20 L980,20 L995,8 L1010,20 L1040,20 L1055,8 L1070,20 L1090,20"
+                className="stroke-secondary/80 fill-none"
                 strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 initial={{ pathLength: 0 }}
                 whileInView={{ pathLength: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 1.5, delay: 0.5 }}
+                transition={{ duration: 1.2, delay: 0.5 }}
               />
               
-              {/* Right decorative star */}
+              {/* Right small star */}
               <motion.g
                 initial={{ scale: 0, rotate: 180 }}
                 whileInView={{ scale: 1, rotate: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.4 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
               >
                 <polygon 
-                  points="1140,30 1146,18 1158,18 1148,10 1152,0 1140,6 1128,0 1132,10 1122,18 1134,18" 
-                  className="fill-secondary/20"
+                  points="1120,20 1124,12 1132,12 1126,6 1128,0 1120,4 1112,0 1114,6 1108,12 1116,12" 
+                  className="fill-secondary/80"
                 />
               </motion.g>
             </svg>
@@ -184,53 +191,53 @@ const IslamicBorder = ({ children, className = "", variant = "both" }: IslamicBo
       {/* Corner ornaments */}
       <motion.div
         initial={{ opacity: 0, scale: 0 }}
-        whileInView={{ opacity: 0.15, scale: 1 }}
+        whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="absolute top-4 left-4 w-12 h-12 pointer-events-none hidden md:block"
+        transition={{ duration: 0.4, delay: 0.3 }}
+        className="absolute top-2 left-2 w-8 h-8 pointer-events-none hidden md:block"
       >
-        <svg viewBox="0 0 50 50" className="w-full h-full">
-          <path d="M0,0 L50,0 L50,10 L10,10 L10,50 L0,50 Z" className="fill-secondary" />
-          <polygon points="25,5 30,15 25,25 20,15" className="fill-primary/50" />
+        <svg viewBox="0 0 32 32" className="w-full h-full">
+          <path d="M0,0 L32,0 L32,6 L6,6 L6,32 L0,32 Z" className="fill-primary/20" />
+          <polygon points="16,3 18,8 16,13 14,8" className="fill-secondary/60" />
         </svg>
       </motion.div>
       
       <motion.div
         initial={{ opacity: 0, scale: 0 }}
-        whileInView={{ opacity: 0.15, scale: 1 }}
+        whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-        className="absolute top-4 right-4 w-12 h-12 pointer-events-none hidden md:block"
+        transition={{ duration: 0.4, delay: 0.4 }}
+        className="absolute top-2 right-2 w-8 h-8 pointer-events-none hidden md:block"
       >
-        <svg viewBox="0 0 50 50" className="w-full h-full rotate-90">
-          <path d="M0,0 L50,0 L50,10 L10,10 L10,50 L0,50 Z" className="fill-secondary" />
-          <polygon points="25,5 30,15 25,25 20,15" className="fill-primary/50" />
+        <svg viewBox="0 0 32 32" className="w-full h-full rotate-90">
+          <path d="M0,0 L32,0 L32,6 L6,6 L6,32 L0,32 Z" className="fill-primary/20" />
+          <polygon points="16,3 18,8 16,13 14,8" className="fill-secondary/60" />
         </svg>
       </motion.div>
       
       <motion.div
         initial={{ opacity: 0, scale: 0 }}
-        whileInView={{ opacity: 0.15, scale: 1 }}
+        whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: 0.5 }}
-        className="absolute bottom-4 left-4 w-12 h-12 pointer-events-none hidden md:block"
+        transition={{ duration: 0.4, delay: 0.5 }}
+        className="absolute bottom-2 left-2 w-8 h-8 pointer-events-none hidden md:block"
       >
-        <svg viewBox="0 0 50 50" className="w-full h-full -rotate-90">
-          <path d="M0,0 L50,0 L50,10 L10,10 L10,50 L0,50 Z" className="fill-secondary" />
-          <polygon points="25,5 30,15 25,25 20,15" className="fill-primary/50" />
+        <svg viewBox="0 0 32 32" className="w-full h-full -rotate-90">
+          <path d="M0,0 L32,0 L32,6 L6,6 L6,32 L0,32 Z" className="fill-primary/20" />
+          <polygon points="16,3 18,8 16,13 14,8" className="fill-secondary/60" />
         </svg>
       </motion.div>
       
       <motion.div
         initial={{ opacity: 0, scale: 0 }}
-        whileInView={{ opacity: 0.15, scale: 1 }}
+        whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: 0.6 }}
-        className="absolute bottom-4 right-4 w-12 h-12 pointer-events-none hidden md:block"
+        transition={{ duration: 0.4, delay: 0.6 }}
+        className="absolute bottom-2 right-2 w-8 h-8 pointer-events-none hidden md:block"
       >
-        <svg viewBox="0 0 50 50" className="w-full h-full rotate-180">
-          <path d="M0,0 L50,0 L50,10 L10,10 L10,50 L0,50 Z" className="fill-secondary" />
-          <polygon points="25,5 30,15 25,25 20,15" className="fill-primary/50" />
+        <svg viewBox="0 0 32 32" className="w-full h-full rotate-180">
+          <path d="M0,0 L32,0 L32,6 L6,6 L6,32 L0,32 Z" className="fill-primary/20" />
+          <polygon points="16,3 18,8 16,13 14,8" className="fill-secondary/60" />
         </svg>
       </motion.div>
     </div>
