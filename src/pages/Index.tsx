@@ -5,6 +5,8 @@ import HeroSection from "@/components/HeroSection";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Lazy load non-critical components for faster initial page load
+const QuickPackageHighlight = lazy(() => import("@/components/QuickPackageHighlight"));
+const WhyChooseUs = lazy(() => import("@/components/WhyChooseUs"));
 const NoticeBoard = lazy(() => import("@/components/NoticeBoard"));
 const ServicesOverview = lazy(() => import("@/components/ServicesOverview"));
 const DarulFurkanPackages = lazy(() => import("@/components/DarulFurkanPackages"));
@@ -16,6 +18,7 @@ const TeamSection = lazy(() => import("@/components/TeamSection"));
 const FAQSection = lazy(() => import("@/components/FAQSection"));
 const GallerySection = lazy(() => import("@/components/GallerySection"));
 const ContactSection = lazy(() => import("@/components/ContactSection"));
+const CTASection = lazy(() => import("@/components/CTASection"));
 const Footer = lazy(() => import("@/components/Footer"));
 const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
 const MobileCTABar = lazy(() => import("@/components/MobileCTABar"));
@@ -31,9 +34,9 @@ const SectionSkeleton = ({ height = "h-96" }: { height?: string }) => (
       <Skeleton className="h-8 w-48 mx-auto mb-4" />
       <Skeleton className="h-4 w-64 mx-auto mb-8" />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Skeleton className="h-48 rounded-lg" />
-        <Skeleton className="h-48 rounded-lg" />
-        <Skeleton className="h-48 rounded-lg" />
+        <Skeleton className="h-48 rounded-xl" />
+        <Skeleton className="h-48 rounded-xl" />
+        <Skeleton className="h-48 rounded-xl" />
       </div>
     </div>
   </div>
@@ -95,58 +98,86 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main>
+        {/* Hero Section */}
         {sectionVisibility.hero && <HeroSection />}
         
+        {/* Quick Package Highlight - 4 Cards */}
+        <Suspense fallback={<SectionSkeleton height="h-64" />}>
+          <QuickPackageHighlight />
+        </Suspense>
+        
+        {/* Why Choose Us - Light Cream Background */}
+        <Suspense fallback={<SectionSkeleton />}>
+          <WhyChooseUs />
+        </Suspense>
+        
+        {/* Notice Board */}
         <Suspense fallback={<SectionSkeleton height="h-32" />}>
           {sectionVisibility.notices && <NoticeBoard />}
         </Suspense>
         
+        {/* Services Overview */}
         <Suspense fallback={<SectionSkeleton />}>
           {sectionVisibility.services && <ServicesOverview />}
         </Suspense>
 
-        {/* Featured Darul Furkan Packages - Always show */}
+        {/* Featured Darul Furkan Packages */}
         <Suspense fallback={<SectionSkeleton />}>
           <DarulFurkanPackages />
         </Suspense>
         
+        {/* Hajj Packages */}
         <Suspense fallback={<SectionSkeleton />}>
           {sectionVisibility.hajj_packages && <HajjPackages />}
         </Suspense>
         
+        {/* Umrah Packages */}
         <Suspense fallback={<SectionSkeleton />}>
           {sectionVisibility.umrah_packages && <UmrahPackages />}
         </Suspense>
         
+        {/* Visa Services */}
         <Suspense fallback={<SectionSkeleton />}>
           {sectionVisibility.visa_services && <VisaServices />}
         </Suspense>
         
+        {/* Testimonials */}
         <Suspense fallback={<SectionSkeleton />}>
           {sectionVisibility.testimonials && <TestimonialsSection />}
         </Suspense>
         
+        {/* Team Section */}
         <Suspense fallback={<SectionSkeleton />}>
           {sectionVisibility.team && <TeamSection />}
         </Suspense>
         
+        {/* FAQ Section */}
         <Suspense fallback={<SectionSkeleton />}>
           {sectionVisibility.faq && <FAQSection />}
         </Suspense>
         
+        {/* Gallery Section */}
         <Suspense fallback={<SectionSkeleton />}>
           {sectionVisibility.gallery && <GallerySection />}
         </Suspense>
         
+        {/* CTA Section - Large Green Background */}
+        <Suspense fallback={<SectionSkeleton height="h-64" />}>
+          <CTASection />
+        </Suspense>
+        
+        {/* Contact Section */}
         <Suspense fallback={<SectionSkeleton />}>
           {sectionVisibility.contact && <ContactSection />}
         </Suspense>
       </main>
       
+      {/* Footer */}
       <Suspense fallback={null}>
         <Footer />
       </Suspense>
       
+      {/* Floating Elements */}
       <Suspense fallback={null}>
         <WhatsAppButton />
         <MobileCTABar />
