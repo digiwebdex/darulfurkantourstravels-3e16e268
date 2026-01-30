@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 // Lazy load non-critical components for faster initial page load
 const NoticeBoard = lazy(() => import("@/components/NoticeBoard"));
 const ServicesOverview = lazy(() => import("@/components/ServicesOverview"));
+const DarulFurkanPackages = lazy(() => import("@/components/DarulFurkanPackages"));
 const HajjPackages = lazy(() => import("@/components/HajjPackages"));
 const UmrahPackages = lazy(() => import("@/components/UmrahPackages"));
 const VisaServices = lazy(() => import("@/components/VisaServices"));
@@ -102,6 +103,11 @@ const Index = () => {
         
         <Suspense fallback={<SectionSkeleton />}>
           {sectionVisibility.services && <ServicesOverview />}
+        </Suspense>
+
+        {/* Featured Darul Furkan Packages - Always show */}
+        <Suspense fallback={<SectionSkeleton />}>
+          <DarulFurkanPackages />
         </Suspense>
         
         <Suspense fallback={<SectionSkeleton />}>
