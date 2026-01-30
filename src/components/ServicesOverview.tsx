@@ -223,10 +223,9 @@ const ServicesOverview = () => {
           <span className="text-secondary font-semibold uppercase tracking-wider">
             {sectionHeader.badge_text}
           </span>
-          <h2 className="font-calligraphy text-4xl md:text-5xl font-bold text-foreground mt-3 mb-4">
+          <h2 className="font-calligraphy text-4xl md:text-5xl font-bold text-foreground mt-3 mb-6">
             {sectionHeader.title}
           </h2>
-          <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">{sectionHeader.arabic_text}</span>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
