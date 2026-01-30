@@ -243,13 +243,13 @@ const HeroSection = () => {
           </div>
         ))}
         
-        {/* Premium Overlays - Green + Gold */}
-        <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/60 to-transparent z-20" />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/70 via-transparent to-primary/50 z-20" />
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/40 via-transparent to-primary z-20" />
+        {/* Premium Overlays - Lighter & Brighter */}
+        <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/30 to-transparent z-20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/40 via-transparent to-primary/30 z-20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-primary/70 z-20" />
         
-        {/* Gold Accent Glow */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-1/3 bg-accent/10 blur-3xl z-15" />
+        {/* Gold Accent Glow - Enhanced */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-1/2 bg-accent/15 blur-3xl z-15" />
       </div>
 
       {/* Content */}
