@@ -355,9 +355,9 @@ serve(async (req) => {
       if (smsConfig && customerPhone) {
         let smsMessage: string;
         if (isOverdue) {
-          smsMessage = `⚠️ Dear ${customerName}, your installment #${installment.installment_number} of ${formatCurrency(installment.amount)} for ${packageTitle} is ${daysOverdue} days OVERDUE (was due ${formattedDate}). Please pay immediately. ID: ${bookingIdShort}. - SM Elite Hajj`;
+          smsMessage = `⚠️ প্রিয় ${customerName}, ${packageTitle} এর জন্য আপনার কিস্তি #${installment.installment_number} ${formatCurrency(installment.amount)} ${daysOverdue} দিন বকেয়া (${formattedDate} তারিখে বাকি ছিল)। অনুগ্রহ করে এখনই পরিশোধ করুন। আইডি: ${bookingIdShort}। - দারুল ফুরকান ট্যুরস`;
         } else {
-          smsMessage = `⏰ Dear ${customerName}, reminder: Installment #${installment.installment_number} of ${formatCurrency(installment.amount)} for ${packageTitle} is due on ${formattedDate}. Please pay on time. ID: ${bookingIdShort}. - SM Elite Hajj`;
+          smsMessage = `⏰ প্রিয় ${customerName}, রিমাইন্ডার: ${packageTitle} এর কিস্তি #${installment.installment_number} ${formatCurrency(installment.amount)} ${formattedDate} তারিখে বাকি। সময়মতো পরিশোধ করুন। আইডি: ${bookingIdShort}। - দারুল ফুরকান ট্যুরস`;
         }
 
         console.log(`Sending ${isOverdue ? 'OVERDUE' : 'REMINDER'} SMS to:`, customerPhone);
@@ -429,8 +429,8 @@ serve(async (req) => {
                 <p>Please visit our office or use our online payment system to complete your payment.</p>
               </div>
               <div class="footer">
-                <p>SM Elite Hajj Travel Agency Limited</p>
-                <p>Thank you for choosing us for your sacred journey.</p>
+                <p>দারুল ফুরকান ট্যুরস এন্ড ট্রাভেলস</p>
+                <p>আপনার পবিত্র যাত্রার জন্য আমাদের বেছে নেওয়ার জন্য ধন্যবাদ।</p>
               </div>
             </div>
           </body>

@@ -127,39 +127,39 @@ const getWelcomeEmailHtml = (fullName: string): string => {
   return `
     <!DOCTYPE html>
     <html>
-    <head><meta charset="utf-8"><title>Welcome to SM Elite Hajj</title></head>
+    <head><meta charset="utf-8"><title>দারুল ফুরকান ট্যুরস এন্ড ট্রাভেলসে স্বাগতম</title></head>
     <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4;">
       <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #d4a853, #c4963e); color: white; padding: 40px; text-align: center; border-radius: 10px 10px 0 0;">
-          <h1 style="margin: 0; font-size: 28px;">🕋 Welcome to SM Elite Hajj</h1>
-          <p style="margin: 15px 0 0 0; font-size: 16px; opacity: 0.9;">Your Trusted Partner for Hajj & Umrah</p>
+        <div style="background: linear-gradient(135deg, #1b5e20, #2e7d32); color: white; padding: 40px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="margin: 0; font-size: 28px;">🕋 দারুল ফুরকান ট্যুরস এন্ড ট্রাভেলসে স্বাগতম</h1>
+          <p style="margin: 15px 0 0 0; font-size: 16px; opacity: 0.9;">আপনার পবিত্র যাত্রার বিশ্বস্ত সঙ্গী</p>
         </div>
         <div style="background: white; padding: 40px; border-radius: 0 0 10px 10px;">
-          <p style="font-size: 18px; margin-top: 0;">Assalamu Alaikum <strong>${fullName}</strong>,</p>
-          <p>We are honored and delighted to welcome you to the SM Elite Hajj family! May Allah bless your journey with us.</p>
+          <p style="font-size: 18px; margin-top: 0;">আসসালামু আলাইকুম <strong>${fullName}</strong>,</p>
+          <p>দারুল ফুরকান পরিবারে আপনাকে স্বাগত জানাতে পেরে আমরা সম্মানিত ও আনন্দিত! আল্লাহ আপনার যাত্রা বরকতময় করুন।</p>
           <div style="background: linear-gradient(135deg, #f8f4e8, #fff); padding: 25px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #d4a853;">
-            <h3 style="margin-top: 0; color: #d4a853;">🌟 What We Offer:</h3>
+            <h3 style="margin-top: 0; color: #1b5e20;">🌟 আমাদের সেবাসমূহ:</h3>
             <ul style="margin: 0; padding-left: 20px; color: #555;">
-              <li style="margin: 10px 0;"><strong>Premium Hajj Packages</strong> - Complete guidance for the sacred pilgrimage</li>
-              <li style="margin: 10px 0;"><strong>Umrah Packages</strong> - Flexible options for your spiritual journey</li>
-              <li style="margin: 10px 0;"><strong>Visa Services</strong> - Hassle-free visa processing for multiple countries</li>
-              <li style="margin: 10px 0;"><strong>24/7 Support</strong> - We're always here to assist you</li>
+              <li style="margin: 10px 0;"><strong>প্রিমিয়াম হজ্জ প্যাকেজ</strong> - পবিত্র তীর্থযাত্রার জন্য সম্পূর্ণ গাইডেন্স</li>
+              <li style="margin: 10px 0;"><strong>উমরাহ প্যাকেজ</strong> - আপনার আধ্যাত্মিক যাত্রার জন্য নমনীয় অপশন</li>
+              <li style="margin: 10px 0;"><strong>ভিসা সেবা</strong> - বিভিন্ন দেশের জন্য ঝামেলামুক্ত ভিসা প্রসেসিং</li>
+              <li style="margin: 10px 0;"><strong>২৪/৭ সাপোর্ট</strong> - আমরা সবসময় আপনাকে সহায়তা করতে প্রস্তুত</li>
             </ul>
           </div>
           <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 25px 0; text-align: center;">
-            <p style="margin: 0; color: #666;">Ready to begin your spiritual journey?</p>
-            <a href="https://smelitehajjtravelagencylimited.lovable.app" style="display: inline-block; margin-top: 15px; background: linear-gradient(135deg, #d4a853, #c4963e); color: white; padding: 12px 30px; border-radius: 25px; text-decoration: none; font-weight: bold;">Browse Our Packages</a>
+            <p style="margin: 0; color: #666;">আপনার আধ্যাত্মিক যাত্রা শুরু করতে প্রস্তুত?</p>
+            <a href="https://darulfurkantourstravels.lovable.app" style="display: inline-block; margin-top: 15px; background: linear-gradient(135deg, #1b5e20, #2e7d32); color: white; padding: 12px 30px; border-radius: 25px; text-decoration: none; font-weight: bold;">প্যাকেজ দেখুন</a>
           </div>
-          <p>If you have any questions or need assistance, our team is always ready to help.</p>
+          <p>যেকোনো প্রশ্ন বা সহায়তার জন্য আমাদের টিম সবসময় প্রস্তুত।</p>
           <p style="margin-bottom: 0;">
-            May Allah accept your intentions and grant you the opportunity to perform Hajj and Umrah.<br><br>
-            <strong>JazakAllah Khair,</strong><br>
-            <span style="color: #d4a853; font-weight: bold;">SM Elite Hajj Travel Agency Limited</span>
+            আল্লাহ আপনার নিয়ত কবুল করুন এবং হজ্জ ও উমরাহ পালনের সুযোগ দান করুন।<br><br>
+            <strong>জাযাকাল্লাহ খাইর,</strong><br>
+            <span style="color: #1b5e20; font-weight: bold;">দারুল ফুরকান ট্যুরস এন্ড ট্রাভেলস</span>
           </p>
         </div>
         <div style="text-align: center; padding: 20px; color: #999; font-size: 12px;">
-          <p style="margin: 0;">This is an automated welcome email. Please do not reply directly.</p>
-          <p style="margin: 10px 0 0 0;">© ${new Date().getFullYear()} SM Elite Hajj Travel Agency Limited</p>
+          <p style="margin: 0;">এটি একটি স্বয়ংক্রিয় স্বাগত ইমেইল। অনুগ্রহ করে সরাসরি উত্তর দেবেন না।</p>
+          <p style="margin: 10px 0 0 0;">© ${new Date().getFullYear()} দারুল ফুরকান ট্যুরস এন্ড ট্রাভেলস</p>
         </div>
       </div>
     </body>
@@ -208,7 +208,7 @@ const handler = async (req: Request): Promise<Response> => {
             fromName: emailConfig.from_name,
           },
           email,
-          "🕋 Welcome to SM Elite Hajj - Your Spiritual Journey Begins!",
+          "🕋 দারুল ফুরকান ট্যুরস - আপনার আধ্যাত্মিক যাত্রা শুরু হচ্ছে!",
           getWelcomeEmailHtml(fullName || "Valued Customer")
         );
 
@@ -243,7 +243,7 @@ const handler = async (req: Request): Promise<Response> => {
         try {
           console.log("Sending WhatsApp welcome to:", phone);
 
-          const defaultTemplate = "🌟 Assalamu Alaikum {{name}}! Welcome to SM Elite Hajj. We're honored to have you join our family. May your journey with us be blessed. Contact us anytime for Hajj, Umrah, or Visa services. JazakAllah Khair! 🕋";
+          const defaultTemplate = "🌟 আসসালামু আলাইকুম {{name}}! দারুল ফুরকান ট্যুরস এন্ড ট্রাভেলসে স্বাগতম। আমাদের পরিবারে আপনাকে পেয়ে সম্মানিত। আপনার যাত্রা বরকতময় হোক। হজ্জ, উমরাহ বা ভিসা সেবার জন্য যেকোনো সময় যোগাযোগ করুন। জাযাকাল্লাহ খাইর! 🕋";
           
           let message = whatsappConfig.welcome_message_template || defaultTemplate;
           message = message.replace(/\{\{name\}\}/g, fullName || 'Valued Customer');

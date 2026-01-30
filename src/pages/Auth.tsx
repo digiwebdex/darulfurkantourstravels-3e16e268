@@ -291,16 +291,16 @@ const Auth = () => {
         <Card className="shadow-elegant border-border/50">
           <CardHeader className="text-center pb-2">
             <div className="w-16 h-16 bg-gradient-primary rounded-xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-primary-foreground font-heading font-bold text-2xl">SM</span>
+              <span className="text-primary-foreground font-heading font-bold text-2xl">DF</span>
             </div>
-            <CardTitle className="font-heading text-2xl">SM Elite Hajj</CardTitle>
-            <CardDescription>Sign in to manage your bookings</CardDescription>
+            <CardTitle className="font-heading text-2xl">দারুল ফুরকান ট্যুরস</CardTitle>
+            <CardDescription>আপনার বুকিং পরিচালনা করতে সাইন ইন করুন</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                <TabsTrigger value="signin">সাইন ইন</TabsTrigger>
+                <TabsTrigger value="signup">সাইন আপ</TabsTrigger>
               </TabsList>
 
               <TabsContent value="signin">
