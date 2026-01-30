@@ -6,6 +6,7 @@ import IslamicBorder from "./IslamicBorder";
 import OptimizedImage from "./ui/optimized-image";
 import medinaImage from "@/assets/medina-mosque-new.jpg";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface SectionSettings {
   title: string;
@@ -18,6 +19,7 @@ interface SectionSettings {
 }
 
 const UmrahPackages = () => {
+  const { language } = useTranslation();
   const [settings, setSettings] = useState<SectionSettings>({
     title: "উমরাহ প্যাকেজ ২০২৬",
     subtitle: "",
@@ -52,7 +54,7 @@ const UmrahPackages = () => {
       }
     };
     fetchSettings();
-  }, []);
+  }, [language]);
 
   return (
     <IslamicBorder>

@@ -14,6 +14,7 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface GalleryImage {
   id: string;
@@ -55,6 +56,7 @@ interface SectionHeader {
 }
 
 const GallerySection = () => {
+  const { language } = useTranslation();
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [videos, setVideos] = useState<GalleryVideo[]>([]);
   const [settings, setSettings] = useState<GallerySettings | null>(null);
@@ -100,7 +102,7 @@ const GallerySection = () => {
 
   useEffect(() => {
     fetchGalleryData();
-  }, []);
+  }, [language]);
 
   const onSelect = useCallback(() => {
     if (!carouselApi) return;

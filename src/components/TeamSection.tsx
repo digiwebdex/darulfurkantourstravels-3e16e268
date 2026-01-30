@@ -6,6 +6,7 @@ import IslamicBorder from "./IslamicBorder";
 import WhatsAppIcon from "./icons/WhatsAppIcon";
 import IMOIcon from "./icons/IMOIcon";
 import OptimizedImage from "./ui/optimized-image";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface TeamMember {
   id: string;
@@ -20,13 +21,14 @@ interface TeamMember {
 }
 
 const TeamSection = () => {
+  const { language } = useTranslation();
   const [managementTeam, setManagementTeam] = useState<TeamMember[]>([]);
   const [shariahBoard, setShariahBoard] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchTeamMembers();
-  }, []);
+  }, [language]);
 
   const fetchTeamMembers = async () => {
     const { data } = await supabase

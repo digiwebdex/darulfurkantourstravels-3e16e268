@@ -96,7 +96,7 @@ const Footer = () => {
   useEffect(() => {
     fetchFooterContent();
     fetchSocialNetworks();
-  }, []);
+  }, [language]);
 
   const fetchSocialNetworks = async () => {
     const { data } = await supabase

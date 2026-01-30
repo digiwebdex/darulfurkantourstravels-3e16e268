@@ -83,7 +83,7 @@ const Header = () => {
     fetchMenuItems();
     fetchPackages();
     fetchVisaCountries();
-  }, []);
+  }, [language]);
 
   const fetchMenuItems = async () => {
     const { data } = await supabase
