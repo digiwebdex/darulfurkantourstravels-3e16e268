@@ -300,12 +300,12 @@ const HeroSection = () => {
             )}
 
             {/* CTA Buttons */}
-            <motion.div variants={itemVariants} className="flex flex-wrap justify-center gap-4 mb-10">
+            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 mb-8 sm:mb-10 px-4 sm:px-0">
               {content.primary_button_text && (
                 <Button
                   asChild
                   size="lg"
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 py-6 text-lg rounded-full shadow-lg shadow-accent/30"
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-full shadow-lg shadow-accent/30 w-full sm:w-auto"
                 >
                   <a href={content.primary_button_link || "#"}>
                     {content.primary_button_text}
@@ -317,7 +317,7 @@ const HeroSection = () => {
                   asChild
                   variant="outline"
                   size="lg"
-                  className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 px-8 py-6 text-lg rounded-full"
+                  className="bg-transparent border-2 border-accent text-accent hover:bg-accent/10 px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-full w-full sm:w-auto"
                 >
                   <a href={content.secondary_button_link || "#"}>
                     {content.secondary_button_text}
