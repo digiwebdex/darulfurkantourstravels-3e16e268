@@ -280,20 +280,19 @@ const VisaServices = () => {
         >
           <span className="inline-flex items-center gap-2 text-secondary font-semibold uppercase tracking-wider">
             <Globe className="w-4 h-4" />
-            Global Services
+            বিশ্বব্যাপী সেবা
           </span>
           <h2 className="font-calligraphy text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mt-3 mb-4">
-            Visa Processing Services
+            ভিসা প্রসেসিং সেবা
           </h2>
-          <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">خدمات التأشيرة</span>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg mb-6">
-            We provide hassle-free visa processing services for various countries. 
-            Our experienced team ensures smooth documentation and timely processing.
+            আমরা বিভিন্ন দেশের জন্য ঝামেলামুক্ত ভিসা প্রসেসিং সেবা প্রদান করি। 
+            আমাদের অভিজ্ঞ টিম সুষ্ঠু ডকুমেন্টেশন এবং সময়মতো প্রসেসিং নিশ্চিত করে।
           </p>
           <Link to="/track-visa">
             <Button variant="outline" className="gap-2">
               <MapPin className="w-4 h-4" />
-              Track Your Visa Application
+              আপনার ভিসা আবেদন ট্র্যাক করুন
             </Button>
           </Link>
         </motion.div>
@@ -311,7 +310,7 @@ const VisaServices = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Search countries..."
+              placeholder="দেশ খুঁজুন..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 pr-10 h-12 text-base rounded-full border-2 focus:border-primary"
@@ -333,10 +332,10 @@ const VisaServices = () => {
               className="gap-2"
             >
               <Filter className="w-4 h-4" />
-              {showFilters ? "Hide Filters" : "Show Filters"}
+              {showFilters ? "ফিল্টার লুকান" : "ফিল্টার দেখান"}
               {hasActiveFilters && !searchQuery && (
                 <Badge variant="secondary" className="ml-1 text-xs">
-                  Active
+                  সক্রিয়
                 </Badge>
               )}
             </Button>
@@ -344,12 +343,12 @@ const VisaServices = () => {
             {hasActiveFilters && (
               <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-1">
                 <X className="w-4 h-4" />
-                Clear All
+                সব মুছুন
               </Button>
             )}
             
             <span className="text-sm text-muted-foreground">
-              Showing {filteredCountries.length} of {countries.length} countries
+              {countries.length}টির মধ্যে {filteredCountries.length}টি দেশ দেখাচ্ছে
             </span>
           </div>
 
@@ -363,19 +362,19 @@ const VisaServices = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Processing Time Filter */}
                 <div className="space-y-3">
-                  <label className="text-sm font-medium text-foreground">Processing Time</label>
+                  <label className="text-sm font-medium text-foreground">প্রসেসিং সময়</label>
                   <Select
                     value={processingTimeFilter}
                     onValueChange={(value: ProcessingTimeFilter) => setProcessingTimeFilter(value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select processing time" />
+                      <SelectValue placeholder="প্রসেসিং সময় নির্বাচন করুন" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Processing Times</SelectItem>
-                      <SelectItem value="fast">Fast (≤ 7 days)</SelectItem>
-                      <SelectItem value="medium">Medium (8-15 days)</SelectItem>
-                      <SelectItem value="slow">Standard (15+ days)</SelectItem>
+                      <SelectItem value="all">সব প্রসেসিং সময়</SelectItem>
+                      <SelectItem value="fast">দ্রুত (≤ ৭ দিন)</SelectItem>
+                      <SelectItem value="medium">মাঝারি (৮-১৫ দিন)</SelectItem>
+                      <SelectItem value="slow">সাধারণ (১৫+ দিন)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -383,7 +382,7 @@ const VisaServices = () => {
                 {/* Price Range Filter */}
                 <div className="space-y-3">
                   <label className="text-sm font-medium text-foreground">
-                    Price Range: ৳{priceRange[0].toLocaleString()} - ৳{priceRange[1].toLocaleString()}
+                    মূল্য সীমা: ৳{priceRange[0].toLocaleString()} - ৳{priceRange[1].toLocaleString()}
                   </label>
                   <Slider
                     value={priceRange}
@@ -412,9 +411,9 @@ const VisaServices = () => {
         >
           {filteredCountries.length === 0 ? (
             <div className="col-span-full text-center py-12">
-              <p className="text-muted-foreground text-lg mb-4">No countries match your filter criteria.</p>
+              <p className="text-muted-foreground text-lg mb-4">আপনার ফিল্টার মানদণ্ডের সাথে কোনো দেশ মেলেনি।</p>
               <Button variant="outline" onClick={clearFilters}>
-                Clear Filters
+                ফিল্টার মুছুন
               </Button>
             </div>
           ) : (
@@ -433,7 +432,7 @@ const VisaServices = () => {
               {country.is_featured && (
                 <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-20">
                   <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 shadow-md text-[10px] sm:text-xs font-semibold px-1.5 py-0.5 sm:px-2 sm:py-1">
-                    ⭐ Popular
+                    ⭐ জনপ্রিয়
                   </Badge>
                 </div>
               )}
@@ -462,7 +461,7 @@ const VisaServices = () => {
                   ⏱️ {country.processing_time}
                 </p>
                 <p className="text-xs sm:text-sm font-semibold text-secondary mb-2 sm:mb-4">
-                  From<br className="sm:hidden" /> ৳{country.price.toLocaleString()}
+                  শুরু<br className="sm:hidden" /> ৳{country.price.toLocaleString()}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-2">
                   <Button
@@ -476,7 +475,7 @@ const VisaServices = () => {
                     }}
                   >
                     <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                    Details
+                    বিস্তারিত
                   </Button>
                   <Button
                     size="sm"
@@ -487,7 +486,7 @@ const VisaServices = () => {
                       setIsModalOpen(true);
                     }}
                   >
-                    Apply
+                    আবেদন
                     <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
                   </Button>
                 </div>
@@ -510,7 +509,7 @@ const VisaServices = () => {
             className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground group"
             onClick={() => setIsAllCountriesModalOpen(true)}
           >
-            <span>View All Countries</span>
+            <span>সব দেশ দেখুন</span>
             <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
           </Button>
         </motion.div>
@@ -526,7 +525,7 @@ const VisaServices = () => {
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold flex items-center gap-2">
               <Globe className="w-6 h-6 text-primary" />
-              All Visa Processing Countries
+              সকল ভিসা প্রসেসিং দেশসমূহ
             </DialogTitle>
           </DialogHeader>
           
@@ -547,7 +546,7 @@ const VisaServices = () => {
                     >
                       {country.is_featured && (
                         <Badge className="absolute top-2 right-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 text-xs">
-                          ⭐ Popular
+                          ⭐ জনপ্রিয়
                         </Badge>
                       )}
                       <div className="flex items-center gap-3 mb-2">
@@ -582,9 +581,9 @@ const VisaServices = () => {
                 <div className="mb-4">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
                     <MessageSquare className="w-5 h-5 text-primary" />
-                    Visa Inquiry
+                    ভিসা জিজ্ঞাসা
                   </h3>
-                  <p className="text-sm text-muted-foreground">Have questions? We'll get back to you soon.</p>
+                  <p className="text-sm text-muted-foreground">প্রশ্ন আছে? আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব।</p>
                 </div>
                 <form onSubmit={async (e) => {
                   e.preventDefault();
@@ -594,8 +593,8 @@ const VisaServices = () => {
                   await new Promise(resolve => setTimeout(resolve, 1000));
                   
                   toast({
-                    title: "Inquiry Submitted!",
-                    description: "We'll contact you shortly regarding your visa inquiry.",
+                    title: "জিজ্ঞাসা জমা হয়েছে!",
+                    description: "আপনার ভিসা জিজ্ঞাসার বিষয়ে আমরা শীঘ্রই যোগাযোগ করব।",
                   });
                   
                   setInquiryForm({ name: "", email: "", phone: "", country: "", message: "" });
@@ -603,43 +602,43 @@ const VisaServices = () => {
                   setIsSubmitting(false);
                 }} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="inquiry-name">Full Name *</Label>
+                    <Label htmlFor="inquiry-name">পূর্ণ নাম *</Label>
                     <Input
                       id="inquiry-name"
-                      placeholder="Your full name"
+                      placeholder="আপনার পূর্ণ নাম"
                       value={inquiryForm.name}
                       onChange={(e) => setInquiryForm(prev => ({ ...prev, name: e.target.value }))}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="inquiry-email">Email *</Label>
+                    <Label htmlFor="inquiry-email">ইমেইল *</Label>
                     <Input
                       id="inquiry-email"
                       type="email"
-                      placeholder="your@email.com"
+                      placeholder="আপনার@ইমেইল.কম"
                       value={inquiryForm.email}
                       onChange={(e) => setInquiryForm(prev => ({ ...prev, email: e.target.value }))}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="inquiry-phone">Phone Number</Label>
+                    <Label htmlFor="inquiry-phone">ফোন নম্বর</Label>
                     <Input
                       id="inquiry-phone"
-                      placeholder="+880 1XXX-XXXXXX"
+                      placeholder="+৮৮০ ১XXX-XXXXXX"
                       value={inquiryForm.phone}
                       onChange={(e) => setInquiryForm(prev => ({ ...prev, phone: e.target.value }))}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="inquiry-country">Country of Interest</Label>
+                    <Label htmlFor="inquiry-country">আগ্রহের দেশ</Label>
                     <Select
                       value={inquiryForm.country}
                       onValueChange={(value) => setInquiryForm(prev => ({ ...prev, country: value }))}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a country" />
+                        <SelectValue placeholder="একটি দেশ নির্বাচন করুন" />
                       </SelectTrigger>
                       <SelectContent>
                         {countries.map((c) => (
@@ -651,10 +650,10 @@ const VisaServices = () => {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="inquiry-message">Your Message *</Label>
+                    <Label htmlFor="inquiry-message">আপনার বার্তা *</Label>
                     <Textarea
                       id="inquiry-message"
-                      placeholder="Tell us about your visa requirements..."
+                      placeholder="আপনার ভিসা প্রয়োজনীয়তা সম্পর্কে বলুন..."
                       value={inquiryForm.message}
                       onChange={(e) => setInquiryForm(prev => ({ ...prev, message: e.target.value }))}
                       required
@@ -666,17 +665,16 @@ const VisaServices = () => {
                       type="button"
                       variant="outline"
                       onClick={() => setShowInquiryForm(false)}
-                      className="flex-1"
-                    >
-                      Cancel
+                      className="flex-1">
+                      বাতিল
                     </Button>
                     <Button type="submit" disabled={isSubmitting} className="flex-1">
                       {isSubmitting ? (
-                        "Sending..."
+                        "পাঠানো হচ্ছে..."
                       ) : (
                         <>
                           <Send className="w-4 h-4 mr-2" />
-                          Submit
+                          জমা দিন
                         </>
                       )}
                     </Button>
@@ -692,10 +690,9 @@ const VisaServices = () => {
               <Button
                 onClick={() => setShowInquiryForm(true)}
                 variant="outline"
-                className="w-full"
-              >
+                className="w-full">
                 <MessageSquare className="w-4 h-4 mr-2" />
-                Have Questions? Contact Us
+                প্রশ্ন আছে? আমাদের সাথে যোগাযোগ করুন
               </Button>
             </div>
           )}
