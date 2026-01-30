@@ -279,11 +279,11 @@ const HeroSection = () => {
             {/* Title */}
             <motion.h1
               variants={itemVariants}
-              className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary-foreground mb-4 leading-tight"
+              className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-primary-foreground mb-4 leading-tight whitespace-nowrap"
             >
               {content.title}
               {content.subtitle && (
-                <span className="block mt-2 text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-accent font-semibold">
+                <span className="block mt-2 text-xl sm:text-2xl md:text-3xl lg:text-4xl text-accent font-semibold whitespace-normal">
                   {content.subtitle}
                 </span>
               )}
