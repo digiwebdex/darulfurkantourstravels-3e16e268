@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import companyLogo from "@/assets/company-logo.jpeg";
+import companyLogo from "@/assets/darul-furkan-logo.jpeg";
 
 // Lazy load non-critical decorative component
 const FloatingIslamicPattern = lazy(() => import("./FloatingIslamicPattern"));
@@ -81,7 +81,7 @@ const Footer = () => {
     address_label_2: "Branch Office",
     contact_phones: [],
     contact_email: "",
-    video_url: "/videos/footer-bg.mp4",
+    video_url: "/videos/footer-bg-new.mp4",
     video_opacity: 60,
     video_enabled: true,
     video_speed: 1.0,
