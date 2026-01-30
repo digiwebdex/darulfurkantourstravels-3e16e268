@@ -22,6 +22,7 @@ import { motion } from "framer-motion";
 import IslamicBorder from "./IslamicBorder";
 import MakkahIcon from "./icons/MakkahIcon";
 import MadinahIcon from "./icons/MadinahIcon";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Service {
   id: string;
@@ -88,6 +89,7 @@ const CustomServiceIcon = ({ icon: Icon }: { icon: React.FC<{ size?: number; cla
 );
 
 const ServicesOverview = () => {
+  const { t, isRTL, language } = useTranslation();
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [parentCompany, setParentCompany] = useState<ParentCompanySettings>({
@@ -96,8 +98,8 @@ const ServicesOverview = () => {
     is_enabled: false
   });
   const [sectionHeader, setSectionHeader] = useState<SectionHeaderSettings>({
-    badge_text: "কেন আমাদের বেছে নেবেন",
-    title: "আমাদের সেবাসমূহ",
+    badge_text: "",
+    title: "",
     arabic_text: ""
   });
 
@@ -213,7 +215,7 @@ const ServicesOverview = () => {
 
   return (
     <IslamicBorder>
-      <section id="services" className="py-20 bg-card relative overflow-hidden">
+      <section id="services" className="py-20 bg-card relative overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
         {/* Decorative Elements */}
         <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full -translate-x-1/2 -translate-y-1/2" />
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/5 rounded-full translate-x-1/2 translate-y-1/2" />
@@ -221,10 +223,10 @@ const ServicesOverview = () => {
       <div className="container relative z-10">
         <div className="text-center mb-12">
           <span className="text-secondary font-semibold uppercase tracking-wider">
-            {sectionHeader.badge_text}
+            {sectionHeader.badge_text || t("services", "subtitle")}
           </span>
           <h2 className="font-calligraphy text-4xl md:text-5xl font-bold text-foreground mt-3 mb-6">
-            {sectionHeader.title}
+            {sectionHeader.title || t("services", "title")}
           </h2>
         </div>
 

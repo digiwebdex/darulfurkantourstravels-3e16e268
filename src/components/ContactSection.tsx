@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import IslamicBorder from "./IslamicBorder";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ContactInfo {
   id: string;
@@ -40,6 +41,7 @@ const iconMap: Record<string, LucideIcon> = {
 const ContactSection = () => {
   const { toast } = useToast();
   const { contactDetails } = useSiteSettings();
+  const { t, isRTL, language } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [contactInfo, setContactInfo] = useState<ContactInfo[]>([]);
   const [officeLocations, setOfficeLocations] = useState<OfficeLocation[]>([]);
@@ -102,8 +104,8 @@ const ContactSection = () => {
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     toast({
-      title: "✅ Message Sent!",
-      description: "We'll get back to you shortly.",
+      title: t("success", "message_sent"),
+      description: language === "ar" ? "سنتواصل معك قريباً" : language === "bn" ? "আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব" : "We'll get back to you shortly.",
     });
     setFormData({ name: "", email: "", phone: "", package: "", message: "" });
     setIsSubmitting(false);
@@ -111,7 +113,7 @@ const ContactSection = () => {
 
   return (
     <IslamicBorder variant="top">
-      <section id="contact" className="py-24 bg-muted geometric-pattern relative overflow-hidden">
+      <section id="contact" className="py-24 bg-muted geometric-pattern relative overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
         {/* Decorative elements */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-secondary/5 rounded-full blur-3xl" />
@@ -125,14 +127,18 @@ const ContactSection = () => {
         >
           <span className="inline-flex items-center gap-2 text-secondary font-semibold uppercase tracking-wider">
             <MessageSquare className="w-4 h-4" />
-            Get In Touch
+            {t("contact", "subtitle")}
           </span>
           <h2 className="font-calligraphy text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mt-3 mb-4">
-            Contact Us
+            {t("contact", "title")}
           </h2>
-          <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-6">اتصل بنا</span>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Ready to start your sacred journey? Contact us today for personalized assistance with your Hajj or Umrah booking.
+            {language === "ar" 
+              ? "هل أنت مستعد لبدء رحلتك المقدسة؟ تواصل معنا اليوم للحصول على مساعدة شخصية."
+              : language === "bn"
+              ? "আপনার পবিত্র যাত্রা শুরু করতে প্রস্তুত? ব্যক্তিগত সহায়তার জন্য আজই আমাদের সাথে যোগাযোগ করুন।"
+              : "Ready to start your sacred journey? Contact us today for personalized assistance with your Hajj or Umrah booking."
+            }
           </p>
         </motion.div>
 
@@ -318,17 +324,17 @@ const ContactSection = () => {
             <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-full" />
             
             <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground mb-6 relative z-10">
-              Send us a Message
+              {t("common", "send_message")}
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-1.5">
-                    Full Name *
+                    {t("forms", "your_name")} *
                   </label>
                   <Input
                     required
-                    placeholder="Your full name"
+                    placeholder={t("forms", "your_name")}
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="h-10"
@@ -336,7 +342,7 @@ const ContactSection = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-1.5">
-                    Phone *
+                    {t("contact", "phone")} *
                   </label>
                   <Input
                     required
@@ -351,7 +357,7 @@ const ContactSection = () => {
 
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-1.5">
-                  Email
+                  {t("contact", "email")}
                 </label>
                 <Input
                   type="email"

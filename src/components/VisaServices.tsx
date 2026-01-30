@@ -16,6 +16,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface VisaCountry {
   id: string;
@@ -34,6 +35,7 @@ interface VisaCountry {
 type ProcessingTimeFilter = "all" | "fast" | "medium" | "slow";
 
 const VisaServices = () => {
+  const { t, isRTL } = useTranslation();
   const [countries, setCountries] = useState<VisaCountry[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCountry, setSelectedCountry] = useState<VisaCountry | null>(null);

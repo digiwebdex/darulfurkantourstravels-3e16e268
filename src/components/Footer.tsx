@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useTranslation } from "@/hooks/useTranslation";
 import companyLogo from "@/assets/darul-furkan-logo.jpeg";
 
 // Lazy load non-critical decorative component
@@ -54,6 +55,7 @@ interface FooterContent {
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const { companyInfo, contactDetails, socialLinks } = useSiteSettings();
+  const { t, isRTL, language } = useTranslation();
   
   const [socialNetworks, setSocialNetworks] = useState<SocialNetwork[]>([]);
   const [content, setContent] = useState<FooterContent>({
@@ -208,7 +210,7 @@ const Footer = () => {
   const logoSrc = companyInfo.logo_url || companyLogo;
 
   return (
-    <footer className="bg-primary text-primary-foreground relative overflow-hidden">
+    <footer className="bg-primary text-primary-foreground relative overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
       {/* Background Video Animation */}
       {videoEnabled && videoUrl && (
         <div className="absolute inset-0 z-0 overflow-hidden">
@@ -283,7 +285,7 @@ const Footer = () => {
           <div>
             <h4 className="font-heading font-semibold text-lg mb-6 flex items-center gap-2">
               <span className="w-8 h-0.5 bg-secondary" />
-              Our Services
+              {t("footer", "services")}
             </h4>
             <ul className="space-y-3">
               {content.services_links.map((service) => (
@@ -304,7 +306,7 @@ const Footer = () => {
           <div>
             <h4 className="font-heading font-semibold text-lg mb-6 flex items-center gap-2">
               <span className="w-8 h-0.5 bg-secondary" />
-              Contact Info
+              {t("footer", "contact_info")}
             </h4>
             <ul className="space-y-4">
               {displayAddress && (
@@ -348,7 +350,7 @@ const Footer = () => {
           <div>
             <h4 className="font-heading font-semibold text-lg mb-6 flex items-center gap-2">
               <span className="w-8 h-0.5 bg-secondary" />
-              Phone Numbers
+              {t("footer", "phone_numbers")}
             </h4>
             <ul className="space-y-3">
               {displayPhones.map((phoneSection, sectionIndex) => {
@@ -386,13 +388,13 @@ const Footer = () => {
           </p>
           <div className="flex gap-6 text-sm">
             <Link to="/legal/privacy-policy" className="text-primary-foreground/70 hover:text-secondary transition-colors">
-              Privacy Policy
+              {t("footer", "privacy_policy")}
             </Link>
             <Link to="/legal/terms-of-service" className="text-primary-foreground/70 hover:text-secondary transition-colors">
-              Terms of Service
+              {t("footer", "terms")}
             </Link>
             <Link to="/legal/refund-policy" className="text-primary-foreground/70 hover:text-secondary transition-colors">
-              Refund Policy
+              {t("footer", "refund")}
             </Link>
           </div>
         </div>
