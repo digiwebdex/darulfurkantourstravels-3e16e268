@@ -1,19 +1,19 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, Phone, Mail, User, LogOut, LayoutDashboard, MapPin, MessageCircle, Package, ClipboardList, Globe, Settings, LogIn } from "lucide-react";
+import { Menu, X, Phone, Mail, User, LogOut, LayoutDashboard, MapPin, MessageCircle, Settings, LogIn, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useTranslation } from "@/hooks/useTranslation";
 import { supabase } from "@/integrations/supabase/client";
+import LanguageSwitcher from "./LanguageSwitcher";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { formatCurrency } from "@/lib/currency";
 import { hasGuestBookings } from "@/utils/guestBookingStorage";
 import companyLogo from "@/assets/darul-furkan-logo.jpeg";
 import BookingModal from "./BookingModal";
@@ -42,7 +42,8 @@ interface VisaCountry {
   price: number;
 }
 
-const ANNOUNCEMENT_DISMISSED_KEY = "smEliteHajj_announcementDismissed";
+const ANNOUNCEMENT_DISMISSED_KEY = "darulFurkan_announcementDismissed";
+const WHATSAPP_NUMBER = "8801339080532";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -55,6 +56,7 @@ const Header = () => {
   });
   const { user, isAdmin, signOut } = useAuth();
   const { companyInfo, contactDetails, appearance } = useSiteSettings();
+  const { t, isRTL, language } = useTranslation();
   const navigate = useNavigate();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [packages, setPackages] = useState<PackageItem[]>([]);
@@ -65,7 +67,6 @@ const Header = () => {
   const [isVisaModalOpen, setIsVisaModalOpen] = useState(false);
   const [showMyBookings, setShowMyBookings] = useState(false);
 
-  // Check if user has bookings (logged in or guest)
   useEffect(() => {
     setShowMyBookings(!!user || hasGuestBookings());
   }, [user]);
@@ -74,7 +75,6 @@ const Header = () => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -96,14 +96,12 @@ const Header = () => {
       setMenuItems(data);
     } else {
       setMenuItems([
-        { id: "1", label: "Services", href: "#services", order_index: 0 },
-        { id: "2", label: "Hajj Packages", href: "#hajj", order_index: 1 },
-        { id: "3", label: "Umrah Packages", href: "#umrah", order_index: 2 },
-        { id: "4", label: "Visa Services", href: "#visa", order_index: 3 },
-        { id: "5", label: "Our Team", href: "#team", order_index: 4 },
-        { id: "6", label: "Testimonials", href: "#testimonials", order_index: 5 },
-        { id: "7", label: "FAQ", href: "#faq", order_index: 6 },
-        { id: "8", label: "Contact", href: "#contact", order_index: 7 },
+        { id: "1", label: t("nav", "home"), href: "#home", order_index: 0 },
+        { id: "2", label: t("nav", "hajj"), href: "#hajj", order_index: 1 },
+        { id: "3", label: t("nav", "umrah"), href: "#umrah", order_index: 2 },
+        { id: "4", label: t("nav", "visa"), href: "#visa", order_index: 3 },
+        { id: "5", label: t("nav", "team"), href: "#team", order_index: 4 },
+        { id: "6", label: t("nav", "contact"), href: "#contact", order_index: 5 },
       ]);
     }
   };
@@ -117,9 +115,7 @@ const Header = () => {
       .order("type")
       .order("price");
     
-    if (data) {
-      setPackages(data);
-    }
+    if (data) setPackages(data);
   };
 
   const fetchVisaCountries = async () => {
@@ -129,9 +125,7 @@ const Header = () => {
       .eq("is_active", true)
       .order("order_index");
     
-    if (data) {
-      setVisaCountries(data);
-    }
+    if (data) setVisaCountries(data);
   };
 
   const handleBookPackage = (pkg: PackageItem) => {
@@ -140,11 +134,9 @@ const Header = () => {
     setIsMenuOpen(false);
   };
 
-  // Refresh showMyBookings when booking modal closes (in case a new booking was made)
   const handleBookingModalClose = () => {
     setIsBookingModalOpen(false);
     setSelectedPackage(null);
-    // Check again for guest bookings
     setShowMyBookings(!!user || hasGuestBookings());
   };
 
@@ -167,11 +159,7 @@ const Header = () => {
       const headerOffset = 120;
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-      
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
     }
     setIsMenuOpen(false);
   };
@@ -182,12 +170,18 @@ const Header = () => {
   };
 
   const logoSrc = companyInfo.logo_url || companyLogo;
-
   const showAnnouncement = appearance.show_announcement_bar && appearance.announcement_text && !announcementDismissed;
 
   const dismissAnnouncement = () => {
     setAnnouncementDismissed(true);
     sessionStorage.setItem(ANNOUNCEMENT_DISMISSED_KEY, 'true');
+  };
+
+  // Company name based on language
+  const getCompanyName = () => {
+    if (language === "bn") return "দারুল ফুরকান ট্যুরস এন্ড ট্রাভেলস";
+    if (language === "ar") return "دار الفرقان للسفر والسياحة";
+    return "Darul Furkan Tours & Travels";
   };
 
   return (
@@ -209,31 +203,34 @@ const Header = () => {
         </div>
       )}
       
-      <header className={`fixed left-0 right-0 z-50 bg-card/95 backdrop-blur-md shadow-elegant transition-all duration-300 ${isScrolled ? 'shadow-lg' : ''} ${showAnnouncement ? 'top-[36px]' : 'top-0'}`}>
-        {/* Top Bar - Hide when scrolled */}
+      <header 
+        className={`fixed left-0 right-0 z-50 bg-card/95 backdrop-blur-md shadow-elegant transition-all duration-300 ${isScrolled ? 'shadow-lg' : ''} ${showAnnouncement ? 'top-[36px]' : 'top-0'}`}
+        dir={isRTL ? "rtl" : "ltr"}
+      >
+        {/* Top Bar */}
         <div className={`bg-primary text-primary-foreground overflow-hidden transition-all duration-300 ${isScrolled ? 'h-0 py-0' : 'h-auto py-2'}`}>
           <div className="container flex flex-col sm:flex-row justify-between items-center gap-1 sm:gap-2 text-sm">
             <div className="flex items-center gap-4 sm:gap-6">
-              <a href={`tel:${contactDetails.phone.replace(/\s/g, '')}`} className="flex items-center gap-1.5 hover:text-secondary transition-colors">
+              <a href={`tel:+8801339080532`} className="flex items-center gap-1.5 hover:text-secondary transition-colors">
                 <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden md:inline">{contactDetails.phone}</span>
+                <span className="hidden md:inline">+880 1339-080532</span>
               </a>
-              <a href={`mailto:${contactDetails.email}`} className="flex items-center gap-1.5 hover:text-secondary transition-colors">
-                <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden md:inline">{contactDetails.email}</span>
+              <a href={`tel:+8801741719932`} className="flex items-center gap-1.5 hover:text-secondary transition-colors">
+                <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden md:inline">+880 1741-719932</span>
               </a>
               <a 
-                href={`https://wa.me/${contactDetails.whatsapp?.replace(/[^0-9]/g, '') || '8801867666888'}`}
+                href={`https://wa.me/${WHATSAPP_NUMBER}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 hover:text-[#25D366] transition-colors"
               >
                 <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden md:inline">WhatsApp</span>
+                <span className="hidden md:inline">{t("common", "whatsapp")}</span>
               </a>
             </div>
-            <div className="text-secondary font-medium text-xs sm:text-sm text-center leading-tight">
-              {companyInfo.description}
+            <div className="flex items-center gap-4">
+              <LanguageSwitcher variant="default" className="text-primary-foreground hover:text-secondary" />
             </div>
           </div>
         </div>
@@ -247,12 +244,17 @@ const Header = () => {
             >
               <img 
                 src={logoSrc} 
-                alt={companyInfo.name} 
+                alt={getCompanyName()} 
                 className={`object-contain ring-2 ring-primary/20 rounded-lg p-1 bg-white shadow-elegant group-hover:ring-primary/40 transition-all duration-300 ${isScrolled ? 'h-10 w-auto' : 'h-12 sm:h-14 w-auto'}`}
               />
-              <span className={`font-calligraphy font-bold text-primary group-hover:text-primary/80 transition-all duration-300 ${isScrolled ? 'text-base sm:text-xl' : 'text-lg sm:text-2xl'}`}>
-                {companyInfo.name}
-              </span>
+              <div className="flex flex-col">
+                <span className={`font-heading font-bold text-primary group-hover:text-primary/80 transition-all duration-300 leading-tight ${isScrolled ? 'text-sm sm:text-base' : 'text-base sm:text-lg'}`}>
+                  {language === "bn" ? "দারুল ফুরকান" : language === "ar" ? "دار الفرقان" : "Darul Furkan"}
+                </span>
+                <span className={`text-muted-foreground ${isScrolled ? 'text-[10px]' : 'text-xs'}`}>
+                  {language === "bn" ? "ট্যুরস এন্ড ট্রাভেলস" : language === "ar" ? "للسفر والسياحة" : "Tours & Travels"}
+                </span>
+              </div>
             </button>
 
             {/* Desktop Navigation */}
@@ -271,40 +273,45 @@ const Header = () => {
             </div>
 
             <div className="hidden lg:flex items-center gap-2 xl:gap-3">
+              {/* Language Switcher - Compact when scrolled */}
+              <div className={isScrolled ? "" : "hidden"}>
+                <LanguageSwitcher variant="compact" />
+              </div>
+
               <Link to="/track-order">
                 <Button variant="outline" size="sm" className="gap-1.5 text-sm px-3 border-primary/30 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors">
                   <MapPin className="w-4 h-4" />
-                  <span className="hidden xl:inline">Track Order</span>
-                  <span className="xl:hidden">Track</span>
+                  <span className="hidden xl:inline">{t("nav", "track_order", "Track Order")}</span>
                 </Button>
               </Link>
+
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" className="gap-2">
                       <User className="w-4 h-4" />
-                      Account
+                      {t("nav", "account", "Account")}
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-card border border-border shadow-lg z-[100]">
+                  <DropdownMenuContent align={isRTL ? "start" : "end"} className="bg-card border border-border shadow-lg z-[100]">
                     {isAdmin && (
                       <DropdownMenuItem onClick={() => navigate("/admin")}>
-                        <LayoutDashboard className="w-4 h-4 mr-2" />
-                        Admin Dashboard
+                        <LayoutDashboard className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                        {t("nav", "admin_dashboard", "Admin Dashboard")}
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuItem onClick={() => navigate("/my-bookings")}>
-                      <ClipboardList className="w-4 h-4 mr-2" />
-                      My Bookings
+                      <ClipboardList className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                      {t("nav", "my_bookings", "My Bookings")}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/profile")}>
-                      <Settings className="w-4 h-4 mr-2" />
-                      Profile Settings
+                      <Settings className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                      {t("nav", "profile", "Profile Settings")}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut}>
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
+                      <LogOut className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                      {t("common", "sign_out", "Sign Out")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -312,7 +319,7 @@ const Header = () => {
                 <Link to="/auth">
                   <Button size="sm" className="bg-gradient-primary hover:opacity-90 shadow-gold text-sm px-4 gap-2">
                     <LogIn className="w-4 h-4" />
-                    Sign In
+                    {t("common", "sign_in", "Sign In")}
                   </Button>
                 </Link>
               )}
@@ -331,6 +338,11 @@ const Header = () => {
           {isMenuOpen && (
             <div className="lg:hidden mt-4 pb-4 border-t border-border pt-4 animate-fade-down max-h-[70vh] overflow-y-auto">
               <div className="flex flex-col gap-4">
+                {/* Mobile Language Switcher */}
+                <div className="pb-3 border-b border-border">
+                  <LanguageSwitcher variant="full" className="w-full justify-start" />
+                </div>
+
                 {menuItems.map((link) => (
                   <a
                     key={link.id}
@@ -345,7 +357,7 @@ const Header = () => {
                   <Link to="/track-order" onClick={() => setIsMenuOpen(false)}>
                     <Button variant="outline" className="w-full gap-2">
                       <MapPin className="w-4 h-4" />
-                      Track Order
+                      {t("nav", "track_order", "Track Order")}
                     </Button>
                   </Link>
                   {user ? (
@@ -353,33 +365,33 @@ const Header = () => {
                       <Link to="/my-bookings" onClick={() => setIsMenuOpen(false)}>
                         <Button variant="outline" className="w-full gap-2">
                           <ClipboardList className="w-4 h-4" />
-                          My Bookings
+                          {t("nav", "my_bookings", "My Bookings")}
                         </Button>
                       </Link>
                       <Link to="/profile" onClick={() => setIsMenuOpen(false)}>
                         <Button variant="outline" className="w-full gap-2">
                           <Settings className="w-4 h-4" />
-                          Profile Settings
+                          {t("nav", "profile", "Profile Settings")}
                         </Button>
                       </Link>
                       {isAdmin && (
                         <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
                           <Button variant="outline" className="w-full gap-2">
                             <LayoutDashboard className="w-4 h-4" />
-                            Admin Dashboard
+                            {t("nav", "admin_dashboard", "Admin Dashboard")}
                           </Button>
                         </Link>
                       )}
                       <Button variant="outline" className="w-full gap-2" onClick={handleSignOut}>
                         <LogOut className="w-4 h-4" />
-                        Sign Out
+                        {t("common", "sign_out", "Sign Out")}
                       </Button>
                     </>
                   ) : (
                     <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
                       <Button className="w-full gap-2 bg-gradient-primary">
                         <LogIn className="w-4 h-4" />
-                        Sign In
+                        {t("common", "sign_in", "Sign In")}
                       </Button>
                     </Link>
                   )}
