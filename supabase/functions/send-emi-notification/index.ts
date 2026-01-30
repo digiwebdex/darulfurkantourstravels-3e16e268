@@ -177,42 +177,42 @@ const getNotificationContent = (
     case "emi_plan_created":
       return {
         emoji: "📋",
-        subject: `Installment Plan Created - ${packageTitle}`,
-        smsText: `Dear ${customerName}, your installment plan for ${packageTitle} has been created. Total ${data.totalEmis} installments of ${formatCurrency(data.amount || 0)} each. ID: ${bookingId}. - SM Elite Hajj`,
-        title: "Installment Plan Created",
-        description: `Your installment payment plan has been set up successfully.`,
+        subject: `কিস্তি পরিকল্পনা তৈরি হয়েছে - ${packageTitle}`,
+        smsText: `প্রিয় ${customerName}, ${packageTitle} এর জন্য আপনার কিস্তি পরিকল্পনা তৈরি হয়েছে। মোট ${data.totalEmis} কিস্তি, প্রতিটি ${formatCurrency(data.amount || 0)}। আইডি: ${bookingId}। - দারুল ফুরকান ট্যুরস`,
+        title: "কিস্তি পরিকল্পনা তৈরি",
+        description: `আপনার কিস্তি পেমেন্ট প্ল্যান সফলভাবে সেটআপ হয়েছে।`,
       };
     case "payment_recorded":
       return {
         emoji: "✅",
-        subject: `Installment Payment Received - #${data.installmentNumber}`,
-        smsText: `Dear ${customerName}, we received your installment payment of ${formatCurrency(data.amount || 0)} (#${data.installmentNumber}). ${data.paidEmis}/${data.totalEmis} paid. Remaining: ${formatCurrency(data.remainingAmount || 0)}. ID: ${bookingId}. - SM Elite Hajj`,
-        title: "Payment Received",
-        description: `Your installment payment #${data.installmentNumber} has been recorded.`,
+        subject: `কিস্তি পেমেন্ট গৃহীত - #${data.installmentNumber}`,
+        smsText: `প্রিয় ${customerName}, আপনার ${formatCurrency(data.amount || 0)} কিস্তি পেমেন্ট (#${data.installmentNumber}) গৃহীত হয়েছে। ${data.paidEmis}/${data.totalEmis} পরিশোধিত। বাকি: ${formatCurrency(data.remainingAmount || 0)}। আইডি: ${bookingId}। - দারুল ফুরকান ট্যুরস`,
+        title: "পেমেন্ট গৃহীত",
+        description: `আপনার কিস্তি পেমেন্ট #${data.installmentNumber} রেকর্ড হয়েছে।`,
       };
     case "payment_due":
       return {
         emoji: "⏰",
-        subject: `Installment Payment Reminder - #${data.installmentNumber} Due`,
-        smsText: `Dear ${customerName}, reminder: Installment #${data.installmentNumber} of ${formatCurrency(data.amount || 0)} is due on ${data.dueDate}. Please pay on time. ID: ${bookingId}. - SM Elite Hajj`,
-        title: "Payment Reminder",
-        description: `Your installment payment #${data.installmentNumber} is due soon.`,
+        subject: `কিস্তি পেমেন্ট রিমাইন্ডার - #${data.installmentNumber} বাকি`,
+        smsText: `প্রিয় ${customerName}, রিমাইন্ডার: কিস্তি #${data.installmentNumber} ${formatCurrency(data.amount || 0)} ${data.dueDate} তারিখে বাকি। সময়মতো পরিশোধ করুন। আইডি: ${bookingId}। - দারুল ফুরকান ট্যুরস`,
+        title: "পেমেন্ট রিমাইন্ডার",
+        description: `আপনার কিস্তি পেমেন্ট #${data.installmentNumber} শীঘ্রই বাকি।`,
       };
     case "payment_overdue":
       return {
         emoji: "⚠️",
-        subject: `Installment Payment Overdue - #${data.installmentNumber}`,
-        smsText: `Dear ${customerName}, your installment #${data.installmentNumber} of ${formatCurrency(data.amount || 0)} is OVERDUE (was due ${data.dueDate}). Please pay immediately. ID: ${bookingId}. - SM Elite Hajj`,
-        title: "Payment Overdue",
-        description: `Your installment payment #${data.installmentNumber} is overdue.`,
+        subject: `কিস্তি পেমেন্ট বকেয়া - #${data.installmentNumber}`,
+        smsText: `প্রিয় ${customerName}, আপনার কিস্তি #${data.installmentNumber} ${formatCurrency(data.amount || 0)} বকেয়া (${data.dueDate} তারিখে বাকি ছিল)। অনুগ্রহ করে এখনই পরিশোধ করুন। আইডি: ${bookingId}। - দারুল ফুরকান ট্যুরস`,
+        title: "পেমেন্ট বকেয়া",
+        description: `আপনার কিস্তি পেমেন্ট #${data.installmentNumber} বকেয়া।`,
       };
     default:
       return {
         emoji: "📢",
-        subject: `Installment Update - ${packageTitle}`,
-        smsText: `Dear ${customerName}, there's an update about your installment plan for ${packageTitle}. ID: ${bookingId}. - SM Elite Hajj`,
-        title: "Installment Update",
-        description: `There's an update about your installment plan.`,
+        subject: `কিস্তি আপডেট - ${packageTitle}`,
+        smsText: `প্রিয় ${customerName}, ${packageTitle} এর জন্য আপনার কিস্তি পরিকল্পনা সম্পর্কে একটি আপডেট আছে। আইডি: ${bookingId}। - দারুল ফুরকান ট্যুরস`,
+        title: "কিস্তি আপডেট",
+        description: `আপনার কিস্তি পরিকল্পনা সম্পর্কে একটি আপডেট আছে।`,
       };
   }
 };

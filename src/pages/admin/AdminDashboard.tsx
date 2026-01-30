@@ -291,8 +291,8 @@ const AdminDashboard = () => {
                 <LayoutDashboard className="w-5 h-5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="font-heading font-bold text-lg">Admin Dashboard</h1>
-                <p className="text-xs text-muted-foreground hidden sm:block">SM Elite Hajj Management</p>
+                <h1 className="font-heading font-bold text-lg">অ্যাডমিন ড্যাশবোর্ড</h1>
+                <p className="text-xs text-muted-foreground hidden sm:block">দারুল ফুরকান ম্যানেজমেন্ট</p>
               </div>
             </div>
           </div>

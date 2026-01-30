@@ -241,10 +241,10 @@ const BookingConfirmation = () => {
               <CheckCircle2 className="w-10 h-10 text-white" />
             </motion.div>
             <h1 className="font-heading text-3xl font-bold text-foreground mb-2">
-              Booking Confirmed!
+              বুকিং নিশ্চিত হয়েছে!
             </h1>
             <p className="text-muted-foreground">
-              Thank you for booking with SM Elite Hajj Travel
+              দারুল ফুরকান ট্যুরস এন্ড ট্রাভেলসে বুকিং করার জন্য ধন্যবাদ
             </p>
           </div>
 

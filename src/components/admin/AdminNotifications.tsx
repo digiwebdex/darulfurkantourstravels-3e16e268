@@ -505,7 +505,7 @@ const AdminNotifications = () => {
                   <Label htmlFor="welcome-template">Welcome Message Template</Label>
                   <Textarea
                     id="welcome-template"
-                    placeholder="🌟 Assalamu Alaikum {{name}}! Welcome to SM Elite Hajj..."
+                    placeholder="🌟 আসসালামু আলাইকুম {{name}}! দারুল ফুরকান ট্যুরস এন্ড ট্রাভেলসে স্বাগতম..."
                     value={(whatsappSettings?.config as WhatsAppConfig)?.welcome_message_template || ""}
                     onChange={(e) => updateWhatsappConfig("welcome_message_template", e.target.value)}
                     rows={3}

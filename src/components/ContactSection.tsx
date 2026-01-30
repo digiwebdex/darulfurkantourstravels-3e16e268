@@ -440,7 +440,7 @@ const ContactSection = () => {
             allowFullScreen
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            title="SM Elite Hajj Head Office Location"
+            title="দারুল ফুরকান ট্যুরস হেড অফিস"
             className="w-full"
           />
         </motion.div>

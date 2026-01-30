@@ -135,18 +135,18 @@ const AdminSettings = () => {
   });
   
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
-    name: "SM Elite Hajj",
-    tagline: "Your Trusted Partner for Sacred Journeys",
-    description: "Government Approved Hajj & Umrah Agency",
+    name: "দারুল ফুরকান ট্যুরস এন্ড ট্রাভেলস",
+    tagline: "আপনার পবিত্র যাত্রার বিশ্বস্ত সঙ্গী",
+    description: "সরকার অনুমোদিত হজ্জ ও উমরাহ এজেন্সি",
     logo_url: "",
   });
 
   const [contactDetails, setContactDetails] = useState<ContactDetails>({
-    email: "info@smelitehajj.com",
-    phone: "+880 1234-567890",
-    whatsapp: "+8801712345678",
-    address: "Dhaka, Bangladesh",
-    google_map_embed_url: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3650.5484611458387!2d90.39729221498282!3d23.79416879319868!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c709be6be7b5%3A0x7e53f4e8b8be1a24!2sBanani%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1700000000000!5m2!1sen!2sbd",
+    email: "info@darulfurkantours.com",
+    phone: "+880 1741-719932",
+    whatsapp: "+880 1339-080532",
+    address: "৩৮২, বাগানবাড়ি, স্বাধীনতা সরণি, উত্তর বাড্ডা, ঢাকা ১২১২",
+    google_map_embed_url: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3650.5484611458387!2d90.39729221498282!3d23.79416879319868!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c709be6be7b5%3A0x7e53f4e8b8be1a24!2sUttar%20Badda%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1700000000000!5m2!1sen!2sbd",
   });
 
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({
