@@ -133,6 +133,7 @@ const menuGroups = [
     label: "Site Design",
     items: [
       { value: "sections", label: "Section Visibility", icon: Layers },
+      { value: "section-headers", label: "Section Headers", icon: FileText },
       { value: "menu", label: "Menu", icon: Menu },
       { value: "hero", label: "Hero", icon: Image },
       { value: "why-choose-us", label: "Why Choose Us", icon: Shield },
@@ -140,12 +141,19 @@ const menuGroups = [
       { value: "cta", label: "CTA Section", icon: Megaphone },
       { value: "services", label: "Services", icon: Settings },
       { value: "team", label: "Team", icon: Users },
+      { value: "team-members", label: "Team Members", icon: Users },
       { value: "visa", label: "Visa Countries", icon: Globe },
       { value: "contact", label: "Contact", icon: Phone },
       { value: "offices", label: "Offices", icon: Building2 },
       { value: "social-networks", label: "Social Networks", icon: Share2 },
       { value: "footer", label: "Footer", icon: FileText },
       { value: "legal", label: "Legal Pages", icon: Scale },
+    ]
+  },
+  {
+    label: "SEO",
+    items: [
+      { value: "seo", label: "SEO Settings", icon: Globe },
     ]
   },
   {

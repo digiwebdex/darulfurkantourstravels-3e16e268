@@ -63,6 +63,9 @@ import AdminTransactionLogs from "@/components/admin/AdminTransactionLogs";
 import AdminWhyChooseUs from "@/components/admin/AdminWhyChooseUs";
 import AdminQuickPackages from "@/components/admin/AdminQuickPackages";
 import AdminCTA from "@/components/admin/AdminCTA";
+import AdminSEO from "@/components/admin/AdminSEO";
+import AdminSectionHeaders from "@/components/admin/AdminSectionHeaders";
+import AdminTeamMembers from "@/components/admin/AdminTeamMembers";
 import { formatCurrency } from "@/lib/currency";
 
 interface Stats {
@@ -277,6 +280,12 @@ const AdminDashboard = () => {
         return <AdminLegalPages />;
       case "backup":
         return <AdminBackupRestore />;
+      case "seo":
+        return <AdminSEO />;
+      case "section-headers":
+        return <AdminSectionHeaders />;
+      case "team-members":
+        return <AdminTeamMembers />;
       case "settings":
         return <AdminSettings />;
       default:

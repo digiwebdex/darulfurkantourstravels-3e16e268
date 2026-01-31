@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import { Skeleton } from "@/components/ui/skeleton";
+import useSEO from "@/hooks/useSEO";
 
 // Lazy load non-critical components for faster initial page load
 const QuickPackageHighlight = lazy(() => import("@/components/QuickPackageHighlight"));
@@ -57,7 +58,9 @@ const Index = () => {
     contact: true,
   });
   const [loading, setLoading] = useState(true);
-
+  
+  // Load dynamic SEO
+  useSEO("homepage");
   useEffect(() => {
     fetchSectionVisibility();
   }, []);
