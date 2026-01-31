@@ -420,6 +420,23 @@ const AdminGallery = () => {
     
     setVideoUploading(true);
     try {
+      // Auto-fill video title from filename (remove extension and clean up)
+      const originalFileName = file.name;
+      const nameWithoutExt = originalFileName.replace(/\.[^/.]+$/, "");
+      // Clean up: replace underscores/hyphens with spaces, capitalize words
+      const cleanTitle = nameWithoutExt
+        .replace(/[-_]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .split(" ")
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(" ");
+      
+      // Only set if title is empty
+      if (!videoTitle.trim()) {
+        setVideoTitle(cleanTitle);
+      }
+
       const fileExt = file.name.split('.').pop();
       const fileName = `gallery-videos/${Date.now()}.${fileExt}`;
       
