@@ -52,6 +52,7 @@ const SAMPLE_VIDEOS = [
   }
 ];
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { useVideoThumbnail } from "@/hooks/useVideoThumbnail";
 
 interface GalleryImage {
   id: string;
@@ -120,6 +121,7 @@ const AdminGallery = () => {
   const [videoDescription, setVideoDescription] = useState("");
   
   const { uploadImage, uploading } = useImageUpload({ bucket: "admin-uploads", folder: "gallery" });
+  const { generateThumbnail, generating: generatingThumbnail } = useVideoThumbnail({ bucket: "admin-uploads", folder: "gallery-thumbnails" });
   const [videoUploading, setVideoUploading] = useState(false);
   const [thumbnailUploading, setThumbnailUploading] = useState(false);
 
@@ -433,6 +435,16 @@ const AdminGallery = () => {
       
       setVideoUrl(publicUrl);
       toast.success("Video uploaded successfully");
+      
+      // Auto-generate thumbnail from the uploaded video
+      toast.info("Generating thumbnail...");
+      const thumbnailUrl = await generateThumbnail(file, 1);
+      if (thumbnailUrl) {
+        setVideoThumbnail(thumbnailUrl);
+        toast.success("Thumbnail generated automatically!");
+      } else {
+        toast.warning("Could not auto-generate thumbnail. You can upload one manually.");
+      }
     } catch (error) {
       console.error("Error uploading video:", error);
       toast.error("Failed to upload video");
@@ -1081,19 +1093,27 @@ const AdminGallery = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Thumbnail Image (Optional)</Label>
+                  <Label>Thumbnail Image (Auto-generated)</Label>
+                  {generatingThumbnail && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Generating thumbnail from video...
+                    </div>
+                  )}
                   <div className="flex gap-2">
                     <Input
                       value={videoThumbnail}
                       onChange={(e) => setVideoThumbnail(e.target.value)}
-                      placeholder="Enter thumbnail URL or upload"
+                      placeholder="Auto-generated or enter URL"
                       className="flex-1"
+                      disabled={generatingThumbnail}
                     />
                     <Button
                       type="button"
                       variant="outline"
-                      disabled={thumbnailUploading}
+                      disabled={thumbnailUploading || generatingThumbnail}
                       onClick={() => document.getElementById("thumbnail-upload")?.click()}
+                      title="Upload custom thumbnail"
                     >
                       {thumbnailUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
                     </Button>
