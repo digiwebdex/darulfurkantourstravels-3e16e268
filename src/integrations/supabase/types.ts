@@ -667,6 +667,51 @@ export type Database = {
         }
         Relationships: []
       }
+      cta_content: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          primary_button_link: string
+          primary_button_text: string
+          secondary_button_link: string
+          secondary_button_text: string
+          show_primary_button: boolean
+          show_secondary_button: boolean
+          subtitle: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          primary_button_link?: string
+          primary_button_text?: string
+          secondary_button_link?: string
+          secondary_button_text?: string
+          show_primary_button?: boolean
+          show_secondary_button?: boolean
+          subtitle?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          primary_button_link?: string
+          primary_button_text?: string
+          secondary_button_link?: string
+          secondary_button_text?: string
+          show_primary_button?: boolean
+          show_secondary_button?: boolean
+          subtitle?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       downloadable_resources: {
         Row: {
           created_at: string
@@ -1835,6 +1880,87 @@ export type Database = {
         }
         Relationships: []
       }
+      quick_packages: {
+        Row: {
+          created_at: string
+          description: string
+          gradient_from: string
+          gradient_to: string
+          icon_bg: string
+          icon_name: string
+          id: string
+          is_active: boolean
+          is_featured: boolean
+          link: string
+          order_index: number
+          price: number
+          price_label: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          gradient_from?: string
+          gradient_to?: string
+          icon_bg?: string
+          icon_name?: string
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          link?: string
+          order_index?: number
+          price?: number
+          price_label?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          gradient_from?: string
+          gradient_to?: string
+          icon_bg?: string
+          icon_name?: string
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          link?: string
+          order_index?: number
+          price?: number
+          price_label?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      quick_packages_settings: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          subtitle: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          subtitle?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          subtitle?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       referral_codes: {
         Row: {
           code: string
@@ -2764,6 +2890,69 @@ export type Database = {
           max_capacity?: number
           registration_count?: number
           session_date?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      why_choose_settings: {
+        Row: {
+          badge_text: string
+          created_at: string
+          id: string
+          is_active: boolean
+          subtitle: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          badge_text?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          subtitle?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          badge_text?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          subtitle?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      why_choose_us: {
+        Row: {
+          created_at: string
+          description: string
+          icon_name: string
+          id: string
+          is_active: boolean
+          order_index: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          icon_name?: string
+          id?: string
+          is_active?: boolean
+          order_index?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          icon_name?: string
+          id?: string
+          is_active?: boolean
+          order_index?: number
           title?: string
           updated_at?: string
         }
