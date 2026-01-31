@@ -1,10 +1,26 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { motion } from "framer-motion";
-import { Grid3X3, SlidersHorizontal, Pause, Play, Maximize, Minimize, ZoomIn, ZoomOut, RotateCcw, Sparkles, Camera, ChevronLeft, ChevronRight, Image as ImageIcon, Video } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Grid3X3, 
+  Layers, 
+  X, 
+  Maximize2, 
+  Minimize2, 
+  ZoomIn, 
+  ZoomOut, 
+  RotateCcw, 
+  ChevronLeft, 
+  ChevronRight, 
+  Image as ImageIcon, 
+  Video, 
+  Play,
+  Pause,
+  Camera,
+  Sparkles
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import OptimizedImage from "@/components/ui/optimized-image";
-import VideoThumbnail from "@/components/ui/video-thumbnail";
+import { Badge } from "@/components/ui/badge";
 import {
   Carousel,
   CarouselContent,
@@ -15,12 +31,14 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { useTranslation } from "@/hooks/useTranslation";
+import { cn } from "@/lib/utils";
 
 interface GalleryImage {
   id: string;
   image_url: string;
   alt_text: string;
   caption: string | null;
+  category: string | null;
   order_index: number;
 }
 
@@ -35,10 +53,10 @@ interface GallerySettings {
   video_opacity: number | null;
   video_blur: number | null;
   video_speed: number | null;
+  columns_desktop: number | null;
+  lightbox_enabled: boolean | null;
+  show_captions: boolean | null;
 }
-
-type ViewMode = "grid" | "carousel";
-type ContentType = "images" | "videos";
 
 interface GalleryVideo {
   id: string;
@@ -50,59 +68,40 @@ interface GalleryVideo {
   is_active: boolean;
 }
 
-interface SectionHeader {
-  badge_text: string;
-  arabic_text: string;
-}
+type ViewMode = "grid" | "masonry";
+type ContentType = "images" | "videos";
 
 const GallerySection = () => {
-  const { language } = useTranslation();
+  const { t } = useTranslation();
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [videos, setVideos] = useState<GalleryVideo[]>([]);
   const [settings, setSettings] = useState<GallerySettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>("grid");
-  const [videoViewMode, setVideoViewMode] = useState<ViewMode>("grid");
-  const [contentType, setContentType] = useState<ContentType>("images");
   const [selectedVideo, setSelectedVideo] = useState<GalleryVideo | null>(null);
-  const [videoCarouselApi, setVideoCarouselApi] = useState<CarouselApi>();
-  const [currentVideoSlide, setCurrentVideoSlide] = useState(0);
-  const [isVideoAutoplayPaused, setIsVideoAutoplayPaused] = useState(false);
-  const [isAutoplayPaused, setIsAutoplayPaused] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [contentType, setContentType] = useState<ContentType>("images");
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [sectionHeader, setSectionHeader] = useState<SectionHeader>({
-    badge_text: "Photo Gallery",
-    arabic_text: "معرض الصور"
-  });
+  const [isAutoplayPaused, setIsAutoplayPaused] = useState(false);
   
   // Lightbox state
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
   const lightboxRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
   const lastTouchDistance = useRef<number | null>(null);
   const lastPanPosition = useRef({ x: 0, y: 0 });
 
-  // Autoplay plugin with pause on hover
   const autoplayPlugin = Autoplay({
     delay: 4000,
     stopOnInteraction: false,
     stopOnMouseEnter: true,
   });
 
-  // Video autoplay plugin
-  const videoAutoplayPlugin = Autoplay({
-    delay: 5000,
-    stopOnInteraction: false,
-    stopOnMouseEnter: true,
-  });
-
   useEffect(() => {
     fetchGalleryData();
-  }, [language]);
+  }, []);
 
   const onSelect = useCallback(() => {
     if (!carouselApi) return;
@@ -118,59 +117,12 @@ const GallerySection = () => {
     };
   }, [carouselApi, onSelect]);
 
-  // Video carousel select handler
-  const onVideoSelect = useCallback(() => {
-    if (!videoCarouselApi) return;
-    setCurrentVideoSlide(videoCarouselApi.selectedScrollSnap());
-  }, [videoCarouselApi]);
-
-  useEffect(() => {
-    if (!videoCarouselApi) return;
-    onVideoSelect();
-    videoCarouselApi.on("select", onVideoSelect);
-    return () => {
-      videoCarouselApi.off("select", onVideoSelect);
-    };
-  }, [carouselApi, onSelect]);
-
-  // Keyboard navigation for carousel
-  useEffect(() => {
-    if (viewMode !== "carousel" || !carouselApi) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        carouselApi.scrollPrev();
-      } else if (e.key === "ArrowRight") {
-        e.preventDefault();
-        carouselApi.scrollNext();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [viewMode, carouselApi]);
-
-  const fetchSectionHeader = async () => {
-    const { data } = await supabase
-      .from("site_settings")
-      .select("setting_value")
-      .eq("setting_key", "gallery_section_header")
-      .maybeSingle();
-    
-    if (data?.setting_value) {
-      setSectionHeader(data.setting_value as unknown as SectionHeader);
-    }
-  };
-
   const fetchGalleryData = async () => {
     try {
-      fetchSectionHeader();
-      
       const { data: settingsData } = await supabase
         .from("gallery_settings")
         .select("*")
-        .single();
+        .maybeSingle();
 
       if (settingsData) {
         setSettings(settingsData);
@@ -211,27 +163,6 @@ const GallerySection = () => {
     setIsAutoplayPaused(!isAutoplayPaused);
   };
 
-  const toggleVideoAutoplay = () => {
-    if (isVideoAutoplayPaused) {
-      videoAutoplayPlugin.play();
-    } else {
-      videoAutoplayPlugin.stop();
-    }
-    setIsVideoAutoplayPaused(!isVideoAutoplayPaused);
-  };
-
-  const scrollToVideoSlide = (index: number) => {
-    if (videoCarouselApi) {
-      videoCarouselApi.scrollTo(index);
-    }
-  };
-
-  const scrollToSlide = (index: number) => {
-    if (carouselApi) {
-      carouselApi.scrollTo(index);
-    }
-  };
-
   // Fullscreen toggle
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
@@ -244,25 +175,19 @@ const GallerySection = () => {
   }, []);
 
   // Zoom controls
-  const handleZoomIn = () => {
-    setZoomLevel((prev) => Math.min(prev + 0.5, 4));
-  };
-
+  const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 0.5, 4));
   const handleZoomOut = () => {
     setZoomLevel((prev) => Math.max(prev - 0.5, 1));
-    if (zoomLevel <= 1.5) {
-      setPanPosition({ x: 0, y: 0 });
-    }
+    if (zoomLevel <= 1.5) setPanPosition({ x: 0, y: 0 });
   };
-
   const handleResetZoom = () => {
     setZoomLevel(1);
     setPanPosition({ x: 0, y: 0 });
   };
 
-  // Reset zoom when closing lightbox
   const handleCloseLightbox = () => {
     setSelectedImage(null);
+    setSelectedVideo(null);
     setZoomLevel(1);
     setPanPosition({ x: 0, y: 0 });
     setIsFullscreen(false);
@@ -271,7 +196,6 @@ const GallerySection = () => {
     }
   };
 
-  // Navigate to previous/next image in lightbox
   const handlePrevImage = useCallback(() => {
     if (!selectedImage) return;
     const currentIndex = images.findIndex(img => img.id === selectedImage.id);
@@ -290,10 +214,8 @@ const GallerySection = () => {
     setPanPosition({ x: 0, y: 0 });
   }, [selectedImage, images]);
 
-  // Keyboard navigation for lightbox
   useEffect(() => {
     if (!selectedImage) return;
-
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") {
         e.preventDefault();
@@ -305,12 +227,11 @@ const GallerySection = () => {
         handleCloseLightbox();
       }
     };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedImage, handlePrevImage, handleNextImage]);
 
-  // Pinch-to-zoom handlers
+  // Touch handlers for pinch zoom
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 2) {
       const distance = Math.hypot(
@@ -352,756 +273,499 @@ const GallerySection = () => {
     lastTouchDistance.current = null;
   };
 
-  // Mouse wheel zoom
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
     const delta = e.deltaY > 0 ? -0.2 : 0.2;
     const newZoom = Math.max(1, Math.min(4, zoomLevel + delta));
     setZoomLevel(newZoom);
-    if (newZoom <= 1) {
-      setPanPosition({ x: 0, y: 0 });
-    }
+    if (newZoom <= 1) setPanPosition({ x: 0, y: 0 });
   };
 
-  if (!loading && (!settings?.is_enabled || images.length === 0)) {
-    return null;
-  }
+  if (!loading && !settings?.is_enabled) return null;
+  if (!loading && images.length === 0 && videos.length === 0) return null;
 
   if (loading) {
     return (
-      <section id="gallery" className="py-20 bg-muted/30">
+      <section id="gallery" className="py-24 bg-gradient-to-b from-background via-muted/30 to-background">
         <div className="container">
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+              <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-secondary rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
+            </div>
           </div>
         </div>
       </section>
     );
   }
 
+  const currentItems = contentType === "images" ? images : videos;
+
   return (
     <>
       <section 
         id="gallery" 
-        className="py-24 relative overflow-hidden"
-        style={{ backgroundColor: settings?.background_color || undefined }}
+        className="py-24 relative overflow-hidden bg-gradient-to-b from-background via-muted/20 to-background"
       >
-        {/* Background Video */}
-        {settings?.video_enabled && settings?.video_url && (
-          <div className="absolute inset-0 overflow-hidden">
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="absolute w-full h-full object-cover"
-              style={{
-                opacity: settings.video_opacity ?? 0.3,
-                filter: `blur(${settings.video_blur ?? 0}px)`,
-              }}
-            >
-              <source src={settings.video_url} type="video/mp4" />
-            </video>
-            {/* Video overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/80" />
-          </div>
-        )}
-        
-        {/* Enhanced Decorative background elements */}
+        {/* Decorative elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-0 w-full h-full geometric-pattern opacity-30" />
-          <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-primary/20 to-secondary/10 rounded-full blur-3xl animate-float" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-tl from-secondary/20 to-primary/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '-3s' }} />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-primary/10 rounded-full" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-secondary/10 rounded-full" />
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-primary/10 to-secondary/5 rounded-full blur-3xl" />
+          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-secondary/10 to-primary/5 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-primary/5 rounded-full opacity-50" />
         </div>
 
         <div className="container relative z-10">
-          {/* Enhanced Header */}
+          {/* Header */}
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
-            className="text-center mb-12"
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
           >
             <motion.div
-              initial={{ scale: 0 }}
-              whileInView={{ scale: 1 }}
+              initial={{ scale: 0.8, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 border border-primary/20 rounded-full text-sm font-medium mb-6 backdrop-blur-sm"
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary/10 via-secondary/5 to-primary/10 border border-primary/20 rounded-full mb-6 backdrop-blur-sm"
             >
               <Camera className="w-4 h-4 text-primary" />
-              <span className="text-gradient-gold font-semibold">{sectionHeader.badge_text}</span>
+              <span className="text-sm font-semibold text-gradient-gold">ফটো গ্যালারি</span>
               <Sparkles className="w-4 h-4 text-secondary" />
             </motion.div>
-            <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
-              <span className="text-gradient-gold">{settings?.title || "Our Gallery"}</span>
+
+            <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+              <span className="text-gradient-gold">{settings?.title || "আমাদের স্মৃতির অ্যালবাম"}</span>
             </h2>
-            <span className="font-thuluth text-secondary/60 text-2xl md:text-3xl block mb-4">{sectionHeader.arabic_text}</span>
+            
+            <p className="font-thuluth text-secondary/70 text-xl md:text-2xl mb-4">معرض الصور والفيديو</p>
+            
             {settings?.subtitle && (
-              <p className="text-muted-foreground max-w-2xl mx-auto text-lg md:text-xl leading-relaxed">
+              <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
                 {settings.subtitle}
               </p>
             )}
+
             <div className="mt-6 flex justify-center">
-              <div className="h-1 w-24 bg-gradient-to-r from-transparent via-secondary to-transparent rounded-full" />
+              <div className="h-1 w-32 bg-gradient-to-r from-transparent via-secondary to-transparent rounded-full" />
             </div>
           </motion.div>
 
-          {/* Content Type Toggle - Images / Videos */}
+          {/* Content Type Toggle */}
           <motion.div 
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: 0.25 }}
-            className="flex justify-center gap-3 mb-6"
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex flex-wrap justify-center gap-4 mb-8"
           >
             <Button
+              onClick={() => setContentType("images")}
               variant={contentType === "images" ? "default" : "outline"}
               size="lg"
-              onClick={() => setContentType("images")}
-              className={`gap-2 px-8 transition-all duration-300 ${contentType === "images" ? "shadow-gold bg-gradient-to-r from-primary to-primary/80" : "hover:border-primary/50"}`}
+              className={cn(
+                "gap-3 px-8 py-6 text-base font-semibold rounded-xl transition-all duration-300",
+                contentType === "images" 
+                  ? "bg-gradient-to-r from-primary to-primary/80 shadow-lg shadow-primary/25 scale-105" 
+                  : "hover:border-primary/50 hover:bg-primary/5"
+              )}
             >
               <ImageIcon className="w-5 h-5" />
-              Images
+              ছবি ({images.length})
             </Button>
+
             <Button
+              onClick={() => setContentType("videos")}
               variant={contentType === "videos" ? "default" : "outline"}
               size="lg"
-              onClick={() => setContentType("videos")}
-              className={`gap-2 px-8 transition-all duration-300 ${contentType === "videos" ? "shadow-gold bg-gradient-to-r from-secondary to-secondary/80" : "hover:border-secondary/50"}`}
+              className={cn(
+                "gap-3 px-8 py-6 text-base font-semibold rounded-xl transition-all duration-300",
+                contentType === "videos" 
+                  ? "bg-gradient-to-r from-secondary to-secondary/80 shadow-lg shadow-secondary/25 scale-105" 
+                  : "hover:border-secondary/50 hover:bg-secondary/5"
+              )}
             >
               <Video className="w-5 h-5" />
-              Videos
+              ভিডিও ({videos.length})
             </Button>
           </motion.div>
 
           {/* View Mode Toggle (only for images) */}
-          {contentType === "images" && (
+          {contentType === "images" && images.length > 0 && (
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.3 }}
-              className="flex justify-center gap-3 mb-12"
+              className="flex justify-center gap-3 mb-10"
             >
-              <Button
-                variant={viewMode === "grid" ? "default" : "outline"}
-                size="lg"
-                onClick={() => setViewMode("grid")}
-                className={`gap-2 px-6 transition-all duration-300 ${viewMode === "grid" ? "shadow-gold" : "hover:border-primary/50"}`}
-              >
-                <Grid3X3 className="w-5 h-5" />
-                Grid View
-              </Button>
-              <Button
-                variant={viewMode === "carousel" ? "default" : "outline"}
-                size="lg"
-                onClick={() => setViewMode("carousel")}
-                className={`gap-2 px-6 transition-all duration-300 ${viewMode === "carousel" ? "shadow-gold" : "hover:border-primary/50"}`}
-              >
-                <SlidersHorizontal className="w-5 h-5" />
-                Carousel
-              </Button>
-              {viewMode === "carousel" && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3 }}
+              <div className="inline-flex p-1.5 bg-muted/50 rounded-xl border border-border/50 backdrop-blur-sm">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
+                  className={cn(
+                    "gap-2 px-4 py-2 rounded-lg transition-all",
+                    viewMode === "grid" && "bg-background shadow-sm"
+                  )}
                 >
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={toggleAutoplay}
-                    className="gap-2 px-6 border-secondary/50 hover:border-secondary"
-                  >
-                    {isAutoplayPaused ? (
-                      <>
-                        <Play className="w-5 h-5 text-secondary" />
-                        Play
-                      </>
-                    ) : (
-                      <>
-                        <Pause className="w-5 h-5 text-secondary" />
-                        Pause
-                      </>
-                    )}
-                  </Button>
-                </motion.div>
-              )}
+                  <Grid3X3 className="w-4 h-4" />
+                  গ্রিড
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setViewMode("masonry")}
+                  className={cn(
+                    "gap-2 px-4 py-2 rounded-lg transition-all",
+                    viewMode === "masonry" && "bg-background shadow-sm"
+                  )}
+                >
+                  <Layers className="w-4 h-4" />
+                  মেসোনরি
+                </Button>
+              </div>
             </motion.div>
           )}
 
-          {/* View Mode Toggle for Videos */}
-          {contentType === "videos" && (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.3 }}
-              className="flex justify-center gap-3 mb-12"
-            >
-              <Button
-                variant={videoViewMode === "grid" ? "default" : "outline"}
-                size="lg"
-                onClick={() => setVideoViewMode("grid")}
-                className={`gap-2 px-6 transition-all duration-300 ${videoViewMode === "grid" ? "shadow-gold" : "hover:border-primary/50"}`}
-              >
-                <Grid3X3 className="w-5 h-5" />
-                Grid View
-              </Button>
-              <Button
-                variant={videoViewMode === "carousel" ? "default" : "outline"}
-                size="lg"
-                onClick={() => setVideoViewMode("carousel")}
-                className={`gap-2 px-6 transition-all duration-300 ${videoViewMode === "carousel" ? "shadow-gold" : "hover:border-primary/50"}`}
-              >
-                <SlidersHorizontal className="w-5 h-5" />
-                Carousel
-              </Button>
-              {videoViewMode === "carousel" && (
+          {/* Images Content */}
+          {contentType === "images" && images.length > 0 && (
+            <AnimatePresence mode="wait">
+              {viewMode === "grid" ? (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
+                  key="grid"
+                  initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3 }}
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
                 >
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={toggleVideoAutoplay}
-                    className="gap-2 px-6 border-secondary/50 hover:border-secondary"
-                  >
-                    {isVideoAutoplayPaused ? (
-                      <>
-                        <Play className="w-5 h-5 text-secondary" />
-                        Play
-                      </>
-                    ) : (
-                      <>
-                        <Pause className="w-5 h-5 text-secondary" />
-                        Pause
-                      </>
-                    )}
-                  </Button>
-                </motion.div>
-              )}
-            </motion.div>
-          )}
-
-          {/* Videos Grid View */}
-          {contentType === "videos" && videoViewMode === "grid" && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {videos.length === 0 ? (
-                <div className="col-span-full text-center py-12 text-muted-foreground">
-                  <Video className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No videos available yet.</p>
-                </div>
-              ) : (
-                videos.map((video, index) => (
-                  <motion.div
-                    key={video.id}
-                    initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ 
-                      duration: 0.5, 
-                      delay: index * 0.08,
-                      ease: [0.25, 0.46, 0.45, 0.94]
-                    }}
-                    whileHover={{ y: -8 }}
-                    className="group relative aspect-video overflow-hidden rounded-2xl cursor-pointer bg-muted shadow-elegant"
-                    onClick={() => setSelectedVideo(video)}
-                  >
-                    {/* Thumbnail - Auto-generated */}
-                    <VideoThumbnail
-                      videoUrl={video.video_url}
-                      thumbnailUrl={video.thumbnail_url}
-                      alt={video.title}
-                      className="transition-transform duration-700 group-hover:scale-110"
-                      iconSize="md"
-                    />
-                    
-                    {/* Play Button Overlay */}
-                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300 flex items-center justify-center">
-                      <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white/50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <Play className="w-8 h-8 text-white ml-1" fill="white" />
+                  {images.map((image, index) => (
+                    <motion.div
+                      key={image.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-50px" }}
+                      transition={{ duration: 0.5, delay: index * 0.05 }}
+                      className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer bg-muted"
+                      onClick={() => setSelectedImage(image)}
+                    >
+                      <img
+                        src={image.image_url}
+                        alt={image.alt_text || "Gallery image"}
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
+                      />
+                      
+                      {/* Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
+                      
+                      {/* Zoom icon */}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30">
+                          <ZoomIn className="w-6 h-6 text-white" />
+                        </div>
                       </div>
-                    </div>
-                    
-                    {/* Title */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                      <p className="text-white font-medium text-sm">{video.title}</p>
-                    </div>
-                    
-                    {/* Hover Border Glow */}
-                    <div className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-secondary/50 transition-all duration-500" />
-                  </motion.div>
-                ))
+
+                      {/* Caption */}
+                      {image.caption && (
+                        <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                          <p className="text-white text-sm font-medium line-clamp-2">{image.caption}</p>
+                        </div>
+                      )}
+
+                      {/* Category badge */}
+                      {image.category && image.category !== "general" && (
+                        <Badge className="absolute top-3 left-3 bg-primary/90 backdrop-blur-sm">
+                          {image.category}
+                        </Badge>
+                      )}
+                    </motion.div>
+                  ))}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="masonry"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3 }}
+                  className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-5 space-y-5"
+                >
+                  {images.map((image, index) => (
+                    <motion.div
+                      key={image.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-50px" }}
+                      transition={{ duration: 0.5, delay: index * 0.05 }}
+                      className="group relative break-inside-avoid rounded-2xl overflow-hidden cursor-pointer bg-muted"
+                      onClick={() => setSelectedImage(image)}
+                    >
+                      <img
+                        src={image.image_url}
+                        alt={image.alt_text || "Gallery image"}
+                        loading="lazy"
+                        className="w-full h-auto object-cover transition-all duration-500 group-hover:scale-105"
+                      />
+                      
+                      {/* Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
+                      
+                      {/* Zoom icon */}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30">
+                          <ZoomIn className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
+
+                      {/* Caption */}
+                      {image.caption && (
+                        <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                          <p className="text-white text-sm font-medium line-clamp-2">{image.caption}</p>
+                        </div>
+                      )}
+                    </motion.div>
+                  ))}
+                </motion.div>
               )}
-            </div>
+            </AnimatePresence>
           )}
 
-          {/* Videos Carousel View */}
-          {contentType === "videos" && videoViewMode === "carousel" && (
+          {/* Videos Content */}
+          {contentType === "videos" && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.4 }}
             >
-              <Carousel
-                opts={{
-                  align: "center",
-                  loop: true,
-                  dragFree: true,
-                  skipSnaps: false,
-                  containScroll: "trimSnaps",
-                }}
-                plugins={[videoAutoplayPlugin]}
-                setApi={setVideoCarouselApi}
-                className="w-full max-w-full touch-pan-y"
-              >
-                <CarouselContent className="-ml-4">
+              {videos.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {videos.map((video, index) => (
-                    <CarouselItem key={video.id} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/3">
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                        whileHover={{ y: -5 }}
-                        className="group relative aspect-video overflow-hidden rounded-2xl cursor-pointer bg-muted shadow-elegant"
-                        onClick={() => setSelectedVideo(video)}
-                      >
-                        {/* Thumbnail - Auto-generated */}
-                        <VideoThumbnail
-                          videoUrl={video.video_url}
-                          thumbnailUrl={video.thumbnail_url}
-                          alt={video.title}
-                          className="transition-transform duration-700 group-hover:scale-110"
-                          iconSize="md"
-                        />
+                    <motion.div
+                      key={video.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      className="group relative rounded-2xl overflow-hidden bg-muted shadow-lg cursor-pointer"
+                      onClick={() => setSelectedVideo(video)}
+                    >
+                      {/* Thumbnail */}
+                      <div className="relative aspect-video">
+                        {video.thumbnail_url ? (
+                          <img
+                            src={video.thumbnail_url}
+                            alt={video.title}
+                            className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                            <Video className="w-16 h-16 text-muted-foreground/50" />
+                          </div>
+                        )}
                         
-                        {/* Play Button Overlay */}
-                        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300 flex items-center justify-center">
-                          <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white/50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                            <Play className="w-8 h-8 text-white ml-1" fill="white" />
+                        {/* Play button overlay */}
+                        <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                          <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-transform">
+                            <Play className="w-7 h-7 text-primary ml-1" fill="currentColor" />
                           </div>
                         </div>
-                        
-                        {/* Title Only - No Description */}
-                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                          <p className="text-white font-semibold text-base">{video.title}</p>
-                        </div>
-                        
-                        {/* Border Effect */}
-                        <div className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-secondary/50 transition-all duration-500" />
-                        <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-primary via-secondary to-primary opacity-0 group-hover:opacity-50 blur-md transition-all duration-700 -z-10" />
-                        
-                        {/* Corner Icon */}
-                        <div className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100">
-                          <Video className="w-5 h-5 text-white" />
-                        </div>
-                      </motion.div>
-                    </CarouselItem>
+                      </div>
+
+                      {/* Video info */}
+                      <div className="p-4 bg-card">
+                        <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                          {video.title}
+                        </h3>
+                        {video.description && (
+                          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                            {video.description}
+                          </p>
+                        )}
+                      </div>
+                    </motion.div>
                   ))}
-                </CarouselContent>
-                <CarouselPrevious className="hidden md:flex -left-14 h-12 w-12 bg-card/90 backdrop-blur-sm hover:bg-card border-primary/30 hover:border-secondary shadow-lg" />
-                <CarouselNext className="hidden md:flex -right-14 h-12 w-12 bg-card/90 backdrop-blur-sm hover:bg-card border-primary/30 hover:border-secondary shadow-lg" />
-              </Carousel>
-
-              {/* Thumbnail Navigation for Videos */}
-              <div className="flex justify-center gap-3 mt-8 overflow-x-auto pb-2 px-4">
-                {videos.map((video, index) => (
-                  <motion.button
-                    key={video.id}
-                    onClick={() => scrollToVideoSlide(index)}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`relative flex-shrink-0 w-24 h-14 rounded-xl overflow-hidden transition-all duration-300 ${
-                      currentVideoSlide === index 
-                        ? 'ring-3 ring-secondary ring-offset-2 ring-offset-background shadow-gold scale-105' 
-                        : 'opacity-50 hover:opacity-100 grayscale hover:grayscale-0'
-                    }`}
-                  >
-                    <VideoThumbnail
-                      videoUrl={video.video_url}
-                      thumbnailUrl={video.thumbnail_url}
-                      alt={video.title}
-                      iconSize="sm"
-                    />
-                    {currentVideoSlide === index && (
-                      <div className="absolute inset-0 border-2 border-secondary rounded-xl" />
-                    )}
-                  </motion.button>
-                ))}
-              </div>
-
-              {/* Autoplay indicator for videos */}
-              <div className="flex flex-col items-center gap-3 mt-6">
-                <div className="flex items-center gap-3 px-4 py-2 bg-card/50 backdrop-blur-sm rounded-full border border-border/50">
-                  <span className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${isVideoAutoplayPaused ? 'bg-muted-foreground' : 'bg-secondary animate-pulse shadow-gold'}`} />
-                  <span className="text-sm font-medium text-foreground">
-                    {isVideoAutoplayPaused ? 'Paused' : 'Auto-playing'}
-                  </span>
                 </div>
-              </div>
+              ) : (
+                <div className="text-center py-20">
+                  <Video className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                  <p className="text-muted-foreground">কোনো ভিডিও পাওয়া যায়নি</p>
+                </div>
+              )}
             </motion.div>
           )}
 
-          {/* Grid View */}
-          {contentType === "images" && viewMode === "grid" && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-              {images.map((image, index) => (
-                <motion.div
-                  key={image.id}
-                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ 
-                    duration: 0.5, 
-                    delay: index * 0.08,
-                    ease: [0.25, 0.46, 0.45, 0.94]
-                  }}
-                  whileHover={{ y: -8 }}
-                  className="group relative aspect-square overflow-hidden rounded-2xl cursor-pointer bg-muted shadow-elegant"
-                  onClick={() => setSelectedImage(image)}
-                >
-                  {/* Image */}
-                  <OptimizedImage
-                    src={image.image_url}
-                    alt={image.alt_text || "Gallery image"}
-                    className="w-full h-full"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  />
-                  
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
-                  
-                  {/* Content */}
-                  <div className="absolute inset-0 p-5 flex flex-col justify-end translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                    {image.caption && (
-                      <motion.p 
-                        className="text-white text-sm font-medium line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100"
-                      >
-                        {image.caption}
-                      </motion.p>
-                    )}
-                  </div>
-                  
-                  {/* Hover Border Glow */}
-                  <div className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-secondary/50 transition-all duration-500" />
-                  <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-primary via-secondary to-primary opacity-0 group-hover:opacity-40 blur-md transition-all duration-700 -z-10" />
-                  
-                  {/* Corner Accent */}
-                  <div className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100">
-                    <Sparkles className="w-4 h-4 text-white" />
-                  </div>
-                </motion.div>
-              ))}
+          {/* Empty state for images */}
+          {contentType === "images" && images.length === 0 && (
+            <div className="text-center py-20">
+              <ImageIcon className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+              <p className="text-muted-foreground">কোনো ছবি পাওয়া যায়নি</p>
             </div>
-          )}
-
-          {/* Carousel View */}
-          {contentType === "images" && viewMode === "carousel" && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Carousel
-                opts={{
-                  align: "center",
-                  loop: true,
-                  dragFree: true,
-                  skipSnaps: false,
-                  containScroll: "trimSnaps",
-                }}
-                plugins={[autoplayPlugin]}
-                setApi={setCarouselApi}
-                className="w-full max-w-full touch-pan-y"
-              >
-                <CarouselContent className="-ml-4">
-                  {images.map((image, index) => (
-                    <CarouselItem key={image.id} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                        whileHover={{ y: -5 }}
-                        className="group relative aspect-[4/3] overflow-hidden rounded-2xl cursor-pointer bg-muted shadow-elegant"
-                        onClick={() => setSelectedImage(image)}
-                      >
-                        <OptimizedImage
-                          src={image.image_url}
-                          alt={image.alt_text || "Gallery image"}
-                          className="w-full h-full"
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        />
-                        {/* Gradient Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
-                        
-                        {/* Content */}
-                        <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                          {image.caption && (
-                            <p className="text-white text-lg font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                              {image.caption}
-                            </p>
-                          )}
-                        </div>
-                        
-                        {/* Border Effect */}
-                        <div className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-secondary/50 transition-all duration-500" />
-                        <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-primary via-secondary to-primary opacity-0 group-hover:opacity-50 blur-md transition-all duration-700 -z-10" />
-                        
-                        {/* Corner Icon */}
-                        <div className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100">
-                          <Camera className="w-5 h-5 text-white" />
-                        </div>
-                      </motion.div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="hidden md:flex -left-14 h-12 w-12 bg-card/90 backdrop-blur-sm hover:bg-card border-primary/30 hover:border-secondary shadow-lg" />
-                <CarouselNext className="hidden md:flex -right-14 h-12 w-12 bg-card/90 backdrop-blur-sm hover:bg-card border-primary/30 hover:border-secondary shadow-lg" />
-              </Carousel>
-
-              {/* Enhanced Thumbnail Navigation */}
-              <div className="flex justify-center gap-3 mt-8 overflow-x-auto pb-2 px-4">
-                {images.map((image, index) => (
-                  <motion.button
-                    key={image.id}
-                    onClick={() => scrollToSlide(index)}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`relative flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden transition-all duration-300 ${
-                      currentSlide === index 
-                        ? 'ring-3 ring-secondary ring-offset-2 ring-offset-background shadow-gold scale-105' 
-                        : 'opacity-50 hover:opacity-100 grayscale hover:grayscale-0'
-                    }`}
-                  >
-                    <img
-                      src={image.image_url}
-                      alt={image.alt_text || `Thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                    {currentSlide === index && (
-                      <div className="absolute inset-0 border-2 border-secondary rounded-xl" />
-                    )}
-                  </motion.button>
-                ))}
-              </div>
-
-              {/* Enhanced Autoplay indicator & mobile hint */}
-              <div className="flex flex-col items-center gap-3 mt-6">
-                <div className="flex items-center gap-3 px-4 py-2 bg-card/50 backdrop-blur-sm rounded-full border border-border/50">
-                  <span className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${isAutoplayPaused ? 'bg-muted-foreground' : 'bg-secondary animate-pulse shadow-gold'}`} />
-                  <span className="text-sm font-medium text-foreground">
-                    {isAutoplayPaused ? 'Paused' : 'Auto-playing'}
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground md:hidden flex items-center gap-2">
-                  <span className="animate-pulse">👆</span>
-                  Swipe to explore
-                  <span className="animate-pulse">👆</span>
-                </p>
-              </div>
-            </motion.div>
           )}
         </div>
       </section>
 
-      {/* Lightbox Modal */}
-      {selectedImage && (
-        <div 
-          ref={lightboxRef}
-          className="fixed inset-0 z-[100] bg-black/95 flex flex-col"
-          onClick={handleCloseLightbox}
-        >
-          {/* Lightbox Controls */}
-          <div 
-            className="flex items-center justify-between p-4 bg-black/50"
-            onClick={(e) => e.stopPropagation()}
+      {/* Image Lightbox */}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div
+            ref={lightboxRef}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center"
+            onClick={handleCloseLightbox}
           >
-            <div className="flex items-center gap-2">
+            {/* Controls */}
+            <div className="absolute top-4 right-4 z-10 flex gap-2">
               <Button
                 variant="ghost"
-                size="sm"
-                onClick={handleZoomOut}
-                disabled={zoomLevel <= 1}
-                className="text-white hover:bg-white/20"
+                size="icon"
+                className="text-white hover:bg-white/20 rounded-full"
+                onClick={(e) => { e.stopPropagation(); handleZoomOut(); }}
               >
                 <ZoomOut className="w-5 h-5" />
               </Button>
-              <span className="text-white text-sm min-w-[60px] text-center">
-                {Math.round(zoomLevel * 100)}%
-              </span>
               <Button
                 variant="ghost"
-                size="sm"
-                onClick={handleZoomIn}
-                disabled={zoomLevel >= 4}
-                className="text-white hover:bg-white/20"
+                size="icon"
+                className="text-white hover:bg-white/20 rounded-full"
+                onClick={(e) => { e.stopPropagation(); handleZoomIn(); }}
               >
                 <ZoomIn className="w-5 h-5" />
               </Button>
               <Button
                 variant="ghost"
-                size="sm"
-                onClick={handleResetZoom}
-                className="text-white hover:bg-white/20"
+                size="icon"
+                className="text-white hover:bg-white/20 rounded-full"
+                onClick={(e) => { e.stopPropagation(); handleResetZoom(); }}
               >
                 <RotateCcw className="w-5 h-5" />
               </Button>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleFullscreen}
-                className="text-white hover:bg-white/20"
-              >
-                {isFullscreen ? (
-                  <Minimize className="w-5 h-5" />
-                ) : (
-                  <Maximize className="w-5 h-5" />
-                )}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCloseLightbox}
-                className="text-white hover:bg-white/20"
-              >
-                ✕
-              </Button>
-            </div>
-          </div>
-
-          {/* Image Container */}
-          <div 
-            className="flex-1 flex items-center justify-center overflow-hidden relative"
-            onClick={(e) => e.stopPropagation()}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            onWheel={handleWheel}
-          >
-            {/* Left Navigation Arrow */}
-            {images.length > 1 && (
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handlePrevImage();
-                }}
-                className="absolute left-4 z-10 w-12 h-12 rounded-full bg-black/50 hover:bg-black/70 text-white border border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-110"
+                className="text-white hover:bg-white/20 rounded-full"
+                onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
               >
-                <ChevronLeft className="w-8 h-8" />
+                {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
               </Button>
-            )}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white hover:bg-white/20 rounded-full"
+                onClick={handleCloseLightbox}
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
 
+            {/* Navigation */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 rounded-full w-12 h-12"
+              onClick={(e) => { e.stopPropagation(); handlePrevImage(); }}
+            >
+              <ChevronLeft className="w-8 h-8" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 rounded-full w-12 h-12"
+              onClick={(e) => { e.stopPropagation(); handleNextImage(); }}
+            >
+              <ChevronRight className="w-8 h-8" />
+            </Button>
+
+            {/* Image */}
             <motion.div
-              key={selectedImage.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="relative max-w-full max-h-full"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="max-w-[90vw] max-h-[85vh] overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onWheel={handleWheel}
             >
               <img
-                ref={imageRef}
                 src={selectedImage.image_url}
-                alt={selectedImage.alt_text || "Gallery image"}
-                className="max-w-full max-h-[calc(100vh-140px)] object-contain select-none transition-transform duration-150"
+                alt={selectedImage.alt_text}
+                className="max-w-full max-h-[85vh] object-contain transition-transform duration-200"
                 style={{
-                  transform: `scale(${zoomLevel}) translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
-                  cursor: zoomLevel > 1 ? 'grab' : 'default',
+                  transform: `scale(${zoomLevel}) translate(${panPosition.x}px, ${panPosition.y}px)`,
+                  cursor: zoomLevel > 1 ? 'grab' : 'default'
                 }}
                 draggable={false}
               />
             </motion.div>
 
-            {/* Right Navigation Arrow */}
-            {images.length > 1 && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleNextImage();
-                }}
-                className="absolute right-4 z-10 w-12 h-12 rounded-full bg-black/50 hover:bg-black/70 text-white border border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-110"
-              >
-                <ChevronRight className="w-8 h-8" />
-              </Button>
+            {/* Caption */}
+            {selectedImage.caption && (
+              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-sm px-6 py-3 rounded-full">
+                <p className="text-white text-sm">{selectedImage.caption}</p>
+              </div>
             )}
-          </div>
 
-          {/* Image Counter */}
-          {images.length > 1 && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 px-4 py-2 rounded-full text-white text-sm font-medium">
+            {/* Image counter */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 text-sm">
               {images.findIndex(img => img.id === selectedImage.id) + 1} / {images.length}
             </div>
-          )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          {/* Caption */}
-          {selectedImage.caption && (
-            <div className="p-4 bg-black/50 text-center" onClick={(e) => e.stopPropagation()}>
-              <p className="text-white text-lg">
-                {selectedImage.caption}
-              </p>
-            </div>
-          )}
-
-          {/* Mobile hint */}
-          <div className="absolute bottom-20 left-0 right-0 text-center pointer-events-none md:hidden">
-            <p className="text-white/60 text-sm">
-              Pinch to zoom • Drag to pan
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Video Lightbox Modal */}
-      {selectedVideo && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4"
-          onClick={() => setSelectedVideo(null)}
-        >
-          {/* Close Button */}
-          <button
+      {/* Video Modal */}
+      <AnimatePresence>
+        {selectedVideo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-4"
             onClick={() => setSelectedVideo(null)}
-            className="absolute top-4 right-4 z-10 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
           >
-            <span className="text-2xl">×</span>
-          </button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4 text-white hover:bg-white/20 rounded-full z-10"
+              onClick={() => setSelectedVideo(null)}
+            >
+              <X className="w-6 h-6" />
+            </Button>
 
-          {/* Video Container */}
-          <div 
-            className="relative w-full max-w-5xl aspect-video rounded-2xl overflow-hidden shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <video
-              src={selectedVideo.video_url}
-              autoPlay
-              controls
-              loop
-              playsInline
-              className="w-full h-full object-contain bg-black"
-            />
-          </div>
-
-          {/* Video Title */}
-          <div className="absolute bottom-8 left-0 right-0 text-center">
-            <p className="text-white text-lg font-medium">{selectedVideo.title}</p>
-          </div>
-        </motion.div>
-      )}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-5xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="relative aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl">
+                <video
+                  src={selectedVideo.video_url}
+                  controls
+                  autoPlay
+                  className="w-full h-full"
+                  poster={selectedVideo.thumbnail_url || undefined}
+                />
+              </div>
+              
+              <div className="mt-4 text-center">
+                <h3 className="text-white text-xl font-semibold">{selectedVideo.title}</h3>
+                {selectedVideo.description && (
+                  <p className="text-white/70 mt-2">{selectedVideo.description}</p>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
