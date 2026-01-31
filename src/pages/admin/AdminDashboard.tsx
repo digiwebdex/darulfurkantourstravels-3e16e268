@@ -60,6 +60,9 @@ import AdminRetargetingSegments from "@/components/admin/AdminRetargetingSegment
 import AdminBlog from "@/components/admin/AdminBlog";
 import AdminTranslations from "@/components/admin/AdminTranslations";
 import AdminTransactionLogs from "@/components/admin/AdminTransactionLogs";
+import AdminWhyChooseUs from "@/components/admin/AdminWhyChooseUs";
+import AdminQuickPackages from "@/components/admin/AdminQuickPackages";
+import AdminCTA from "@/components/admin/AdminCTA";
 import { formatCurrency } from "@/lib/currency";
 
 interface Stats {
@@ -250,6 +253,12 @@ const AdminDashboard = () => {
         return <AdminMenu />;
       case "hero":
         return <AdminHero />;
+      case "why-choose-us":
+        return <AdminWhyChooseUs />;
+      case "quick-packages":
+        return <AdminQuickPackages />;
+      case "cta":
+        return <AdminCTA />;
       case "services":
         return <AdminServices />;
       case "team":

@@ -1,52 +1,72 @@
-import { Plane, Moon, Building2, Gift, ArrowRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plane, Moon, Building2, Gift, ArrowRight, Star, Award, Crown, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
 import { motion } from "framer-motion";
 import { formatCurrency } from "@/lib/currency";
+import { supabase } from "@/integrations/supabase/client";
+
+interface QuickPackage {
+  id: string;
+  icon_name: string;
+  title: string;
+  description: string;
+  price: number;
+  price_label: string | null;
+  link: string;
+  gradient_from: string;
+  gradient_to: string;
+  icon_bg: string;
+  is_featured: boolean;
+  order_index: number;
+  is_active: boolean;
+}
+
+interface QuickPackagesSettings {
+  id: string;
+  title: string;
+  subtitle: string;
+  is_active: boolean;
+}
+
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Building2,
+  Moon,
+  Gift,
+  Plane,
+  Star,
+  Award,
+  Crown,
+  Heart,
+};
 
 const QuickPackageHighlight = () => {
   const { t, isRTL } = useTranslation();
+  const [packages, setPackages] = useState<QuickPackage[]>([]);
+  const [settings, setSettings] = useState<QuickPackagesSettings | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const packages = [
-    {
-      icon: Building2,
-      title: t("packages", "hajj_title", "হজ্জ প্যাকেজ"),
-      description: t("packages", "hajj_desc", "পবিত্র হজ্জ ২০২৬ - প্রিমিয়াম সার্ভিস"),
-      price: 850000,
-      link: "#hajj",
-      gradient: "from-primary to-emerald-dark",
-      iconBg: "bg-primary/10",
-    },
-    {
-      icon: Moon,
-      title: t("packages", "umrah_title", "উমরাহ প্যাকেজ"),
-      description: t("packages", "umrah_desc", "সারা বছর উমরাহ - বিশেষ অফার"),
-      price: 135000,
-      link: "#umrah",
-      gradient: "from-accent to-gold",
-      iconBg: "bg-accent/10",
-    },
-    {
-      icon: Moon,
-      title: t("packages", "ramadan_itikaf", "রমজান ইতিকাফ"),
-      description: t("packages", "itikaf_desc", "রমজানের শেষ ১০ দিন মক্কায় ইতিকাফ"),
-      price: 250000,
-      link: "#umrah",
-      gradient: "from-purple-600 to-purple-800",
-      iconBg: "bg-purple-100",
-    },
-    {
-      icon: Gift,
-      title: t("packages", "special_offer", "বিশেষ অফার"),
-      description: t("packages", "lottery_text", "প্রতি ৫০ জনে ১ জন ফ্রি উমরাহ!"),
-      price: 0,
-      priceLabel: t("packages", "free_lottery", "লটারি ফ্রি"),
-      link: "#packages",
-      gradient: "from-rose-500 to-red-600",
-      iconBg: "bg-rose-100",
-      featured: true,
-    },
-  ];
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [packagesRes, settingsRes] = await Promise.all([
+        supabase.from("quick_packages").select("*").eq("is_active", true).order("order_index"),
+        supabase.from("quick_packages_settings").select("*").single(),
+      ]);
+
+      if (packagesRes.data) setPackages(packagesRes.data);
+      if (settingsRes.data) setSettings(settingsRes.data);
+    } catch (error) {
+      console.error("Error fetching quick packages:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading || !settings?.is_active || packages.length === 0) return null;
 
   return (
     <section className="py-16 bg-muted/30" dir={isRTL ? "rtl" : "ltr"}>
@@ -59,67 +79,70 @@ const QuickPackageHighlight = () => {
           className="text-center mb-12"
         >
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-3">
-            {t("packages", "our_packages", "আমাদের প্যাকেজসমূহ")}
+            {settings.title}
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            {t("packages", "package_subtitle", "আপনার পবিত্র যাত্রার জন্য সেরা প্যাকেজ নির্বাচন করুন")}
+            {settings.subtitle}
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {packages.map((pkg, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className={`group relative bg-card rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-300 border ${
-                pkg.featured ? 'border-accent ring-2 ring-accent/20' : 'border-border hover:border-primary/30'
-              }`}
-            >
-              {pkg.featured && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-xs font-bold px-3 py-1 rounded-full">
-                  {t("packages", "hot", "🔥 Hot")}
-                </div>
-              )}
-              
-              <div className={`w-14 h-14 rounded-xl ${pkg.iconBg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                <pkg.icon className={`w-7 h-7 ${pkg.featured ? 'text-accent' : 'text-primary'}`} />
-              </div>
-              
-              <h3 className="font-heading text-xl font-bold text-foreground mb-2">
-                {pkg.title}
-              </h3>
-              
-              <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-                {pkg.description}
-              </p>
-              
-              <div className="mb-4">
-                {pkg.priceLabel ? (
-                  <span className="text-accent font-bold text-lg">{pkg.priceLabel}</span>
-                ) : (
-                  <>
-                    <span className="text-muted-foreground text-sm">{t("common", "from", "শুরু")}</span>
-                    <span className="text-primary font-bold text-xl ml-1">{formatCurrency(pkg.price)}</span>
-                  </>
+          {packages.map((pkg, index) => {
+            const IconComponent = iconMap[pkg.icon_name] || Building2;
+            return (
+              <motion.div
+                key={pkg.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className={`group relative bg-card rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-300 border ${
+                  pkg.is_featured ? 'border-accent ring-2 ring-accent/20' : 'border-border hover:border-primary/30'
+                }`}
+              >
+                {pkg.is_featured && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-xs font-bold px-3 py-1 rounded-full">
+                    {t("packages", "hot", "🔥 Hot")}
+                  </div>
                 )}
-              </div>
-              
-              <a href={pkg.link}>
-                <Button 
-                  variant={pkg.featured ? "default" : "outline"} 
-                  className={`w-full gap-2 group-hover:gap-3 transition-all ${
-                    pkg.featured ? 'bg-accent hover:bg-accent/90 text-accent-foreground' : ''
-                  }`}
-                >
-                  {t("common", "view_details", "বিস্তারিত দেখুন")}
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </a>
-            </motion.div>
-          ))}
+                
+                <div className={`w-14 h-14 rounded-xl ${pkg.icon_bg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  <IconComponent className={`w-7 h-7 ${pkg.is_featured ? 'text-accent' : 'text-primary'}`} />
+                </div>
+                
+                <h3 className="font-heading text-xl font-bold text-foreground mb-2">
+                  {pkg.title}
+                </h3>
+                
+                <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                  {pkg.description}
+                </p>
+                
+                <div className="mb-4">
+                  {pkg.price_label ? (
+                    <span className="text-accent font-bold text-lg">{pkg.price_label}</span>
+                  ) : (
+                    <>
+                      <span className="text-muted-foreground text-sm">{t("common", "from", "শুরু")}</span>
+                      <span className="text-primary font-bold text-xl ml-1">{formatCurrency(pkg.price)}</span>
+                    </>
+                  )}
+                </div>
+                
+                <a href={pkg.link}>
+                  <Button 
+                    variant={pkg.is_featured ? "default" : "outline"} 
+                    className={`w-full gap-2 group-hover:gap-3 transition-all ${
+                      pkg.is_featured ? 'bg-accent hover:bg-accent/90 text-accent-foreground' : ''
+                    }`}
+                  >
+                    {t("common", "view_details", "বিস্তারিত দেখুন")}
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </a>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>

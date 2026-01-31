@@ -1,10 +1,48 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
 import { motion } from "framer-motion";
 import { ArrowRight, Phone } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface CTAContent {
+  id: string;
+  title: string;
+  subtitle: string;
+  primary_button_text: string;
+  primary_button_link: string;
+  secondary_button_text: string;
+  secondary_button_link: string;
+  show_primary_button: boolean;
+  show_secondary_button: boolean;
+  is_active: boolean;
+}
 
 const CTASection = () => {
-  const { t, isRTL } = useTranslation();
+  const { isRTL } = useTranslation();
+  const [content, setContent] = useState<CTAContent | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchContent();
+  }, []);
+
+  const fetchContent = async () => {
+    try {
+      const { data } = await supabase
+        .from("cta_content")
+        .select("*")
+        .single();
+
+      if (data) setContent(data);
+    } catch (error) {
+      console.error("Error fetching CTA content:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading || !content?.is_active) return null;
 
   return (
     <section className="py-20 bg-gradient-primary relative overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
@@ -24,32 +62,36 @@ const CTASection = () => {
           className="text-center max-w-3xl mx-auto"
         >
           <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4">
-            {t("cta", "title", "আপনার আধ্যাত্মিক যাত্রা শুরু করুন আজই")}
+            {content.title}
           </h2>
           <p className="text-primary-foreground/80 text-lg md:text-xl mb-8">
-            {t("cta", "subtitle", "হজ্জ ও উমরাহর পবিত্র যাত্রায় আমরা আপনার পাশে আছি। এখনই বুকিং করুন এবং বিশেষ ছাড় পান!")}
+            {content.subtitle}
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="#packages">
-              <Button 
-                size="lg" 
-                className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold px-8 py-6 text-lg rounded-full shadow-gold gap-2 group"
-              >
-                {t("common", "book_now", "এখনই বুকিং করুন")}
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </a>
-            <a href="tel:+8801339080532">
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="border-2 border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 px-8 py-6 text-lg rounded-full gap-2"
-              >
-                <Phone className="w-5 h-5" />
-                {t("common", "call_now", "কল করুন")}
-              </Button>
-            </a>
+            {content.show_primary_button && (
+              <a href={content.primary_button_link}>
+                <Button 
+                  size="lg" 
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold px-8 py-6 text-lg rounded-full shadow-gold gap-2 group"
+                >
+                  {content.primary_button_text}
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </a>
+            )}
+            {content.show_secondary_button && (
+              <a href={content.secondary_button_link}>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="border-2 border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 px-8 py-6 text-lg rounded-full gap-2"
+                >
+                  <Phone className="w-5 h-5" />
+                  {content.secondary_button_text}
+                </Button>
+              </a>
+            )}
           </div>
         </motion.div>
       </div>
