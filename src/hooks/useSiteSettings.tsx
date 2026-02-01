@@ -37,6 +37,7 @@ export interface SiteSettings {
   socialLinks: SocialLinks;
   appearance: Appearance;
   loading: boolean;
+  refreshSettings: () => Promise<void>;
 }
 
 const defaultSettings: SiteSettings = {
@@ -67,6 +68,7 @@ const defaultSettings: SiteSettings = {
     show_mobile_cta_bar: true,
   },
   loading: true,
+  refreshSettings: async () => {},
 };
 
 const SiteSettingsContext = createContext<SiteSettings>(defaultSettings);
@@ -78,12 +80,9 @@ interface SiteSettingsProviderProps {
 export function SiteSettingsProvider({ children }: SiteSettingsProviderProps) {
   const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
   const fetchSettings = async () => {
     try {
+      console.log("Fetching site settings...");
       const { data, error } = await supabase
         .from("site_settings")
         .select("*");
@@ -95,7 +94,7 @@ export function SiteSettingsProvider({ children }: SiteSettingsProviderProps) {
       }
 
       if (data && data.length > 0) {
-        const newSettings = { ...defaultSettings, loading: false };
+        const newSettings = { ...defaultSettings, loading: false, refreshSettings: fetchSettings };
         
         data.forEach((setting) => {
           const value = setting.setting_value as Record<string, unknown>;
@@ -115,18 +114,29 @@ export function SiteSettingsProvider({ children }: SiteSettingsProviderProps) {
           }
         });
         
+        console.log("Site settings loaded:", newSettings);
         setSettings(newSettings);
       } else {
-        setSettings(prev => ({ ...prev, loading: false }));
+        setSettings(prev => ({ ...prev, loading: false, refreshSettings: fetchSettings }));
       }
     } catch (error) {
       console.error("Error fetching site settings:", error);
-      setSettings(prev => ({ ...prev, loading: false }));
+      setSettings(prev => ({ ...prev, loading: false, refreshSettings: fetchSettings }));
     }
   };
 
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  // Create context value with refresh function
+  const contextValue = {
+    ...settings,
+    refreshSettings: fetchSettings,
+  };
+
   return (
-    <SiteSettingsContext.Provider value={settings}>
+    <SiteSettingsContext.Provider value={contextValue}>
       {children}
     </SiteSettingsContext.Provider>
   );
