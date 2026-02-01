@@ -110,7 +110,8 @@ const BookingDocumentUploadInline = ({
 
     try {
       const fileExt = file.name.split(".").pop();
-      const fileName = `${userId}/${bookingId}/${selectedType}-${Date.now()}.${fileExt}`;
+      // Use bookingId for storage path to avoid auth issues with guests
+      const fileName = `${bookingId}/${selectedType}-${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from("booking-documents")
@@ -125,7 +126,7 @@ const BookingDocumentUploadInline = ({
         .from("booking_documents")
         .insert({
           booking_id: bookingId,
-          user_id: userId,
+          user_id: userId || 'guest',
           document_type: selectedType,
           file_name: file.name,
           file_url: fileName,
