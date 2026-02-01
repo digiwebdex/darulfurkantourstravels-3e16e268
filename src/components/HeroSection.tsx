@@ -173,26 +173,40 @@ const HeroSection = () => {
             style={{
               opacity: index === currentSlide ? 1 : 0,
               zIndex: index === currentSlide ? 10 : 0,
-              transition: 'opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              transition: 'opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1)',
               willChange: 'opacity',
             }}
           >
             <img
               src={slide.background_image_url || defaultHeroImages[index % 3]}
               alt=""
-                className="w-full h-full object-cover transform-gpu scale-105 filter brightness-110 contrast-105"
+              className="w-full h-full object-cover transform-gpu scale-110 filter brightness-105 contrast-110 saturate-110"
+              style={{
+                animation: index === currentSlide ? 'slowZoom 12s ease-out forwards' : 'none',
+              }}
               loading={index === 0 ? "eager" : "lazy"}
             />
           </div>
         ))}
         
-        {/* Premium Overlays - Lighter & Brighter */}
-        <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/30 to-transparent z-20" />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/40 via-transparent to-primary/30 z-20" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-primary/70 z-20" />
+        {/* Premium Multi-Layer Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/50 to-transparent z-20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/50 via-transparent to-primary/40 z-20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-primary/80 z-20" />
         
-        {/* Gold Accent Glow - Enhanced */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-1/2 bg-accent/15 blur-3xl z-15" />
+        {/* Gold Accent Glow - Multiple Points */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-1/2 bg-accent/20 blur-[100px] z-15" />
+        <div className="absolute top-1/4 right-0 w-96 h-96 bg-accent/10 blur-[120px] rounded-full z-15" />
+        <div className="absolute top-1/3 left-0 w-80 h-80 bg-accent/10 blur-[100px] rounded-full z-15" />
+        
+        {/* Animated Shimmer Effect */}
+        <div className="absolute inset-0 z-21 opacity-30 pointer-events-none"
+          style={{
+            background: 'linear-gradient(105deg, transparent 40%, rgba(212, 175, 55, 0.1) 45%, rgba(212, 175, 55, 0.2) 50%, rgba(212, 175, 55, 0.1) 55%, transparent 60%)',
+            backgroundSize: '200% 100%',
+            animation: 'shimmer 8s infinite linear',
+          }}
+        />
       </div>
 
       {/* Content */}
@@ -206,12 +220,13 @@ const HeroSection = () => {
             exit="exit"
             className="text-center max-w-4xl mx-auto"
           >
-            {/* Badge */}
+          {/* Badge */}
             {content.badge_text && (
-              <motion.div variants={itemVariants} className="mb-6">
-                <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium bg-accent/20 text-accent border border-accent/40 backdrop-blur-sm shadow-gold">
-                  <Star className="w-4 h-4 fill-current" />
+              <motion.div variants={itemVariants} className="mb-8">
+                <span className="inline-flex items-center gap-3 px-6 py-3 rounded-full text-sm font-semibold bg-gradient-to-r from-accent/30 to-accent/20 text-accent border border-accent/50 backdrop-blur-md shadow-[0_0_30px_rgba(212,175,55,0.3)]">
+                  <Star className="w-5 h-5 fill-current animate-pulse" />
                   {content.badge_text}
+                  <Star className="w-5 h-5 fill-current animate-pulse" />
                 </span>
               </motion.div>
             )}
@@ -219,11 +234,14 @@ const HeroSection = () => {
             {/* Title */}
             <motion.h1
               variants={itemVariants}
-              className="font-heading text-2xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary-foreground mb-4 leading-tight"
+              className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary-foreground mb-6 leading-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
             >
-              {content.title}
+              <span className="relative inline-block">
+                {content.title}
+                <span className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-accent to-transparent opacity-60" />
+              </span>
               {content.subtitle && (
-                <span className="block mt-2 text-xl sm:text-2xl md:text-3xl lg:text-4xl text-accent font-semibold">
+                <span className="block mt-4 text-2xl sm:text-3xl md:text-4xl lg:text-5xl bg-gradient-to-r from-accent via-secondary to-accent bg-clip-text text-transparent font-bold animate-pulse">
                   {content.subtitle}
                 </span>
               )}
@@ -233,19 +251,19 @@ const HeroSection = () => {
             {content.description && (
               <motion.p
                 variants={itemVariants}
-                className="text-base sm:text-lg md:text-xl text-primary-foreground/85 max-w-2xl mx-auto mb-8 leading-relaxed"
+                className="text-lg sm:text-xl md:text-2xl text-primary-foreground/90 max-w-3xl mx-auto mb-10 leading-relaxed font-medium drop-shadow-lg"
               >
                 {content.description}
               </motion.p>
             )}
 
             {/* CTA Buttons */}
-            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 mb-10">
+            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row flex-wrap justify-center gap-5 mb-12">
               {content.primary_button_text && (
                 <Button
                   asChild
                   size="lg"
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 py-6 text-lg rounded-full shadow-lg"
+                  className="bg-gradient-to-r from-primary via-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-bold px-10 py-7 text-lg rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.3)] border border-primary-foreground/20 transition-all duration-300 hover:scale-105 hover:shadow-[0_15px_50px_rgba(0,0,0,0.4)]"
                 >
                   <a href={content.primary_button_link || "#"}>
                     {content.primary_button_text}
@@ -259,9 +277,9 @@ const HeroSection = () => {
               >
                 <Button
                   size="lg"
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold px-8 py-6 text-lg rounded-full shadow-gold gap-2"
+                  className="bg-gradient-to-r from-accent via-secondary to-accent hover:from-secondary hover:to-accent text-accent-foreground font-bold px-10 py-7 text-lg rounded-full shadow-[0_0_40px_rgba(212,175,55,0.4)] gap-3 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_60px_rgba(212,175,55,0.6)]"
                 >
-                  <MessageCircle className="w-5 h-5" />
+                  <MessageCircle className="w-6 h-6" />
                   WhatsApp
                 </Button>
               </a>

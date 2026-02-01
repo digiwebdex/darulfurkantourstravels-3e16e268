@@ -8,6 +8,25 @@
 }
 
 @tailwind base;
+
+/* Hero Banner Animations */
+@keyframes slowZoom {
+  from {
+    transform: scale(1.1);
+  }
+  to {
+    transform: scale(1.15);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
 @tailwind components;
 @tailwind utilities;
 
