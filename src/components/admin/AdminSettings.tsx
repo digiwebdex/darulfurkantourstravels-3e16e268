@@ -45,6 +45,7 @@ import { CURRENCY } from "@/lib/currency";
 import ImageUpload from "./ImageUpload";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { useTheme } from "next-themes";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 interface CompanyInfo {
   name: string;
@@ -128,6 +129,7 @@ const ThemeSelector = () => {
 const AdminSettings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const { refreshSettings } = useSiteSettings();
   
   const { uploadImage, uploading } = useImageUpload({
     bucket: "admin-uploads",
@@ -262,13 +264,19 @@ const AdminSettings = () => {
   const handleSaveAll = async () => {
     setSaving(true);
     try {
+      console.log("Saving all site settings...");
       await Promise.all([
         saveSetting("company_info", companyInfo as unknown as Record<string, unknown>, "general"),
         saveSetting("contact_details", contactDetails as unknown as Record<string, unknown>, "general"),
         saveSetting("social_links", socialLinks as unknown as Record<string, unknown>, "general"),
         saveSetting("appearance", appearance as unknown as Record<string, unknown>, "appearance"),
       ]);
-      toast.success("All settings saved successfully!");
+      
+      // Refresh site settings context to update frontend immediately
+      console.log("Refreshing site settings context...");
+      await refreshSettings();
+      
+      toast.success("All settings saved successfully! Frontend updated.");
     } catch (error) {
       console.error("Error saving settings:", error);
       toast.error("Failed to save settings");

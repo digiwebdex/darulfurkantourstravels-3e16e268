@@ -61,6 +61,8 @@ interface NotificationLog {
 const AdminNotifications = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [testingSms, setTestingSms] = useState(false);
+  const [testPhoneNumber, setTestPhoneNumber] = useState("");
   const [smsSettings, setSmsSettings] = useState<NotificationSetting | null>(null);
   const [emailSettings, setEmailSettings] = useState<NotificationSetting | null>(null);
   const [whatsappSettings, setWhatsappSettings] = useState<NotificationSetting | null>(null);
@@ -116,21 +118,96 @@ const AdminNotifications = () => {
     if (!smsSettings) return;
     setSaving(true);
     try {
+      console.log("Saving SMS settings:", { 
+        id: smsSettings.id, 
+        is_enabled: smsSettings.is_enabled,
+        config: smsSettings.config 
+      });
+      
       const { error } = await supabase
         .from("notification_settings")
         .update({
           is_enabled: smsSettings.is_enabled,
           config: smsSettings.config as any,
+          updated_at: new Date().toISOString(),
         })
         .eq("id", smsSettings.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Database error saving SMS settings:", error);
+        throw error;
+      }
+      
+      console.log("SMS settings saved successfully");
       toast.success("SMS settings saved successfully");
+      
+      // Refresh settings to confirm save
+      await fetchSettings();
     } catch (error: any) {
       console.error("Error saving SMS settings:", error);
-      toast.error("Failed to save SMS settings");
+      toast.error(`Failed to save SMS settings: ${error.message || 'Unknown error'}`);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const sendTestSms = async () => {
+    if (!smsSettings || !testPhoneNumber) {
+      toast.error("Please enter a test phone number");
+      return;
+    }
+
+    const config = smsSettings.config as SMSConfig;
+    if (!config.api_key || !config.sender_id) {
+      toast.error("Please configure API Key and Sender ID before testing");
+      return;
+    }
+
+    setTestingSms(true);
+    try {
+      console.log("Sending test SMS to:", testPhoneNumber);
+      
+      // Format phone number
+      let formattedPhone = testPhoneNumber.replace(/[^0-9]/g, '');
+      if (formattedPhone.startsWith('0')) {
+        formattedPhone = '880' + formattedPhone.substring(1);
+      } else if (!formattedPhone.startsWith('880')) {
+        formattedPhone = '880' + formattedPhone;
+      }
+
+      const testMessage = "দারুল ফুরকান ট্যুরস: এটি একটি টেস্ট SMS। আপনার SMS সেটিংস সঠিকভাবে কাজ করছে! ✅";
+      
+      const apiUrl = `http://bulksmsbd.net/api/smsapi?api_key=${config.api_key}&type=text&number=${formattedPhone}&senderid=${config.sender_id}&message=${encodeURIComponent(testMessage)}`;
+      
+      console.log("Test SMS API URL (without key):", apiUrl.replace(config.api_key, "***"));
+      
+      // Use edge function to send test SMS (avoids CORS)
+      const { data, error } = await supabase.functions.invoke('send-booking-notification', {
+        body: { 
+          testMode: true,
+          testPhone: formattedPhone,
+          testMessage: testMessage
+        }
+      });
+      
+      if (error) {
+        console.error("Test SMS error:", error);
+        throw new Error(error.message || 'Failed to send test SMS');
+      }
+      
+      console.log("Test SMS response:", data);
+      
+      if (data?.success) {
+        toast.success(`Test SMS sent successfully to ${testPhoneNumber}`);
+      } else {
+        throw new Error(data?.error || 'SMS sending failed');
+      }
+      
+    } catch (error: any) {
+      console.error("Test SMS error:", error);
+      toast.error(`Failed to send test SMS: ${error.message}`);
+    } finally {
+      setTestingSms(false);
     }
   };
 
@@ -380,6 +457,39 @@ const AdminNotifications = () => {
                   </Button>
                 </div>
               </div>
+              
+              {/* Test SMS Section */}
+              <div className="border-t pt-4 mt-4">
+                <h4 className="font-medium mb-3 flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  Test SMS
+                </h4>
+                <div className="flex gap-3 items-end">
+                  <div className="flex-1 space-y-2">
+                    <Label htmlFor="test-phone">Test Phone Number</Label>
+                    <Input
+                      id="test-phone"
+                      placeholder="01712345678"
+                      value={testPhoneNumber}
+                      onChange={(e) => setTestPhoneNumber(e.target.value)}
+                    />
+                  </div>
+                  <Button 
+                    onClick={sendTestSms} 
+                    disabled={testingSms || !smsSettings?.is_enabled}
+                    variant="outline"
+                  >
+                    {testingSms ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <MessageSquare className="h-4 w-4 mr-2" />}
+                    Send Test SMS
+                  </Button>
+                </div>
+                {!smsSettings?.is_enabled && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Enable SMS and save settings before testing
+                  </p>
+                )}
+              </div>
+              
               <div className="flex gap-2 pt-4">
                 <Button onClick={saveSmsSettings} disabled={saving}>
                   {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Settings className="h-4 w-4 mr-2" />}

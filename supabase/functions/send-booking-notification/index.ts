@@ -459,7 +459,65 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { bookingId, notificationType = "booking_confirmed", rejectionReason }: NotificationRequest = await req.json();
+    const requestBody = await req.json();
+    
+    // Handle Test SMS Mode
+    if (requestBody.testMode === true) {
+      console.log("Test SMS mode activated");
+      const { testPhone, testMessage } = requestBody;
+      
+      if (!testPhone) {
+        throw new Error("Test phone number required");
+      }
+      
+      // Fetch SMS settings
+      const { data: settings } = await supabase
+        .from("notification_settings")
+        .select("*")
+        .eq("setting_type", "sms")
+        .single();
+      
+      if (!settings?.is_enabled) {
+        throw new Error("SMS is not enabled. Please enable and save settings first.");
+      }
+      
+      const smsConfig = settings.config as unknown as SMSConfig;
+      
+      if (!smsConfig.api_key || !smsConfig.sender_id) {
+        throw new Error("SMS API Key and Sender ID are required");
+      }
+      
+      console.log("Sending test SMS to:", testPhone);
+      const result = await sendBulkSMS(
+        smsConfig.api_key, 
+        smsConfig.sender_id, 
+        testPhone, 
+        testMessage || "দারুল ফুরকান ট্যুরস: এটি একটি টেস্ট SMS। ✅"
+      );
+      
+      console.log("Test SMS result:", result);
+      
+      // Log the test SMS
+      await supabase.from("notification_logs").insert({
+        notification_type: "sms_test",
+        recipient: testPhone,
+        status: result.success ? "sent" : "failed",
+        error_message: result.error || null,
+        message_content: testMessage,
+      });
+      
+      if (result.success) {
+        return new Response(JSON.stringify({ success: true, message: "Test SMS sent successfully", response: result.response }), {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      } else {
+        throw new Error(result.error || "Failed to send test SMS");
+      }
+    }
+    
+    // Normal booking notification mode
+    const { bookingId, notificationType = "booking_confirmed", rejectionReason }: NotificationRequest = requestBody;
     console.log("Processing notification for booking:", bookingId, "Type:", notificationType);
 
     // Fetch booking details with package info
