@@ -65,36 +65,8 @@ const TestimonialsSection = () => {
       .eq("is_active", true)
       .order("order_index");
     
-    if (data && data.length > 0) {
+    if (data) {
       setTestimonials(data);
-    } else {
-      // Fallback to default testimonials
-      setTestimonials([
-        {
-          id: "1",
-          name: "মোহাম্মদ রহমান",
-          location: "ঢাকা, বাংলাদেশ",
-          package_name: "হজ্জ প্রিমিয়াম ২০২৫",
-          rating: 5,
-          quote: "আলহামদুলিল্লাহ, দারুল ফুরকান ট্যুরসের সাথে হজ্জ অভিজ্ঞতা আমাদের প্রত্যাশার চেয়েও ভালো ছিল। টিম সবকিছু দেখভাল করেছে - ভিসা থেকে হারামের কাছে আরামদায়ক থাকার ব্যবস্থা পর্যন্ত। গাইডরা জ্ঞানী এবং যত্নশীল ছিলেন।",
-        },
-        {
-          id: "2",
-          name: "ফাতিমা বেগম",
-          location: "চট্টগ্রাম, বাংলাদেশ",
-          package_name: "উমরাহ ইকোনমি",
-          rating: 5,
-          quote: "প্রথমবার উমরাহ করতে গিয়ে যাত্রা নিয়ে চিন্তিত ছিলাম। দারুল ফুরকান সবকিছু এত সহজ করে দিয়েছে। হোটেল মসজিদুল হারামের খুব কাছে ছিল এবং গ্রুপ লিডার সমস্ত আচার সঠিকভাবে পালন করতে সাহায্য করেছেন। জাযাকাল্লাহ!",
-        },
-        {
-          id: "3",
-          name: "আব্দুল করিম",
-          location: "সিলেট, বাংলাদেশ",
-          package_name: "হজ্জ VIP ২০২৪",
-          rating: 5,
-          quote: "VIP প্যাকেজ প্রতিটি টাকার মূল্য ছিল। হারামের পাশে ৫ তারা হোটেল, বিজনেস ক্লাস ফ্লাইট, এবং স্টাফদের ব্যক্তিগত মনোযোগ। আমার বাবা-মা তাদের বয়সে আরামে হজ্জ করতে পেরেছেন। দারুল ফুরকানকে ধন্যবাদ!",
-        },
-      ]);
     }
     setLoading(false);
   };
@@ -103,17 +75,8 @@ const TestimonialsSection = () => {
     return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
   };
 
-  if (loading) {
-    return (
-      <section className="py-24 bg-gradient-to-b from-background to-muted overflow-hidden">
-        <div className="container">
-          <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        </div>
-      </section>
-    );
-  }
+  // Return null if loading or no testimonials (no fallback content)
+  if (loading || testimonials.length === 0) return null;
 
   return (
     <IslamicBorder>

@@ -65,19 +65,12 @@ const ContactSection = () => {
       .eq("is_active", true)
       .order("order_index");
     
-    if (data && data.length > 0) {
+    if (data) {
       setContactInfo(data.map(item => ({
         ...item,
         details: Array.isArray(item.details) ? item.details as string[] : [],
         map_link: (item as any).map_link || null,
       })));
-    } else {
-      setContactInfo([
-        { id: "1", icon_name: "Phone", title: "Call Us", details: ["+880 1234-567890", "+880 9876-543210"], type: "phone", order_index: 0, map_link: null },
-        { id: "2", icon_name: "Mail", title: "Email Us", details: ["info@smelitehajj.com", "support@smelitehajj.com"], type: "email", order_index: 1, map_link: null },
-        { id: "3", icon_name: "MapPin", title: "Visit Us", details: ["Savar, Dhaka", "Bangladesh"], type: "address", order_index: 2, map_link: "https://maps.app.goo.gl/mCw1xq8ehdYoV6ud6" },
-        { id: "4", icon_name: "Clock", title: "Office Hours", details: ["Sat - Thu: 9AM - 8PM", "Friday: Closed"], type: "hours", order_index: 3, map_link: null },
-      ]);
     }
   };
 

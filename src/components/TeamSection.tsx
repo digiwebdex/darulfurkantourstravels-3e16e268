@@ -37,21 +37,9 @@ const TeamSection = () => {
       .eq("is_active", true)
       .order("order_index");
     
-    if (data && data.length > 0) {
+    if (data) {
       setManagementTeam(data.filter(m => m.board_type === "management"));
       setShariahBoard(data.filter(m => m.board_type === "shariah"));
-    } else {
-      // Fallback to default team members
-      setManagementTeam([
-        { id: "1", name: "A. S. M. Al-Amin", role: "Chairman", qualifications: "Honours Islamic Studies, National University, Bangladesh", board_type: "management", order_index: 0 },
-        { id: "2", name: "Mufti Mohammad Arif Hossain", role: "Director & Madina Co-ordinator", qualifications: "Imam and Khatib, Savar Thana Bus-stand Jame Masjid. Senior Muhaddith, Jamia Mahmudia Madrasha.", board_type: "management", order_index: 1 },
-        { id: "3", name: "Abul Kalam", role: "Director", qualifications: "Honours Islamic Studies, National University, Bangladesh", board_type: "management", order_index: 2 },
-        { id: "4", name: "Muzahidul Islam Nahid", role: "Asst. Director & Makkah Co-ordinator", qualifications: "Masters, Al-Hadith, Islamic Arabic University, Bangladesh", board_type: "management", order_index: 3 },
-      ]);
-      setShariahBoard([
-        { id: "5", name: "Habibullah Mesbah Madani", role: "Shariah Consultant", qualifications: "Honours Islamic Law and Jurisprudence, Madina Islami University, Saudi Arabia", board_type: "shariah", order_index: 0 },
-        { id: "6", name: "Anamul Hasan Sadi", role: "Consultant", qualifications: "Hafez, International Qari", board_type: "shariah", order_index: 1 },
-      ]);
     }
     setLoading(false);
   };
@@ -73,17 +61,8 @@ const TeamSection = () => {
     visible: { opacity: 1, y: 0 },
   };
 
-  if (loading) {
-    return (
-      <section id="team" className="py-24 bg-background relative overflow-hidden">
-        <div className="container">
-          <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        </div>
-      </section>
-    );
-  }
+  // Return null if loading or no team members (no fallback content)
+  if (loading || (managementTeam.length === 0 && shariahBoard.length === 0)) return null;
 
   return (
     <IslamicBorder>
