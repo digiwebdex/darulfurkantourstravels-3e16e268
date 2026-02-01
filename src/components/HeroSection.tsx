@@ -1,13 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Star, ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence, Easing } from "framer-motion";
 import { useTranslation } from "@/hooks/useTranslation";
 import HeroCurveWave from "./HeroCurveWave";
 
-// Import hero images (brighter set)
+// Import hero images for fallback image display
 import heroKaaba from "@/assets/hero-kaaba.jpg";
 import heroMedina from "@/assets/hero-medina-new.jpg";
 import heroHajj from "@/assets/hero-hajj-banner.jpg";
@@ -33,55 +32,7 @@ interface HeroSlide {
 const HeroSection = () => {
   const { t, language } = useTranslation();
   
-  const getDefaultSlides = useCallback((): HeroSlide[] => [
-    {
-      id: "default-1",
-      title: t("hero", "title", "দারুল ফুরকান ট্যুরস এবং ট্রাভেলস"),
-      subtitle: t("hero", "subtitle", "আপনার পবিত্র যাত্রার সঙ্গী"),
-      description: t("hero", "description", "হজ্জ ও উমরাহ প্যাকেজের জন্য বাংলাদেশের বিশ্বস্ত প্রতিষ্ঠান। আমরা প্রিমিয়াম সার্ভিস ও সম্পূর্ণ গাইডেন্স প্রদান করি।"),
-      badge_text: t("hero", "badge", "সরকার অনুমোদিত হজ্জ ও উমরাহ এজেন্সি"),
-      primary_button_text: t("packages", "hajj_title", "হজ্জ প্যাকেজ দেখুন"),
-      primary_button_link: "#hajj",
-      secondary_button_text: t("packages", "umrah_title", "উমরাহ প্যাকেজ দেখুন"),
-      secondary_button_link: "#umrah",
-      background_image_url: heroKaaba,
-      stats: [
-        { number: "১০+", label: t("common", "experience", "বছরের অভিজ্ঞতা") },
-        { number: "৫০০০+", label: t("common", "pilgrims", "সন্তুষ্ট হাজী") },
-        { number: "১০০%", label: t("common", "satisfaction", "সন্তুষ্টি হার") },
-        { number: "২৪/৭", label: t("common", "support", "সাপোর্ট") },
-      ],
-    },
-    {
-      id: "default-2",
-      title: t("packages", "umrah_title", "উমরাহ ২০২৬"),
-      subtitle: t("packages", "special_offer", "বিশেষ অফার"),
-      description: t("packages", "lottery_text", "হজ্জের পর উমরাহ প্যাকেজ - লটারি ভিত্তিক ফ্রি উমরাহের সুযোগ। প্রতি ৫০ জনে ১ জন বিজয়ী!"),
-      badge_text: t("packages", "booking_offer", "বিশেষ ছাড়"),
-      primary_button_text: t("common", "view_details", "প্যাকেজ দেখুন"),
-      primary_button_link: "#packages",
-      background_image_url: heroMedina,
-      stats: [
-        { number: "৳১,৩৫,০০০", label: t("packages", "transit_flight", "ট্রানজিট ফ্লাইট থেকে") },
-        { number: "৳১,৪৫,০০০", label: t("packages", "direct_flight", "ডাইরেক্ট ফ্লাইট থেকে") },
-      ],
-    },
-    {
-      id: "default-3",
-      title: t("packages", "hajj_title", "হজ্জ ২০২৬"),
-      subtitle: t("common", "book_now", "এখনই বুকিং করুন"),
-      description: "পবিত্র হজ্জ ২০২৬ এর জন্য আজই আপনার আসন নিশ্চিত করুন। সীমিত আসন।",
-      badge_text: "সীমিত আসন",
-      primary_button_text: t("common", "book_now", "বুকিং করুন"),
-      primary_button_link: "#hajj",
-      background_image_url: heroHajj,
-      stats: [
-        { number: "৫ স্টার", label: t("packages", "hotel", "হোটেল") },
-        { number: "VIP", label: "সার্ভিস" },
-        { number: "৩ বেলা", label: t("packages", "meals", "খাবার") },
-      ],
-    },
-  ], [t]);
+  // No hardcoded default slides - content comes from database only
 
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -92,9 +43,7 @@ const HeroSection = () => {
   const [isHovered, setIsHovered] = useState(false);
   const autoplayRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    setSlides(getDefaultSlides());
-  }, [language, getDefaultSlides]);
+  // Slides loaded from database only
 
   useEffect(() => {
     fetchHeroContent();
@@ -177,8 +126,7 @@ const HeroSection = () => {
     else if (distance < -50) goToPrevious();
   };
 
-  const defaultContent = getDefaultSlides()[0];
-  const content = slides[currentSlide] || defaultContent;
+  const content = slides[currentSlide];
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -200,17 +148,11 @@ const HeroSection = () => {
     },
   };
 
-  if (isLoading && slides.length === 0) {
-    return (
-      <section className="relative min-h-screen flex items-center justify-center bg-primary">
-        <div className="container text-center">
-          <Skeleton className="h-12 w-64 mx-auto mb-4 bg-primary-foreground/10" />
-          <Skeleton className="h-8 w-48 mx-auto mb-8 bg-primary-foreground/10" />
-          <Skeleton className="h-6 w-96 mx-auto bg-primary-foreground/10" />
-        </div>
-      </section>
-    );
-  }
+  // Return null if no slides (no fallback content, database must have hero slides)
+  if (slides.length === 0) return null;
+  
+  // Safe guard for content
+  if (!content) return null;
 
   return (
     <section

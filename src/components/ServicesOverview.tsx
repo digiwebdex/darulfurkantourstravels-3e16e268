@@ -150,19 +150,8 @@ const ServicesOverview = () => {
       .eq("is_active", true)
       .order("order_index");
     
-    if (data && data.length > 0) {
+    if (data) {
       setServices(data);
-    } else {
-      setServices([
-        { id: "1", icon_name: "Plane", title: "ফ্লাইট বুকিং", description: "সৌদি আরবে আরামদায়ক ভ্রমণের জন্য প্রিমিয়াম এয়ারলাইন্স", link_url: null, order_index: 0 },
-        { id: "2", icon_name: "Hotel", title: "হোটেল বুকিং", description: "হারামের কাছে হ্যান্ডপিকড হোটেল সুবিধাজনক ইবাদতের জন্য", link_url: null, order_index: 1 },
-        { id: "3", icon_name: "Shield", title: "ভিসা প্রসেসিং", description: "হজ্জ ও উমরাহ ভিসা প্রসেসিংয়ে ১০০% সফলতার হার", link_url: "#visa", order_index: 2 },
-        { id: "4", icon_name: "Users", title: "অভিজ্ঞ গাইড", description: "আচার-অনুষ্ঠানে পথ দেখাতে অভিজ্ঞ ইসলামিক স্কলার", link_url: null, order_index: 3 },
-        { id: "5", icon_name: "Clock", title: "২৪/৭ সাপোর্ট", description: "আপনার পবিত্র যাত্রায় সার্বক্ষণিক সহায়তা", link_url: "#contact", order_index: 4 },
-        { id: "6", icon_name: "HeartHandshake", title: "সম্পূর্ণ যত্ন", description: "রওনা থেকে ফিরে আসা পর্যন্ত প্রতিটি বিষয়ে যত্ন নিই", link_url: null, order_index: 5 },
-        { id: "7", icon_name: "Ticket", title: "এয়ার টিকেট", description: "বিশ্বস্ত এয়ারলাইন্সে বিশ্বব্যাপী সাশ্রয়ী মূল্যে এয়ার টিকেট", link_url: null, order_index: 6 },
-        { id: "8", icon_name: "Map", title: "ট্যুর প্যাকেজ", description: "বিশ্বের সুন্দর গন্তব্যগুলি অন্বেষণ করতে উত্তেজনাপূর্ণ ট্যুর প্যাকেজ", link_url: null, order_index: 7 },
-      ]);
     }
     setLoading(false);
   };
@@ -201,17 +190,8 @@ const ServicesOverview = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <section className="py-20 bg-card relative overflow-hidden">
-        <div className="container">
-          <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        </div>
-      </section>
-    );
-  }
+  // Return null if loading or no services (no fallback content)
+  if (loading || services.length === 0) return null;
 
   return (
     <IslamicBorder>
