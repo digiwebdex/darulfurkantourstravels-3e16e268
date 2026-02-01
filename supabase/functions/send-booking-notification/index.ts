@@ -1,8 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
-// Management notification number - receives first SMS for all new bookings
-const MANAGEMENT_PHONE = "8801867666888";
+// Management notification number - receives SMS only for NEW bookings (order submitted)
+const MANAGEMENT_PHONE = "8801339080532";
 
 // Simple SMTP helper for sending emails
 const sendSMTPEmail = async (
