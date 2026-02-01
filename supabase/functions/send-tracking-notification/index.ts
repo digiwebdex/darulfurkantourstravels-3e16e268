@@ -185,29 +185,33 @@ const getCustomerSmsMessage = (
   packageTitle: string,
   bookingIdShort: string,
   totalPrice: number,
+  bookingId: string,
   notes?: string
 ): string => {
+  const trackingLink = `https://darulfurkantourstravels.lovable.app/track-order?id=${bookingId}`;
+  const companyName = "দারুল ফুরকান ট্যুরস";
+  
   switch (status) {
     case 'order_submitted':
-      return `Dear ${customerName}, your booking for ${packageTitle} has been submitted successfully and is awaiting document review. Booking ID: ${bookingIdShort}. - S M Elite Hajj Limited`;
+      return `প্রিয় ${customerName}, ${packageTitle} এর বুকিং সফলভাবে জমা হয়েছে! আইডি: ${bookingIdShort}. অনুগ্রহ করে প্রয়োজনীয় ডকুমেন্ট আপলোড করুন। স্ট্যাটাস দেখুন: ${trackingLink} - ${companyName}`;
     
     case 'documents_received':
-      return `Dear ${customerName}, your documents for ${packageTitle} have been received successfully. We will begin reviewing them shortly. Booking ID: ${bookingIdShort}. - S M Elite Hajj Limited`;
+      return `প্রিয় ${customerName}, ${packageTitle} এর ডকুমেন্ট পাওয়া গেছে। শীঘ্রই রিভিউ শুরু হবে। আইডি: ${bookingIdShort}. স্ট্যাটাস দেখুন: ${trackingLink} - ${companyName}`;
     
     case 'under_review':
-      return `Dear ${customerName}, your documents for ${packageTitle} are under review. We will update you shortly. Booking ID: ${bookingIdShort}. - S M Elite Hajj Limited`;
+      return `প্রিয় ${customerName}, ${packageTitle} এর ডকুমেন্ট রিভিউ চলছে। শীঘ্রই আপডেট পাবেন। আইডি: ${bookingIdShort}. স্ট্যাটাস দেখুন: ${trackingLink} - ${companyName}`;
     
     case 'approved':
-      return `Dear ${customerName}, CONGRATULATIONS! Your booking for ${packageTitle} has been APPROVED by S M Elite Hajj Limited. Total Amount: ${formatCurrency(totalPrice)}. Please complete your payment. Booking ID: ${bookingIdShort}. Contact us for next steps. - S M Elite Hajj Limited`;
+      return `প্রিয় ${customerName}, অভিনন্দন! ${packageTitle} এর বুকিং অনুমোদন হয়েছে! মোট: ${formatCurrency(totalPrice)}. পেমেন্ট সম্পন্ন করুন। আইডি: ${bookingIdShort}. স্ট্যাটাস দেখুন: ${trackingLink} - ${companyName}`;
     
     case 'processing':
-      return `Dear ${customerName}, your booking for ${packageTitle} is now being processed. Booking ID: ${bookingIdShort}. - S M Elite Hajj Limited`;
+      return `প্রিয় ${customerName}, ${packageTitle} এর বুকিং প্রসেসিং হচ্ছে। আইডি: ${bookingIdShort}. স্ট্যাটাস দেখুন: ${trackingLink} - ${companyName}`;
     
     case 'completed':
-      return `Dear ${customerName}, your booking process for ${packageTitle} has been completed successfully. Thank you for choosing S M Elite Hajj Limited! Booking ID: ${bookingIdShort}. - S M Elite Hajj Limited`;
+      return `প্রিয় ${customerName}, ${packageTitle} এর বুকিং সম্পন্ন হয়েছে! আল্লাহ আপনার হজ্জ/উমরাহ কবুল করুন। আইডি: ${bookingIdShort}. ধন্যবাদ! - ${companyName}`;
     
     default:
-      return `Dear ${customerName}, your booking status has been updated to: ${status}. Booking ID: ${bookingIdShort}. - S M Elite Hajj Limited`;
+      return `প্রিয় ${customerName}, বুকিং স্ট্যাটাস আপডেট: ${status}. আইডি: ${bookingIdShort}. স্ট্যাটাস দেখুন: ${trackingLink} - ${companyName}`;
   }
 };
 
@@ -222,59 +226,80 @@ const getCustomerEmailTemplate = (
   travelDate: string | null,
   durationDays: number,
   packageType: string,
+  bookingId: string,
   notes?: string
 ): { subject: string; html: string } => {
+  const trackingLink = `https://darulfurkantourstravels.lovable.app/track-order?id=${bookingId}`;
+  const companyNameBn = "দারুল ফুরকান ট্যুরস এন্ড ট্রাভেলস";
+  const companyNameEn = "Darul Furkan Tours & Travels";
+  
   const baseStyles = `
     <style>
-      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+      body { font-family: 'Noto Sans Bengali', Arial, sans-serif; line-height: 1.8; color: #333; }
       .container { max-width: 600px; margin: 0 auto; padding: 20px; }
       .header { padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
       .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
       .details-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
       .detail-row { padding: 10px 0; border-bottom: 1px solid #eee; }
-      .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+      .footer { text-align: center; padding: 20px; background: #1a4d2e; color: white; font-size: 12px; border-radius: 0 0 10px 10px; }
+      .footer a { color: #d4a853; }
       .highlight { background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #d4a853; }
       .success-highlight { background: #d4edda; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745; }
+      .track-btn { display: inline-block; padding: 12px 24px; background: #1a4d2e; color: white !important; text-decoration: none; border-radius: 8px; margin: 15px 0; }
     </style>
+  `;
+
+  const footerHtml = `
+    <div class="footer">
+      <p style="font-size: 1.2em; font-weight: bold; margin-bottom: 5px;">${companyNameBn}</p>
+      <p>${companyNameEn}</p>
+      <p>📍 ৩৮২, বাগানবাড়ি, স্বাধীনতা সরণি, উত্তর বাড্ডা, ঢাকা ১২১২</p>
+      <p>📞 01741-719932 | 01339-080532</p>
+      <p>✉️ <a href="mailto:info@darulfurkantourstravels.com">info@darulfurkantourstravels.com</a></p>
+      <p>🌐 <a href="https://darulfurkantourstravels.lovable.app">www.darulfurkantourstravels.com</a></p>
+    </div>
   `;
 
   const bookingDetailsHtml = `
     <div class="details-box">
-      <div class="detail-row"><span style="color: #666;">Booking ID:</span> <strong>${bookingIdShort}</strong></div>
-      <div class="detail-row"><span style="color: #666;">Package:</span> <strong>${packageTitle}</strong></div>
-      <div class="detail-row"><span style="color: #666;">Type:</span> <strong>${packageType}</strong></div>
-      <div class="detail-row"><span style="color: #666;">Duration:</span> <strong>${durationDays} Days</strong></div>
-      <div class="detail-row"><span style="color: #666;">Passengers:</span> <strong>${passengerCount}</strong></div>
-      <div class="detail-row"><span style="color: #666;">Travel Date:</span> <strong>${travelDate || "To be confirmed"}</strong></div>
-      <div class="detail-row"><span style="color: #666;">Total Amount:</span> <strong style="color: #d4a853; font-size: 1.2em;">${formatCurrency(totalPrice)}</strong></div>
+      <div class="detail-row"><span style="color: #666;">বুকিং আইডি:</span> <strong>${bookingIdShort}</strong></div>
+      <div class="detail-row"><span style="color: #666;">প্যাকেজ:</span> <strong>${packageTitle}</strong></div>
+      <div class="detail-row"><span style="color: #666;">ধরন:</span> <strong>${packageType === 'hajj' ? 'হজ্জ' : 'উমরাহ'}</strong></div>
+      <div class="detail-row"><span style="color: #666;">সময়কাল:</span> <strong>${durationDays} দিন</strong></div>
+      <div class="detail-row"><span style="color: #666;">যাত্রী সংখ্যা:</span> <strong>${passengerCount} জন</strong></div>
+      <div class="detail-row"><span style="color: #666;">যাত্রার তারিখ:</span> <strong>${travelDate || "শীঘ্রই জানানো হবে"}</strong></div>
+      <div class="detail-row"><span style="color: #666;">মোট পরিমাণ:</span> <strong style="color: #1a4d2e; font-size: 1.2em;">${formatCurrency(totalPrice)}</strong></div>
     </div>
+    <p style="text-align: center;">
+      <a href="${trackingLink}" class="track-btn">🔍 বুকিং স্ট্যাটাস দেখুন</a>
+    </p>
   `;
 
   switch (status) {
     case 'order_submitted':
       return {
-        subject: `📝 Booking Submitted - ${packageTitle}`,
+        subject: `📝 বুকিং জমা হয়েছে - ${packageTitle} | ${companyNameBn}`,
         html: `
           <!DOCTYPE html>
-          <html><head><meta charset="utf-8"><title>Booking Submitted</title>${baseStyles}</head>
+          <html><head><meta charset="utf-8"><title>বুকিং জমা হয়েছে</title>${baseStyles}</head>
           <body>
             <div class="container">
-              <div class="header" style="background: linear-gradient(135deg, #d4a853, #c4963e); color: white;">
-                <h1>📝 Booking Submitted</h1>
-                <p>Your booking is awaiting document review</p>
+              <div class="header" style="background: linear-gradient(135deg, #1a4d2e, #2d6a4f); color: white;">
+                <h1>📝 বুকিং জমা হয়েছে!</h1>
+                <p>আপনার বুকিং সফলভাবে গৃহীত হয়েছে</p>
               </div>
               <div class="content">
-                <p>Dear ${customerName},</p>
-                <p>Thank you for submitting your booking with S M Elite Hajj Limited. Your booking has been received and is <strong>awaiting document review</strong>.</p>
+                <p>প্রিয় ${customerName},</p>
+                <p>${companyNameBn} এ বুকিং করার জন্য ধন্যবাদ! আপনার বুকিং গৃহীত হয়েছে এবং <strong>ডকুমেন্ট রিভিউয়ের অপেক্ষায়</strong> আছে।</p>
                 <div class="highlight">
-                  <strong>What's Next?</strong><br>
-                  Please upload your required documents (passport, photos, etc.) so we can proceed with the review process.
+                  <strong>⏭️ পরবর্তী পদক্ষেপ:</strong><br>
+                  অনুগ্রহ করে প্রয়োজনীয় ডকুমেন্ট (পাসপোর্ট কপি, ছবি ইত্যাদি) আপলোড করুন যাতে আমরা রিভিউ প্রক্রিয়া শুরু করতে পারি।
                 </div>
                 ${bookingDetailsHtml}
-                ${notes ? `<p><strong>Note:</strong> ${notes}</p>` : ''}
-                <p>We will notify you once your documents have been reviewed.</p>
+                ${notes ? `<p><strong>নোট:</strong> ${notes}</p>` : ''}
+                <p>ডকুমেন্ট রিভিউ সম্পন্ন হলে আমরা আপনাকে জানাব।</p>
               </div>
-              <div class="footer"><p>S M Elite Hajj Limited - Your Trusted Partner for Hajj & Umrah</p></div>
+              ${footerHtml}
             </div>
           </body></html>
         `
@@ -282,27 +307,27 @@ const getCustomerEmailTemplate = (
 
     case 'documents_received':
       return {
-        subject: `📄 Documents Received - ${packageTitle}`,
+        subject: `📄 ডকুমেন্ট পাওয়া গেছে - ${packageTitle} | ${companyNameBn}`,
         html: `
           <!DOCTYPE html>
-          <html><head><meta charset="utf-8"><title>Documents Received</title>${baseStyles}</head>
+          <html><head><meta charset="utf-8"><title>ডকুমেন্ট পাওয়া গেছে</title>${baseStyles}</head>
           <body>
             <div class="container">
               <div class="header" style="background: linear-gradient(135deg, #17a2b8, #138496); color: white;">
-                <h1>📄 Documents Received</h1>
-                <p>We have received your documents</p>
+                <h1>📄 ডকুমেন্ট পাওয়া গেছে</h1>
+                <p>আপনার ডকুমেন্ট সফলভাবে গৃহীত হয়েছে</p>
               </div>
               <div class="content">
-                <p>Dear ${customerName},</p>
-                <p>We are pleased to inform you that your documents have been <strong>received successfully</strong>.</p>
+                <p>প্রিয় ${customerName},</p>
+                <p>আমরা আপনাকে জানাতে পেরে খুশি যে আপনার ডকুমেন্ট <strong>সফলভাবে পাওয়া গেছে</strong>।</p>
                 <div class="highlight">
-                  <strong>What's Next?</strong><br>
-                  Our team will begin reviewing your documents shortly. You will receive an update once the review is complete.
+                  <strong>⏭️ পরবর্তী পদক্ষেপ:</strong><br>
+                  আমাদের টিম শীঘ্রই আপনার ডকুমেন্ট রিভিউ শুরু করবে। রিভিউ সম্পন্ন হলে আপনি আপডেট পাবেন।
                 </div>
                 ${bookingDetailsHtml}
-                ${notes ? `<p><strong>Note:</strong> ${notes}</p>` : ''}
+                ${notes ? `<p><strong>নোট:</strong> ${notes}</p>` : ''}
               </div>
-              <div class="footer"><p>S M Elite Hajj Limited - Your Trusted Partner for Hajj & Umrah</p></div>
+              ${footerHtml}
             </div>
           </body></html>
         `
@@ -310,27 +335,27 @@ const getCustomerEmailTemplate = (
 
     case 'under_review':
       return {
-        subject: `🔍 Documents Under Review - ${packageTitle}`,
+        subject: `🔍 ডকুমেন্ট রিভিউ চলছে - ${packageTitle} | ${companyNameBn}`,
         html: `
           <!DOCTYPE html>
-          <html><head><meta charset="utf-8"><title>Under Review</title>${baseStyles}</head>
+          <html><head><meta charset="utf-8"><title>রিভিউ চলছে</title>${baseStyles}</head>
           <body>
             <div class="container">
               <div class="header" style="background: linear-gradient(135deg, #6c757d, #5a6268); color: white;">
-                <h1>🔍 Under Review</h1>
-                <p>Your documents are being reviewed</p>
+                <h1>🔍 রিভিউ চলছে</h1>
+                <p>আপনার ডকুমেন্ট যাচাই করা হচ্ছে</p>
               </div>
               <div class="content">
-                <p>Dear ${customerName},</p>
-                <p>Your documents are currently <strong>under review</strong> by our team.</p>
+                <p>প্রিয় ${customerName},</p>
+                <p>আপনার ডকুমেন্ট বর্তমানে আমাদের টিম দ্বারা <strong>রিভিউ করা হচ্ছে</strong>।</p>
                 <div class="highlight">
-                  <strong>Please Note:</strong><br>
-                  This process typically takes 1-3 business days. We will notify you as soon as the review is complete.
+                  <strong>⏳ অনুগ্রহ করে অপেক্ষা করুন:</strong><br>
+                  এই প্রক্রিয়া সাধারণত ১-৩ কর্মদিবস সময় নেয়। রিভিউ সম্পন্ন হলে আমরা আপনাকে জানাব।
                 </div>
                 ${bookingDetailsHtml}
-                ${notes ? `<p><strong>Note:</strong> ${notes}</p>` : ''}
+                ${notes ? `<p><strong>নোট:</strong> ${notes}</p>` : ''}
               </div>
-              <div class="footer"><p>S M Elite Hajj Limited - Your Trusted Partner for Hajj & Umrah</p></div>
+              ${footerHtml}
             </div>
           </body></html>
         `
@@ -338,37 +363,37 @@ const getCustomerEmailTemplate = (
 
     case 'approved':
       return {
-        subject: `✅ APPROVED - ${packageTitle} - Payment Required`,
+        subject: `✅ অনুমোদন হয়েছে - ${packageTitle} | ${companyNameBn}`,
         html: `
           <!DOCTYPE html>
-          <html><head><meta charset="utf-8"><title>Booking Approved</title>${baseStyles}</head>
+          <html><head><meta charset="utf-8"><title>বুকিং অনুমোদন</title>${baseStyles}</head>
           <body>
             <div class="container">
               <div class="header" style="background: linear-gradient(135deg, #28a745, #218838); color: white;">
-                <h1>✅ Booking Approved!</h1>
-                <p>Congratulations! Your booking has been approved</p>
+                <h1>✅ বুকিং অনুমোদন হয়েছে!</h1>
+                <p>অভিনন্দন! আপনার বুকিং অনুমোদিত হয়েছে</p>
               </div>
               <div class="content">
-                <p>Dear ${customerName},</p>
-                <p>We are delighted to inform you that your booking has been <strong>APPROVED</strong> by S M Elite Hajj Limited!</p>
+                <p>প্রিয় ${customerName},</p>
+                <p>আমরা আপনাকে জানাতে পেরে আনন্দিত যে আপনার বুকিং ${companyNameBn} কর্তৃক <strong>অনুমোদিত</strong> হয়েছে!</p>
                 <div class="success-highlight">
-                  <strong>🎉 Congratulations!</strong><br>
-                  Your application has been successfully approved. Please proceed with the payment to confirm your reservation.
+                  <strong>🎉 অভিনন্দন!</strong><br>
+                  আপনার আবেদন সফলভাবে অনুমোদিত হয়েছে। অনুগ্রহ করে রিজার্ভেশন নিশ্চিত করতে পেমেন্ট সম্পন্ন করুন।
                 </div>
                 ${bookingDetailsHtml}
                 <div class="highlight">
-                  <strong>💳 Payment Required</strong><br>
-                  Please complete your payment of <strong style="color: #d4a853;">${formatCurrency(totalPrice)}</strong> to secure your booking.<br><br>
-                  <strong>Payment Options:</strong><br>
-                  • Bank Transfer<br>
-                  • bKash / Nagad<br>
-                  • Online Payment (SSLCommerz)<br>
-                  • Installment Plan Available
+                  <strong>💳 পেমেন্ট প্রয়োজন</strong><br>
+                  বুকিং নিশ্চিত করতে <strong style="color: #1a4d2e;">${formatCurrency(totalPrice)}</strong> পেমেন্ট করুন।<br><br>
+                  <strong>পেমেন্ট অপশন:</strong><br>
+                  • ব্যাংক ট্রান্সফার<br>
+                  • বিকাশ / নগদ<br>
+                  • অনলাইন পেমেন্ট (SSLCommerz)<br>
+                  • কিস্তি পরিকল্পনা উপলব্ধ
                 </div>
-                ${notes ? `<p><strong>Note:</strong> ${notes}</p>` : ''}
-                <p>If you have any questions, please contact us immediately.</p>
+                ${notes ? `<p><strong>নোট:</strong> ${notes}</p>` : ''}
+                <p>কোনো প্রশ্ন থাকলে অবিলম্বে যোগাযোগ করুন।</p>
               </div>
-              <div class="footer"><p>S M Elite Hajj Limited - Your Trusted Partner for Hajj & Umrah</p></div>
+              ${footerHtml}
             </div>
           </body></html>
         `
@@ -376,24 +401,24 @@ const getCustomerEmailTemplate = (
 
     case 'processing':
       return {
-        subject: `⚙️ Booking Processing - ${packageTitle}`,
+        subject: `⚙️ বুকিং প্রসেসিং - ${packageTitle} | ${companyNameBn}`,
         html: `
           <!DOCTYPE html>
-          <html><head><meta charset="utf-8"><title>Processing</title>${baseStyles}</head>
+          <html><head><meta charset="utf-8"><title>প্রসেসিং</title>${baseStyles}</head>
           <body>
             <div class="container">
               <div class="header" style="background: linear-gradient(135deg, #fd7e14, #e96b0a); color: white;">
-                <h1>⚙️ Processing</h1>
-                <p>Your booking is being processed</p>
+                <h1>⚙️ প্রসেসিং চলছে</h1>
+                <p>আপনার বুকিং প্রক্রিয়াধীন</p>
               </div>
               <div class="content">
-                <p>Dear ${customerName},</p>
-                <p>Your booking is now <strong>being processed</strong>. We are preparing everything for your journey.</p>
+                <p>প্রিয় ${customerName},</p>
+                <p>আপনার বুকিং এখন <strong>প্রক্রিয়াধীন</strong>। আমরা আপনার যাত্রার সবকিছু প্রস্তুত করছি।</p>
                 ${bookingDetailsHtml}
-                ${notes ? `<p><strong>Note:</strong> ${notes}</p>` : ''}
-                <p>We will notify you once everything is ready.</p>
+                ${notes ? `<p><strong>নোট:</strong> ${notes}</p>` : ''}
+                <p>সবকিছু প্রস্তুত হলে আমরা আপনাকে জানাব।</p>
               </div>
-              <div class="footer"><p>S M Elite Hajj Limited - Your Trusted Partner for Hajj & Umrah</p></div>
+              ${footerHtml}
             </div>
           </body></html>
         `
@@ -401,28 +426,28 @@ const getCustomerEmailTemplate = (
 
     case 'completed':
       return {
-        subject: `🎉 Booking Completed - ${packageTitle}`,
+        subject: `🎉 বুকিং সম্পন্ন - ${packageTitle} | ${companyNameBn}`,
         html: `
           <!DOCTYPE html>
-          <html><head><meta charset="utf-8"><title>Completed</title>${baseStyles}</head>
+          <html><head><meta charset="utf-8"><title>সম্পন্ন</title>${baseStyles}</head>
           <body>
             <div class="container">
               <div class="header" style="background: linear-gradient(135deg, #6f42c1, #5a32a3); color: white;">
-                <h1>🎉 Completed!</h1>
-                <p>Your booking process is complete</p>
+                <h1>🎉 সম্পন্ন!</h1>
+                <p>আপনার বুকিং প্রক্রিয়া সম্পূর্ণ</p>
               </div>
               <div class="content">
-                <p>Dear ${customerName},</p>
-                <p>We are pleased to inform you that your booking process has been <strong>completed successfully</strong>!</p>
+                <p>প্রিয় ${customerName},</p>
+                <p>আমরা আপনাকে জানাতে পেরে আনন্দিত যে আপনার বুকিং প্রক্রিয়া <strong>সফলভাবে সম্পন্ন</strong> হয়েছে!</p>
                 <div class="success-highlight">
-                  <strong>🙏 Thank You!</strong><br>
-                  Thank you for choosing S M Elite Hajj Limited for your spiritual journey. May Allah accept your Hajj/Umrah.
+                  <strong>🙏 ধন্যবাদ!</strong><br>
+                  আপনার পবিত্র যাত্রার জন্য ${companyNameBn} বেছে নেওয়ার জন্য ধন্যবাদ। আল্লাহ আপনার হজ্জ/উমরাহ কবুল করুন।
                 </div>
                 ${bookingDetailsHtml}
-                ${notes ? `<p><strong>Note:</strong> ${notes}</p>` : ''}
-                <p>We look forward to serving you again in the future.</p>
+                ${notes ? `<p><strong>নোট:</strong> ${notes}</p>` : ''}
+                <p>ভবিষ্যতে আবার আপনাকে সেবা করার অপেক্ষায় রইলাম।</p>
               </div>
-              <div class="footer"><p>S M Elite Hajj Limited - Your Trusted Partner for Hajj & Umrah</p></div>
+              ${footerHtml}
             </div>
           </body></html>
         `
@@ -430,22 +455,22 @@ const getCustomerEmailTemplate = (
 
     default:
       return {
-        subject: `📋 Status Update - ${packageTitle}`,
+        subject: `📋 স্ট্যাটাস আপডেট - ${packageTitle} | ${companyNameBn}`,
         html: `
           <!DOCTYPE html>
-          <html><head><meta charset="utf-8"><title>Status Update</title>${baseStyles}</head>
+          <html><head><meta charset="utf-8"><title>স্ট্যাটাস আপডেট</title>${baseStyles}</head>
           <body>
             <div class="container">
-              <div class="header" style="background: linear-gradient(135deg, #d4a853, #c4963e); color: white;">
-                <h1>📋 Status Update</h1>
+              <div class="header" style="background: linear-gradient(135deg, #1a4d2e, #2d6a4f); color: white;">
+                <h1>📋 স্ট্যাটাস আপডেট</h1>
               </div>
               <div class="content">
-                <p>Dear ${customerName},</p>
-                <p>Your booking status has been updated to: <strong>${status}</strong></p>
+                <p>প্রিয় ${customerName},</p>
+                <p>আপনার বুকিং স্ট্যাটাস আপডেট হয়েছে: <strong>${status}</strong></p>
                 ${bookingDetailsHtml}
-                ${notes ? `<p><strong>Note:</strong> ${notes}</p>` : ''}
+                ${notes ? `<p><strong>নোট:</strong> ${notes}</p>` : ''}
               </div>
-              <div class="footer"><p>S M Elite Hajj Limited - Your Trusted Partner for Hajj & Umrah</p></div>
+              ${footerHtml}
             </div>
           </body></html>
         `
@@ -531,6 +556,7 @@ const handler = async (req: Request): Promise<Response> => {
           booking.package.title,
           bookingIdShort,
           booking.total_price,
+          bookingId,
           notes
         );
 
@@ -587,6 +613,7 @@ const handler = async (req: Request): Promise<Response> => {
           booking.package.title,
           bookingIdShort,
           booking.total_price,
+          bookingId,
           notes
         );
 
@@ -675,6 +702,7 @@ const handler = async (req: Request): Promise<Response> => {
           booking.travel_date,
           booking.package.duration_days,
           booking.package.type.charAt(0).toUpperCase() + booking.package.type.slice(1),
+          bookingId,
           notes
         );
 
