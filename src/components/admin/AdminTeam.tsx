@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import ImageUpload from "./ImageUpload";
-import { Plus, Edit, Trash2, User } from "lucide-react";
+import { Plus, Edit, Trash2, User, Eye, EyeOff } from "lucide-react";
 import WhatsAppIcon from "../icons/WhatsAppIcon";
 import IMOIcon from "../icons/IMOIcon";
 
@@ -35,6 +35,7 @@ const AdminTeam = () => {
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<TeamMember | null>(null);
+  const [shariahBoardVisible, setShariahBoardVisible] = useState(true);
   const [formData, setFormData] = useState({
     name: "", role: "", qualifications: "", avatar_url: "", board_type: "management", whatsapp_number: "", imo_number: ""
   });
@@ -46,12 +47,60 @@ const AdminTeam = () => {
 
   useEffect(() => {
     fetchMembers();
+    fetchShariahBoardVisibility();
   }, []);
 
   const fetchMembers = async () => {
     const { data, error } = await supabase.from("team_members").select("*").order("order_index");
     if (!error && data) setMembers(data);
     setLoading(false);
+  };
+
+  const fetchShariahBoardVisibility = async () => {
+    const { data } = await supabase
+      .from("section_settings")
+      .select("is_active")
+      .eq("section_key", "shariah_board")
+      .maybeSingle();
+    
+    if (data !== null) {
+      setShariahBoardVisible(data.is_active);
+    }
+  };
+
+  const toggleShariahBoardVisibility = async () => {
+    const newValue = !shariahBoardVisible;
+    
+    // Check if setting exists
+    const { data: existing } = await supabase
+      .from("section_settings")
+      .select("id")
+      .eq("section_key", "shariah_board")
+      .maybeSingle();
+
+    if (existing) {
+      await supabase
+        .from("section_settings")
+        .update({ is_active: newValue })
+        .eq("section_key", "shariah_board");
+    } else {
+      await supabase
+        .from("section_settings")
+        .insert({
+          section_key: "shariah_board",
+          title: "Shariah Board",
+          is_active: newValue,
+          order_index: 99
+        });
+    }
+
+    setShariahBoardVisible(newValue);
+    toast({
+      title: newValue ? "Shariah Board Enabled" : "Shariah Board Disabled",
+      description: newValue 
+        ? "Shariah Board section is now visible on the website" 
+        : "Shariah Board section is now hidden from the website"
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -172,15 +221,29 @@ const AdminTeam = () => {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-4">
         <div>
           <CardTitle>Team Members</CardTitle>
           <CardDescription>Manage management and shariah board members</CardDescription>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) { setEditingItem(null); resetForm(); } }}>
-          <DialogTrigger asChild>
-            <Button><Plus className="w-4 h-4 mr-2" />Add Member</Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-4">
+          {/* Shariah Board Visibility Toggle */}
+          <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg border">
+            {shariahBoardVisible ? (
+              <Eye className="w-4 h-4 text-primary" />
+            ) : (
+              <EyeOff className="w-4 h-4 text-muted-foreground" />
+            )}
+            <span className="text-sm font-medium">Shariah Board</span>
+            <Switch 
+              checked={shariahBoardVisible} 
+              onCheckedChange={toggleShariahBoardVisibility}
+            />
+          </div>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) { setEditingItem(null); resetForm(); } }}>
+            <DialogTrigger asChild>
+              <Button><Plus className="w-4 h-4 mr-2" />Add Member</Button>
+            </DialogTrigger>
           <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingItem ? "Edit Team Member" : "Add Team Member"}</DialogTitle>
@@ -245,10 +308,18 @@ const AdminTeam = () => {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         {renderMemberTable(managementMembers, "Management Board")}
-        {renderMemberTable(shariahMembers, "Shariah Board")}
+        <div className={!shariahBoardVisible ? "opacity-50" : ""}>
+          {renderMemberTable(shariahMembers, "Shariah Board")}
+          {!shariahBoardVisible && (
+            <p className="text-sm text-muted-foreground mt-2 italic">
+              ⚠️ This section is currently hidden from the website
+            </p>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

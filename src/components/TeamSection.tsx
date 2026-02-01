@@ -24,10 +24,12 @@ const TeamSection = () => {
   const { language } = useTranslation();
   const [managementTeam, setManagementTeam] = useState<TeamMember[]>([]);
   const [shariahBoard, setShariahBoard] = useState<TeamMember[]>([]);
+  const [shariahBoardVisible, setShariahBoardVisible] = useState(true);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchTeamMembers();
+    fetchShariahBoardVisibility();
   }, [language]);
 
   const fetchTeamMembers = async () => {
@@ -42,6 +44,18 @@ const TeamSection = () => {
       setShariahBoard(data.filter(m => m.board_type === "shariah"));
     }
     setLoading(false);
+  };
+
+  const fetchShariahBoardVisibility = async () => {
+    const { data } = await supabase
+      .from("section_settings")
+      .select("is_active")
+      .eq("section_key", "shariah_board")
+      .maybeSingle();
+    
+    if (data !== null) {
+      setShariahBoardVisible(data.is_active);
+    }
   };
 
   const getInitials = (name: string) => {
@@ -84,8 +98,8 @@ const TeamSection = () => {
             </span>
           </motion.div>
 
-          {/* Shariah Board - Now First */}
-          {shariahBoard.length > 0 && (
+          {/* Shariah Board - Only show if visible */}
+          {shariahBoardVisible && shariahBoard.length > 0 && (
             <>
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
