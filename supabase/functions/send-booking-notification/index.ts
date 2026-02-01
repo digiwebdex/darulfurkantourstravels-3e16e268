@@ -414,17 +414,19 @@ const getCustomerSmsMessage = (
   rejectionReason?: string
 ): string => {
   const bookingId = bookingDetails.id.slice(0, 8).toUpperCase();
+  const trackingLink = `https://darulfurkantourstravels.lovable.app/track-order?id=${bookingDetails.id}`;
+  const packageType = bookingDetails.package.type === 'hajj' ? 'হজ্জ' : 'উমরাহ';
   
   if (notificationType === "payment_verified") {
-    return `প্রিয় ${customerName}, আপনার ${bookingDetails.package.title} এর পেমেন্ট নিশ্চিত হয়েছে! বুকিং আইডি: ${bookingId}. যাত্রার তারিখ: ${bookingDetails.travel_date || "শীঘ্রই জানানো হবে"}. মোট: ${formatCurrency(bookingDetails.total_price)}. ধন্যবাদ! - দারুল ফুরকান ট্যুরস`;
+    return `প্রিয় ${customerName}, আপনার ${bookingDetails.package.title} (${packageType}) এর পেমেন্ট নিশ্চিত হয়েছে! বুকিং আইডি: ${bookingId}. যাত্রী: ${bookingDetails.passenger_count} জন. মোট: ${formatCurrency(bookingDetails.total_price)}. স্ট্যাটাস দেখুন: ${trackingLink} - দারুল ফুরকান ট্যুরস এন্ড ট্রাভেলস`;
   }
 
   if (notificationType === "payment_rejected") {
-    return `প্রিয় ${customerName}, ${bookingDetails.package.title} এর পেমেন্ট যাচাই করা সম্ভব হয়নি। ${rejectionReason ? `কারণ: ${rejectionReason}. ` : ""}অনুগ্রহ করে যোগাযোগ করুন। বুকিং আইডি: ${bookingId}. - দারুল ফুরকান ট্যুরস`;
+    return `প্রিয় ${customerName}, ${bookingDetails.package.title} এর পেমেন্ট যাচাই করা সম্ভব হয়নি। ${rejectionReason ? `কারণ: ${rejectionReason}. ` : ""}অনুগ্রহ করে যোগাযোগ করুন: 01339-080532। বুকিং আইডি: ${bookingId}. - দারুল ফুরকান ট্যুরস এন্ড ট্রাভেলস`;
   }
 
   // Default: booking_confirmed
-  return `প্রিয় ${customerName}, ${bookingDetails.package.title} এর বুকিং নিশ্চিত হয়েছে! বুকিং আইডি: ${bookingId}. যাত্রী: ${bookingDetails.passenger_count} জন. মোট: ${formatCurrency(bookingDetails.total_price)}. ধন্যবাদ! - দারুল ফুরকান ট্যুরস`;
+  return `প্রিয় ${customerName}, ${bookingDetails.package.title} (${packageType}) এর বুকিং নিশ্চিত হয়েছে! বুকিং আইডি: ${bookingId}. যাত্রী: ${bookingDetails.passenger_count} জন. মোট: ${formatCurrency(bookingDetails.total_price)}. স্ট্যাটাস দেখুন: ${trackingLink} - দারুল ফুরকান ট্যুরস এন্ড ট্রাভেলস`;
 };
 
 const getManagementSmsMessage = (
