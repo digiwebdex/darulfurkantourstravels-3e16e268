@@ -85,7 +85,7 @@ const CTASection = () => {
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="border-2 border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 px-8 py-6 text-lg rounded-full gap-2"
+                  className="border-2 border-secondary bg-secondary/20 text-secondary hover:bg-secondary/30 px-8 py-6 text-lg rounded-full gap-2"
                 >
                   <Phone className="w-5 h-5" />
                   {content.secondary_button_text}
