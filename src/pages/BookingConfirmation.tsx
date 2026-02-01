@@ -392,12 +392,12 @@ const BookingConfirmation = () => {
             </CardContent>
           </Card>
 
-          {/* Document Upload Section */}
-          {bookingId && (user || booking.user_id) && (
+          {/* Document Upload Section - Always show for valid bookings */}
+          {bookingId && (
             <div className="mb-6">
               <BookingDocumentUploadInline 
                 bookingId={bookingId}
-                userId={user?.id || booking.user_id || ''}
+                userId={user?.id || booking.user_id || 'guest'}
               />
             </div>
           )}
