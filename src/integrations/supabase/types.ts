@@ -1246,6 +1246,173 @@ export type Database = {
         }
         Relationships: []
       }
+      hotel_booking_requests: {
+        Row: {
+          admin_notes: string | null
+          adult_count: number | null
+          check_in_date: string
+          check_out_date: string
+          child_count: number | null
+          country_code: string | null
+          created_at: string | null
+          guest_email: string | null
+          guest_name: string
+          guest_phone: string
+          hotel_id: string | null
+          id: string
+          request_id: string
+          room_count: number | null
+          special_requests: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          adult_count?: number | null
+          check_in_date: string
+          check_out_date: string
+          child_count?: number | null
+          country_code?: string | null
+          created_at?: string | null
+          guest_email?: string | null
+          guest_name: string
+          guest_phone: string
+          hotel_id?: string | null
+          id?: string
+          request_id: string
+          room_count?: number | null
+          special_requests?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          adult_count?: number | null
+          check_in_date?: string
+          check_out_date?: string
+          child_count?: number | null
+          country_code?: string | null
+          created_at?: string | null
+          guest_email?: string | null
+          guest_name?: string
+          guest_phone?: string
+          hotel_id?: string | null
+          id?: string
+          request_id?: string
+          room_count?: number | null
+          special_requests?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotel_booking_requests_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hotel_section_settings: {
+        Row: {
+          booking_enabled: boolean | null
+          created_at: string | null
+          id: string
+          is_enabled: boolean | null
+          section_key: string
+          star_label: string | null
+          subtitle: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          booking_enabled?: boolean | null
+          created_at?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          section_key?: string
+          star_label?: string | null
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          booking_enabled?: boolean | null
+          created_at?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          section_key?: string
+          star_label?: string | null
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      hotels: {
+        Row: {
+          city: string
+          contact_email: string | null
+          contact_phone: string | null
+          country: string | null
+          created_at: string | null
+          description: string | null
+          distance_from_haram: number | null
+          facilities: string[] | null
+          google_map_embed_url: string | null
+          google_map_link: string | null
+          id: string
+          images: string[] | null
+          is_active: boolean | null
+          name: string
+          order_index: number | null
+          star_rating: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          city: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string | null
+          description?: string | null
+          distance_from_haram?: number | null
+          facilities?: string[] | null
+          google_map_embed_url?: string | null
+          google_map_link?: string | null
+          id?: string
+          images?: string[] | null
+          is_active?: boolean | null
+          name: string
+          order_index?: number | null
+          star_rating?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          city?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string | null
+          description?: string | null
+          distance_from_haram?: number | null
+          facilities?: string[] | null
+          google_map_embed_url?: string | null
+          google_map_link?: string | null
+          id?: string
+          images?: string[] | null
+          is_active?: boolean | null
+          name?: string
+          order_index?: number | null
+          star_rating?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           budget_range: string | null
