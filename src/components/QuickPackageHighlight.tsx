@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Plane, Moon, Building2, Gift, ArrowRight, Star, Award, Crown, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
-import { motion } from "framer-motion";
 import { formatCurrency } from "@/lib/currency";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -71,31 +70,21 @@ const QuickPackageHighlight = () => {
   return (
     <section className="py-16 bg-muted/30" dir={isRTL ? "rtl" : "ltr"}>
       <div className="container px-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12"
-        >
+        <div className="text-center mb-12">
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-3">
             {settings.title}
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             {settings.subtitle}
           </p>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {packages.map((pkg, index) => {
+          {packages.map((pkg) => {
             const IconComponent = iconMap[pkg.icon_name] || Building2;
             return (
-              <motion.div
+              <div
                 key={pkg.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
                 className={`group relative bg-card rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-300 border ${
                   pkg.is_featured ? 'border-accent ring-2 ring-accent/20' : 'border-border hover:border-primary/30'
                 }`}
@@ -140,7 +129,7 @@ const QuickPackageHighlight = () => {
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </a>
-              </motion.div>
+              </div>
             );
           })}
         </div>
