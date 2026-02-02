@@ -1317,6 +1317,39 @@ export type Database = {
           },
         ]
       }
+      hotel_destinations: {
+        Row: {
+          country_code: string
+          country_name: string
+          created_at: string | null
+          flag_url: string | null
+          id: string
+          is_active: boolean | null
+          order_index: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          country_code: string
+          country_name: string
+          created_at?: string | null
+          flag_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          country_code?: string
+          country_name?: string
+          created_at?: string | null
+          flag_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       hotel_section_settings: {
         Row: {
           booking_enabled: boolean | null

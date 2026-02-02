@@ -67,6 +67,7 @@ const menuGroups = [
     label: "Hotels",
     items: [
       { value: "hotels", label: "Hotels", icon: Building2 },
+      { value: "hotel-destinations", label: "Destinations", icon: Globe },
       { value: "hotel-bookings", label: "Hotel Bookings", icon: Home },
       { value: "hotel-settings", label: "Hotel Settings", icon: Settings },
     ]
