@@ -387,7 +387,7 @@ const Footer = () => {
           <p className="text-primary-foreground/70 text-sm text-center md:text-left">
             {displayCopyright}
           </p>
-          <div className="flex gap-6 text-sm">
+          <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-sm">
             <Link to="/legal/privacy-policy" className="text-primary-foreground/70 hover:text-secondary transition-colors">
               {t("footer", "privacy_policy")}
             </Link>
@@ -398,6 +398,20 @@ const Footer = () => {
               {t("footer", "refund")}
             </Link>
           </div>
+        </div>
+        {/* Developer Credit */}
+        <div className="border-t border-primary-foreground/5 py-3">
+          <p className="text-center text-primary-foreground/50 text-xs">
+            Design & Developed by{" "}
+            <a 
+              href="https://digiwebdex.com/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-secondary hover:text-secondary/80 transition-colors font-medium"
+            >
+              DigiWebDex
+            </a>
+          </p>
         </div>
       </div>
     </footer>
