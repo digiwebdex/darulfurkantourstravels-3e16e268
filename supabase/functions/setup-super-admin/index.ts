@@ -13,13 +13,22 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { email, password, secret_key } = await req.json();
+    const { email, password, secret_key, role = "admin" } = await req.json();
 
     // Simple secret key to prevent unauthorized access
     if (secret_key !== "DARUL_FURKAN_SETUP_2024") {
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate role
+    const validRoles = ["admin", "demo_admin"];
+    if (!validRoles.includes(role)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid role. Must be 'admin' or 'demo_admin'" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -35,11 +44,13 @@ serve(async (req: Request) => {
     const { data: existingUsers } = await adminClient.auth.admin.listUsers();
     const existingUser = existingUsers?.users?.find(u => u.email === email);
 
+    const displayName = role === "demo_admin" ? "Demo Admin" : "Super Admin";
+
     if (existingUser) {
-      // User exists, just update their profile to admin
+      // User exists, just update their profile to the specified role
       const { error: updateError } = await adminClient
         .from("profiles")
-        .update({ role: "admin" })
+        .update({ role: role })
         .eq("id", existingUser.id);
 
       if (updateError) {
@@ -53,9 +64,10 @@ serve(async (req: Request) => {
       return new Response(
         JSON.stringify({ 
           success: true, 
-          message: "Existing user promoted to admin",
+          message: `Existing user promoted to ${role}`,
           user_id: existingUser.id,
-          email: existingUser.email 
+          email: existingUser.email,
+          role: role
         }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -67,7 +79,7 @@ serve(async (req: Request) => {
       password,
       email_confirm: true,
       user_metadata: {
-        full_name: "Super Admin",
+        full_name: displayName,
       },
     });
 
@@ -82,33 +94,34 @@ serve(async (req: Request) => {
     // Wait a moment for the trigger to create the profile
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Update profile to admin role
+    // Update profile to the specified role
     const { error: profileError } = await adminClient
       .from("profiles")
-      .update({ role: "admin" })
+      .update({ role: role })
       .eq("id", newUser.user!.id);
 
     if (profileError) {
-      console.error("Error updating profile to admin:", profileError);
+      console.error("Error updating profile to role:", profileError);
       // Try to insert if update failed (profile might not exist yet)
       await adminClient
         .from("profiles")
         .upsert({
           id: newUser.user!.id,
           email: email,
-          full_name: "Super Admin",
-          role: "admin"
+          full_name: displayName,
+          role: role
         });
     }
 
-    console.log("Super admin created successfully:", newUser.user?.id);
+    console.log(`${displayName} created successfully:`, newUser.user?.id);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: "Super admin created successfully",
+        message: `${displayName} created successfully`,
         user_id: newUser.user?.id,
-        email: newUser.user?.email 
+        email: newUser.user?.email,
+        role: role
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

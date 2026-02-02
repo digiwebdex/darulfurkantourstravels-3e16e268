@@ -6,6 +6,8 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   isAdmin: boolean;
+  isDemoAdmin: boolean;
+  canEdit: boolean;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -14,6 +16,8 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
   isAdmin: false,
+  isDemoAdmin: false,
+  canEdit: true,
   loading: true,
   signOut: async () => {},
 });
@@ -22,6 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isDemoAdmin, setIsDemoAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const checkAdminStatus = async (userId: string) => {
@@ -33,7 +38,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .maybeSingle();
 
       if (!error && data) {
-        setIsAdmin(data.role === "admin");
+        const role = data.role;
+        // Both admin and demo_admin can access the dashboard
+        setIsAdmin(role === "admin" || role === "demo_admin");
+        // Track if it's specifically a demo admin
+        setIsDemoAdmin(role === "demo_admin");
       }
     } catch (err) {
       console.error("Error checking admin status:", err);
@@ -52,6 +61,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }, 0);
         } else {
           setIsAdmin(false);
+          setIsDemoAdmin(false);
         }
         setLoading(false);
       }
@@ -75,10 +85,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(null);
     setSession(null);
     setIsAdmin(false);
+    setIsDemoAdmin(false);
   };
 
+  // canEdit is true for regular admins, false for demo admins
+  const canEdit = isAdmin && !isDemoAdmin;
+
   return (
-    <AuthContext.Provider value={{ user, session, isAdmin, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, isAdmin, isDemoAdmin, canEdit, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );
