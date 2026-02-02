@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Gift, ArrowRight } from "lucide-react";
+import { X, Flame, Sparkles, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -53,22 +53,18 @@ const OfferPopup = () => {
   };
 
   const checkAndShowPopup = (popupSettings: PopupSettings) => {
-    // Check if popup should be shown
     const dismissed = sessionStorage.getItem(POPUP_DISMISSED_KEY);
     const lastShown = localStorage.getItem(POPUP_LAST_SHOWN_KEY);
     const now = Date.now();
     const oneDayAgo = now - 24 * 60 * 60 * 1000;
 
-    // If show_on_every_visit is false, check if we've shown it recently
     if (!popupSettings.show_on_every_visit) {
       if (dismissed === "true") return;
       if (lastShown && parseInt(lastShown) > oneDayAgo) return;
     } else {
-      // For every visit, only check session
       if (dismissed === "true") return;
     }
 
-    // Show popup after delay
     const delay = (popupSettings.delay_seconds || 2) * 1000;
     setTimeout(() => {
       setIsOpen(true);
@@ -81,14 +77,14 @@ const OfferPopup = () => {
     sessionStorage.setItem(POPUP_DISMISSED_KEY, "true");
   };
 
-  const handleButtonClick = () => {
+  const handleButtonClick = (link?: string | null) => {
     handleClose();
-    if (settings?.button_link) {
-      if (settings.button_link.startsWith("#")) {
-        const element = document.querySelector(settings.button_link);
+    if (link) {
+      if (link.startsWith("#")) {
+        const element = document.querySelector(link);
         element?.scrollIntoView({ behavior: "smooth" });
       } else {
-        window.location.href = settings.button_link;
+        window.location.href = link;
       }
     }
   };
@@ -108,100 +104,96 @@ const OfferPopup = () => {
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
           />
 
-          {/* Popup */}
+          {/* Popup - Centered */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: -50 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: -50 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed left-1/2 top-24 -translate-x-1/2 z-[101] w-[92%] max-w-md max-h-[80vh] overflow-hidden"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[95%] sm:w-[90%] md:w-[80%] lg:w-[500px] max-w-lg"
           >
-            <div
-              className="relative rounded-2xl shadow-2xl overflow-hidden"
-              style={{
-                backgroundColor: settings.background_color || "#10b981",
-                color: settings.text_color || "#ffffff",
-              }}
-            >
-              {/* Close Button */}
-              <button
-                onClick={handleClose}
-                className="absolute top-4 right-4 p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors z-10"
-                aria-label="Close popup"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              {/* Decorative Pattern */}
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-0 left-0 w-full h-full geometric-pattern" />
+            <div className="relative rounded-2xl shadow-2xl overflow-hidden bg-white">
+              {/* Header */}
+              <div className="bg-amber-50 px-4 py-3 flex items-center justify-between border-b border-amber-100">
+                <div className="flex items-center gap-2">
+                  <Flame className="w-5 h-5 text-orange-500" />
+                  <span className="font-semibold text-gray-800 text-sm sm:text-base">
+                    Special Offer
+                  </span>
+                </div>
+                <button
+                  onClick={handleClose}
+                  className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                  aria-label="Close popup"
+                >
+                  <X className="w-4 h-4 text-gray-600" />
+                </button>
               </div>
 
-              {/* Glow Effects */}
-              <div className="absolute -top-20 -left-20 w-40 h-40 bg-white/20 rounded-full blur-3xl" />
-              <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
-
-              <div className="relative p-4 sm:p-6 md:p-8 max-h-[85vh] overflow-y-auto">
-                {/* Icon */}
-                <div className="flex justify-center mb-3 sm:mb-4">
-                  <div className="p-3 sm:p-4 bg-white/20 rounded-full animate-pulse">
-                    <Gift className="w-8 h-8 sm:w-10 sm:h-10" />
-                  </div>
+              {/* Image Banner */}
+              {settings.image_url && (
+                <div className="w-full">
+                  <img
+                    src={settings.image_url}
+                    alt="Offer Banner"
+                    className="w-full h-32 sm:h-40 md:h-48 lg:h-52 object-cover"
+                  />
                 </div>
+              )}
 
-                {/* Image */}
-                {settings.image_url && (
-                  <div className="mb-3 sm:mb-4 rounded-xl overflow-hidden">
-                    <img
-                      src={settings.image_url}
-                      alt="Offer"
-                      className="w-full h-28 sm:h-36 md:h-40 object-cover"
-                    />
-                  </div>
+              {/* Content Section */}
+              <div
+                className="p-4 sm:p-6 text-center"
+                style={{
+                  backgroundColor: settings.background_color || "#10b981",
+                  color: settings.text_color || "#ffffff",
+                }}
+              >
+                {/* Title with Sparkles */}
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold font-heading flex items-center justify-center gap-2">
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-300" />
+                  {settings.title}
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-300" />
+                </h2>
+
+                {/* Subtitle */}
+                {settings.subtitle && (
+                  <p className="text-xs sm:text-sm md:text-base opacity-90 mt-1 sm:mt-2">
+                    {settings.subtitle}
+                  </p>
                 )}
 
-                {/* Content */}
-                <div className="text-center space-y-2 sm:space-y-3">
-                  {settings.subtitle && (
-                    <p className="text-xs sm:text-sm md:text-base opacity-90 font-medium">
-                      {settings.subtitle}
-                    </p>
-                  )}
-                  
-                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-heading">
-                    {settings.title}
-                  </h2>
+                {/* Description */}
+                {settings.description && (
+                  <p className="text-xs sm:text-sm opacity-80 mt-2 sm:mt-3 leading-relaxed px-2 sm:px-4">
+                    {settings.description}
+                  </p>
+                )}
 
-                  {settings.description && (
-                    <p className="text-xs sm:text-sm md:text-base opacity-90 leading-relaxed">
-                      {settings.description}
-                    </p>
-                  )}
-
-                  {/* CTA Button */}
-                  {settings.button_text && (
-                    <div className="pt-3 sm:pt-4">
-                      <Button
-                        onClick={handleButtonClick}
-                        size="lg"
-                        className="bg-white text-primary hover:bg-white/90 font-bold px-5 sm:px-8 py-4 sm:py-6 text-sm sm:text-lg rounded-full shadow-lg gap-2 group"
-                      >
-                        {settings.button_text}
-                        <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                    </div>
-                  )}
+                {/* Discount Badge */}
+                <div className="mt-3 sm:mt-4">
+                  <span className="inline-block bg-white/20 backdrop-blur-sm px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold">
+                    Save up to 20%
+                  </span>
                 </div>
 
-                {/* Bottom Decoration */}
-                <div className="flex justify-center mt-4 sm:mt-6 gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white/40"
-                      style={{ animationDelay: `${i * 0.1}s` }}
-                    />
-                  ))}
+                {/* CTA Buttons */}
+                <div className="mt-4 sm:mt-5 flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center px-2">
+                  <Button
+                    onClick={() => handleButtonClick("#hajj-packages")}
+                    variant="outline"
+                    className="bg-white text-primary hover:bg-white/90 font-semibold px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm rounded-lg border-0 gap-1"
+                  >
+                    Explore Packages
+                    <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                  </Button>
+                  <Button
+                    onClick={() => handleButtonClick(settings.button_link)}
+                    className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm rounded-lg gap-1"
+                  >
+                    {settings.button_text || "Book Now"}
+                    <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                  </Button>
                 </div>
               </div>
             </div>
