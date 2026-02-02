@@ -114,7 +114,7 @@ const OfferPopup = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[90%] max-w-lg"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[92%] max-w-md max-h-[90vh] overflow-hidden"
           >
             <div
               className="relative rounded-2xl shadow-2xl overflow-hidden"
@@ -141,64 +141,64 @@ const OfferPopup = () => {
               <div className="absolute -top-20 -left-20 w-40 h-40 bg-white/20 rounded-full blur-3xl" />
               <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
 
-              <div className="relative p-6 md:p-8">
+              <div className="relative p-4 sm:p-6 md:p-8 max-h-[85vh] overflow-y-auto">
                 {/* Icon */}
-                <div className="flex justify-center mb-4">
-                  <div className="p-4 bg-white/20 rounded-full animate-pulse">
-                    <Gift className="w-10 h-10" />
+                <div className="flex justify-center mb-3 sm:mb-4">
+                  <div className="p-3 sm:p-4 bg-white/20 rounded-full animate-pulse">
+                    <Gift className="w-8 h-8 sm:w-10 sm:h-10" />
                   </div>
                 </div>
 
                 {/* Image */}
                 {settings.image_url && (
-                  <div className="mb-4 rounded-xl overflow-hidden">
+                  <div className="mb-3 sm:mb-4 rounded-xl overflow-hidden">
                     <img
                       src={settings.image_url}
                       alt="Offer"
-                      className="w-full h-40 object-cover"
+                      className="w-full h-28 sm:h-36 md:h-40 object-cover"
                     />
                   </div>
                 )}
 
                 {/* Content */}
-                <div className="text-center space-y-3">
+                <div className="text-center space-y-2 sm:space-y-3">
                   {settings.subtitle && (
-                    <p className="text-sm md:text-base opacity-90 font-medium">
+                    <p className="text-xs sm:text-sm md:text-base opacity-90 font-medium">
                       {settings.subtitle}
                     </p>
                   )}
                   
-                  <h2 className="text-2xl md:text-3xl font-bold font-heading">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-heading">
                     {settings.title}
                   </h2>
 
                   {settings.description && (
-                    <p className="text-sm md:text-base opacity-90 leading-relaxed">
+                    <p className="text-xs sm:text-sm md:text-base opacity-90 leading-relaxed">
                       {settings.description}
                     </p>
                   )}
 
                   {/* CTA Button */}
                   {settings.button_text && (
-                    <div className="pt-4">
+                    <div className="pt-3 sm:pt-4">
                       <Button
                         onClick={handleButtonClick}
                         size="lg"
-                        className="bg-white text-primary hover:bg-white/90 font-bold px-8 py-6 text-lg rounded-full shadow-lg gap-2 group"
+                        className="bg-white text-primary hover:bg-white/90 font-bold px-5 sm:px-8 py-4 sm:py-6 text-sm sm:text-lg rounded-full shadow-lg gap-2 group"
                       >
                         {settings.button_text}
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                       </Button>
                     </div>
                   )}
                 </div>
 
                 {/* Bottom Decoration */}
-                <div className="flex justify-center mt-6 gap-1">
+                <div className="flex justify-center mt-4 sm:mt-6 gap-1">
                   {[...Array(5)].map((_, i) => (
                     <div
                       key={i}
-                      className="w-2 h-2 rounded-full bg-white/40"
+                      className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white/40"
                       style={{ animationDelay: `${i * 0.1}s` }}
                     />
                   ))}
