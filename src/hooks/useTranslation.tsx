@@ -598,8 +598,8 @@ const detectLanguageFromLocation = async (): Promise<LanguageCode | null> => {
       return "bn";
     }
     
-    // Default to English for other countries
-    return "en";
+    // Default to Bangla for other countries (since this is a Bangladesh-based travel agency)
+    return "bn";
   } catch {
     return null;
   }
