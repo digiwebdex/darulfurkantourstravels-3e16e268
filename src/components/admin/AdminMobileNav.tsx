@@ -191,9 +191,12 @@ const AdminMobileNav = ({ activeTab, onTabChange }: AdminMobileNavProps) => {
             <nav className="space-y-4 p-2">
               {menuGroups.map((group) => (
                 <div key={group.label} className="space-y-1">
-                  <p className="px-3 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    {group.label}
-                  </p>
+                  <div className="px-3 py-2 mb-1">
+                    <p className="text-xs font-bold text-primary uppercase tracking-widest flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-primary/60"></span>
+                      {group.label}
+                    </p>
+                  </div>
                   {group.items.map((item) => {
                     const isActive = activeTab === item.value;
                     const Icon = item.icon;
