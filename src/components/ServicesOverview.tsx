@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Plane, 
@@ -89,6 +90,7 @@ const CustomServiceIcon = ({ icon: Icon }: { icon: React.FC<{ size?: number; cla
 );
 
 const ServicesOverview = () => {
+  const navigate = useNavigate();
   const { t, isRTL, language } = useTranslation();
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
@@ -184,9 +186,13 @@ const ServicesOverview = () => {
     else if (url.startsWith('http://') || url.startsWith('https://')) {
       window.open(url, '_blank', 'noopener,noreferrer');
     }
+    // Handle internal routes (starting with /)
+    else if (url.startsWith('/')) {
+      navigate(url);
+    }
     // Handle relative URLs
     else {
-      window.location.href = url;
+      navigate('/' + url);
     }
   };
 
