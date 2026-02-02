@@ -136,7 +136,7 @@ const TeamSection = () => {
                         <OptimizedImage 
                           src={member.avatar_url} 
                           alt={member.name}
-                          className="w-full h-full transition-transform duration-300 group-hover:scale-105"
+                          className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         />
                       ) : (
@@ -206,7 +206,7 @@ const TeamSection = () => {
                     <OptimizedImage 
                       src={member.avatar_url} 
                       alt={member.name}
-                      className="w-full h-full transition-transform duration-300 group-hover:scale-105"
+                      className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                       sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                     />
                   ) : (
