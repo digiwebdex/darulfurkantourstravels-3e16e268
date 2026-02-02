@@ -142,9 +142,9 @@ const ContactSection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="flex flex-col gap-4"
+            className="flex flex-col h-full"
           >
-            <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4 h-full auto-rows-fr">
               {contactInfo.map((info, index) => {
                 const Icon = getIcon(info.icon_name);
                 const isClickable = info.type === 'address' && info.map_link;
@@ -164,7 +164,7 @@ const ContactSection = () => {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.1 }}
                     whileHover={{ y: -3 }}
-                    className={`bg-card rounded-xl p-3 sm:p-4 shadow-elegant hover:shadow-lg transition-all duration-300 group ${isClickable ? 'cursor-pointer' : ''}`}
+                    className={`bg-card rounded-xl p-3 sm:p-4 shadow-elegant hover:shadow-lg transition-all duration-300 group flex flex-col ${isClickable ? 'cursor-pointer' : ''}`}
                     onClick={isClickable ? () => window.open(info.map_link!, '_blank') : undefined}
                   >
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-primary rounded-lg flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform shadow-elegant">
@@ -311,7 +311,7 @@ const ContactSection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="bg-card rounded-2xl p-6 md:p-8 shadow-elegant relative overflow-hidden h-fit"
+            className="bg-card rounded-2xl p-6 md:p-8 shadow-elegant relative overflow-hidden h-full"
           >
             {/* Decorative */}
             <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-full" />
