@@ -67,6 +67,7 @@ import AdminSEO from "@/components/admin/AdminSEO";
 import AdminSectionHeaders from "@/components/admin/AdminSectionHeaders";
 import AdminTeamMembers from "@/components/admin/AdminTeamMembers";
 import AdminHotelBookings from "@/components/admin/AdminHotelBookings";
+import AdminHotels from "@/components/admin/AdminHotels";
 import AdminHotelSettings from "@/components/admin/AdminHotelSettings";
 import { formatCurrency } from "@/lib/currency";
 
@@ -194,8 +195,12 @@ const AdminDashboard = () => {
         return <AdminOverview />;
       case "bookings":
         return <AdminBookings onUpdate={fetchStats} />;
+      case "hotels":
+        return <AdminHotels />;
       case "hotel-bookings":
         return <AdminHotelBookings />;
+      case "hotel-settings":
+        return <AdminHotelSettings />;
       case "visa-applications":
         return <AdminVisaApplications />;
       case "leads":
