@@ -28,6 +28,7 @@ import {
   UserPlus,
   TrendingUp,
   Receipt,
+  Home,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -58,6 +59,7 @@ const menuGroups = [
     label: "Orders & Bookings",
     items: [
       { value: "bookings", label: "Bookings", icon: Package },
+      { value: "hotel-bookings", label: "Hotel Bookings", icon: Home },
       { value: "visa-applications", label: "Visa Applications", icon: Globe },
       { value: "group-inquiries", label: "Group Inquiries", icon: Users },
     ]
@@ -145,6 +147,7 @@ const menuGroups = [
       { value: "visa", label: "Visa Countries", icon: Globe },
       { value: "contact", label: "Contact", icon: Phone },
       { value: "offices", label: "Offices", icon: Building2 },
+      { value: "hotel-settings", label: "Hotel Settings", icon: Home },
       { value: "social-networks", label: "Social Networks", icon: Share2 },
       { value: "footer", label: "Footer", icon: FileText },
       { value: "legal", label: "Legal Pages", icon: Scale },
