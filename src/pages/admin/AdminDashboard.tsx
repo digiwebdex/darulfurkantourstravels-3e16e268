@@ -66,6 +66,8 @@ import AdminCTA from "@/components/admin/AdminCTA";
 import AdminSEO from "@/components/admin/AdminSEO";
 import AdminSectionHeaders from "@/components/admin/AdminSectionHeaders";
 import AdminTeamMembers from "@/components/admin/AdminTeamMembers";
+import AdminHotelBookings from "@/components/admin/AdminHotelBookings";
+import AdminHotelSettings from "@/components/admin/AdminHotelSettings";
 import { formatCurrency } from "@/lib/currency";
 
 interface Stats {
@@ -192,6 +194,8 @@ const AdminDashboard = () => {
         return <AdminOverview />;
       case "bookings":
         return <AdminBookings onUpdate={fetchStats} />;
+      case "hotel-bookings":
+        return <AdminHotelBookings />;
       case "visa-applications":
         return <AdminVisaApplications />;
       case "leads":
@@ -272,6 +276,8 @@ const AdminDashboard = () => {
         return <AdminContact />;
       case "offices":
         return <AdminOfficeLocations />;
+      case "hotel-settings":
+        return <AdminHotelSettings />;
       case "social-networks":
         return <AdminSocialNetworks />;
       case "footer":
