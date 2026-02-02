@@ -3,6 +3,7 @@ import { X, Flame, Sparkles, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import makkahImage from "@/assets/makkah-haram-new.jpg";
 
 const POPUP_DISMISSED_KEY = "darulFurkan_offerPopupDismissed";
 const POPUP_LAST_SHOWN_KEY = "darulFurkan_offerPopupLastShown";
@@ -128,15 +129,13 @@ const OfferPopup = () => {
               </div>
 
               {/* Image Banner */}
-              {settings.image_url && (
-                <div className="w-full">
-                  <img
-                    src={settings.image_url}
-                    alt="Offer Banner"
-                    className="w-full h-48 sm:h-56 object-cover"
-                  />
-                </div>
-              )}
+              <div className="w-full">
+                <img
+                  src={settings.image_url || makkahImage}
+                  alt="Offer Banner"
+                  className="w-full h-48 sm:h-56 object-cover"
+                />
+              </div>
 
               {/* Content Section - Teal Green */}
               <div
