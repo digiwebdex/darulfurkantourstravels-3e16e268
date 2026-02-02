@@ -71,6 +71,7 @@ import AdminHotels from "@/components/admin/AdminHotels";
 import AdminHotelSettings from "@/components/admin/AdminHotelSettings";
 import AdminHotelDestinations from "@/components/admin/AdminHotelDestinations";
 import AdminOfferPopup from "@/components/admin/AdminOfferPopup";
+import DemoModeBanner from "@/components/admin/DemoModeBanner";
 import { formatCurrency } from "@/lib/currency";
 
 interface Stats {
@@ -82,7 +83,7 @@ interface Stats {
 }
 
 const AdminDashboard = () => {
-  const { user, isAdmin, loading: authLoading, signOut } = useAuth();
+  const { user, isAdmin, isDemoAdmin, canEdit, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -312,6 +313,9 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-muted/30">
+      {/* Demo Mode Banner */}
+      {isDemoAdmin && <DemoModeBanner />}
+      
       {/* Header */}
       <header className="bg-card border-b border-border sticky top-0 z-50">
         <div className="px-4 lg:px-6 py-4 flex items-center justify-between">
