@@ -211,7 +211,7 @@ const Footer = () => {
 
   return (
     <footer className="bg-primary text-primary-foreground relative overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
-      {/* Background Video Animation */}
+      {/* Background Video Animation - Lazy loaded with preload="none" */}
       {videoEnabled && videoUrl && (
         <div className="absolute inset-0 z-0 overflow-hidden">
           <video
@@ -219,6 +219,7 @@ const Footer = () => {
             loop
             muted
             playsInline
+            preload="none"
             className="w-full h-full object-cover"
             style={{ 
               filter: `blur(${videoBlur}px)`,

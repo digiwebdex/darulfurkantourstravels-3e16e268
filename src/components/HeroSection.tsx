@@ -164,49 +164,33 @@ const HeroSection = () => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Background Images */}
+      {/* Background Images - Optimized */}
       <div className="absolute inset-0 overflow-hidden">
         {slides.map((slide, index) => (
           <div
             key={slide.id}
-            className="absolute inset-0"
-            style={{
-              opacity: index === currentSlide ? 1 : 0,
-              zIndex: index === currentSlide ? 10 : 0,
-              transition: 'opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1)',
-              willChange: 'opacity',
-            }}
+            className={`absolute inset-0 transition-opacity duration-1000 ${
+              index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
+            }`}
           >
             <img
               src={slide.background_image_url || defaultHeroImages[index % 3]}
               alt=""
-              className="w-full h-full object-cover transform-gpu scale-110 filter brightness-105 contrast-110 saturate-110"
-              style={{
-                animation: index === currentSlide ? 'slowZoom 12s ease-out forwards' : 'none',
-              }}
+              className="w-full h-full object-cover transform-gpu"
               loading={index === 0 ? "eager" : "lazy"}
+              decoding={index === 0 ? "sync" : "async"}
+              fetchPriority={index === 0 ? "high" : "low"}
             />
           </div>
         ))}
         
-        {/* Premium Multi-Layer Overlays */}
+        {/* Simplified Overlays for better performance */}
         <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/50 to-transparent z-20" />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/50 via-transparent to-primary/40 z-20" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-primary/80 z-20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/40 via-transparent to-primary/30 z-20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-primary/70 z-20" />
         
-        {/* Gold Accent Glow - Multiple Points */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-1/2 bg-accent/20 blur-[100px] z-15" />
-        <div className="absolute top-1/4 right-0 w-96 h-96 bg-accent/10 blur-[120px] rounded-full z-15" />
-        <div className="absolute top-1/3 left-0 w-80 h-80 bg-accent/10 blur-[100px] rounded-full z-15" />
-        
-        {/* Animated Shimmer Effect */}
-        <div className="absolute inset-0 z-21 opacity-30 pointer-events-none"
-          style={{
-            background: 'linear-gradient(105deg, transparent 40%, rgba(212, 175, 55, 0.1) 45%, rgba(212, 175, 55, 0.2) 50%, rgba(212, 175, 55, 0.1) 55%, transparent 60%)',
-            backgroundSize: '200% 100%',
-            animation: 'shimmer 8s infinite linear',
-          }}
-        />
+        {/* Single Gold Accent Glow - reduced from multiple */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-1/2 bg-accent/15 blur-3xl z-15" />
       </div>
 
       {/* Content */}
