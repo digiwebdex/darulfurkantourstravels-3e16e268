@@ -23,6 +23,7 @@ const CTASection = lazy(() => import("@/components/CTASection"));
 const Footer = lazy(() => import("@/components/Footer"));
 const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
 const MobileCTABar = lazy(() => import("@/components/MobileCTABar"));
+const OfferPopup = lazy(() => import("@/components/OfferPopup"));
 
 interface SectionVisibility {
   [key: string]: boolean;
@@ -184,6 +185,7 @@ const Index = () => {
       <Suspense fallback={null}>
         <WhatsAppButton />
         <MobileCTABar />
+        <OfferPopup />
       </Suspense>
     </div>
   );

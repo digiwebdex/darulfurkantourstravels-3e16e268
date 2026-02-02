@@ -1810,6 +1810,57 @@ export type Database = {
         }
         Relationships: []
       }
+      offer_popup_settings: {
+        Row: {
+          background_color: string | null
+          button_link: string | null
+          button_text: string | null
+          created_at: string
+          delay_seconds: number | null
+          description: string | null
+          id: string
+          image_url: string | null
+          is_enabled: boolean | null
+          show_on_every_visit: boolean | null
+          subtitle: string | null
+          text_color: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          background_color?: string | null
+          button_link?: string | null
+          button_text?: string | null
+          created_at?: string
+          delay_seconds?: number | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_enabled?: boolean | null
+          show_on_every_visit?: boolean | null
+          subtitle?: string | null
+          text_color?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          background_color?: string | null
+          button_link?: string | null
+          button_text?: string | null
+          created_at?: string
+          delay_seconds?: number | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_enabled?: boolean | null
+          show_on_every_visit?: boolean | null
+          subtitle?: string | null
+          text_color?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       office_locations: {
         Row: {
           address: string

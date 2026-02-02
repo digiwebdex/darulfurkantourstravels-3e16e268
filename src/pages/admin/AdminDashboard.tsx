@@ -70,6 +70,7 @@ import AdminHotelBookings from "@/components/admin/AdminHotelBookings";
 import AdminHotels from "@/components/admin/AdminHotels";
 import AdminHotelSettings from "@/components/admin/AdminHotelSettings";
 import AdminHotelDestinations from "@/components/admin/AdminHotelDestinations";
+import AdminOfferPopup from "@/components/admin/AdminOfferPopup";
 import { formatCurrency } from "@/lib/currency";
 
 interface Stats {
@@ -274,6 +275,8 @@ const AdminDashboard = () => {
         return <AdminQuickPackages />;
       case "cta":
         return <AdminCTA />;
+      case "offer-popup":
+        return <AdminOfferPopup />;
       case "services":
         return <AdminServices />;
       case "team":
