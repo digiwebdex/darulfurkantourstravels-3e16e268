@@ -191,9 +191,8 @@ const AdminMobileNav = ({ activeTab, onTabChange }: AdminMobileNavProps) => {
             <nav className="space-y-4 p-2">
               {menuGroups.map((group) => (
                 <div key={group.label} className="space-y-1">
-                  <div className="px-3 py-2 mb-1">
-                    <p className="text-xs font-bold text-primary uppercase tracking-widest flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-primary/60"></span>
+                  <div className="px-3 py-2 mb-1 bg-primary/10 border-l-4 border-primary rounded-r-md">
+                    <p className="text-xs font-bold text-primary uppercase tracking-widest">
                       {group.label}
                     </p>
                   </div>
