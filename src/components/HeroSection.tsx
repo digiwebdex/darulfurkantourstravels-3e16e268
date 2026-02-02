@@ -220,6 +220,17 @@ const HeroSection = () => {
             exit="exit"
             className="text-center max-w-4xl mx-auto"
           >
+          {/* Arabic Calligraphy - Bismillah */}
+            <motion.div variants={itemVariants} className="mb-6">
+              <span 
+                className="text-2xl sm:text-3xl md:text-4xl font-arabic text-accent/90 drop-shadow-lg"
+                style={{ fontFamily: "'Amiri', 'Noto Naskh Arabic', serif" }}
+                dir="rtl"
+              >
+                بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ
+              </span>
+            </motion.div>
+
           {/* Badge */}
             {content.badge_text && (
               <motion.div variants={itemVariants} className="mb-8">
