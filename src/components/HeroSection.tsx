@@ -157,7 +157,7 @@ const HeroSection = () => {
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-screen flex items-start justify-center overflow-hidden pt-24 md:pt-32"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -210,7 +210,7 @@ const HeroSection = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-30 container px-4 pt-32 pb-20">
+      <div className="relative z-30 container px-4 pt-16 md:pt-24 pb-20">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
