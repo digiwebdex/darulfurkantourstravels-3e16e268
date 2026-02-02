@@ -120,10 +120,10 @@ const OfferPopup = () => {
                 </h2>
                 <button
                   onClick={handleClose}
-                  className="w-8 h-8 rounded-full border-2 border-primary-foreground/70 hover:border-primary-foreground hover:bg-primary-foreground/10 transition-all flex items-center justify-center"
+                  className="w-9 h-9 rounded-full border-2 border-primary-foreground hover:bg-primary-foreground/10 transition-all flex items-center justify-center"
                   aria-label="Close popup"
                 >
-                  <X className="w-4 h-4 text-primary-foreground" />
+                  <X className="w-5 h-5 text-primary-foreground" />
                 </button>
               </div>
 
@@ -133,56 +133,58 @@ const OfferPopup = () => {
                   <img
                     src={settings.image_url}
                     alt="Offer Banner"
-                    className="w-full h-56 sm:h-64 object-cover"
+                    className="w-full h-48 sm:h-56 object-cover"
                   />
                 </div>
               )}
 
-              {/* Content Section - Green */}
+              {/* Content Section - Teal Green */}
               <div
-                className="px-6 py-8 text-center"
+                className="px-6 py-6 text-center"
                 style={{
-                  backgroundColor: settings.background_color || "#166534",
+                  backgroundColor: settings.background_color || "#0d7a5f",
                   color: settings.text_color || "#ffffff",
                 }}
               >
                 {/* Title with Sparkles */}
-                <h3 className="text-2xl sm:text-3xl font-bold mb-2 text-amber-400">
-                  ✨ {settings.title} ✨
+                <h3 className="text-xl sm:text-2xl font-bold mb-1 text-amber-400 flex items-center justify-center gap-2">
+                  <Sparkles className="w-5 h-5" />
+                  <span>{settings.title}</span>
+                  <Sparkles className="w-5 h-5" />
                 </h3>
 
                 {/* Subtitle */}
                 {settings.subtitle && (
-                  <p className="text-sm mb-4 opacity-90">
+                  <p className="text-sm font-medium mb-3">
                     {settings.subtitle}
                   </p>
                 )}
 
                 {/* Description */}
                 {settings.description && (
-                  <p className="text-sm mb-6 opacity-90 leading-relaxed">
+                  <p className="text-sm mb-5 opacity-90 leading-relaxed max-w-md mx-auto">
                     {settings.description}
                   </p>
                 )}
 
                 {/* Discount Badge */}
-                <div className="mb-6">
-                  <span className="inline-block bg-white text-primary font-semibold px-6 py-2 rounded-full text-sm shadow-md">
+                <div className="mb-5">
+                  <span className="inline-block bg-primary/60 text-white font-semibold px-6 py-2 rounded-full text-sm">
                     Save up to 20%
                   </span>
                 </div>
 
                 {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row justify-center gap-3">
+                <div className="flex flex-col xs:flex-row justify-center gap-3">
                   <Button
                     onClick={() => handleButtonClick("#hajj-packages")}
-                    className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-6 py-3 text-sm rounded-lg transition-colors"
+                    className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-5 py-2.5 text-sm rounded-md transition-colors"
                   >
                     Explore Packages →
                   </Button>
                   <Button
                     onClick={() => handleButtonClick(settings.button_link)}
-                    className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-6 py-3 text-sm rounded-lg transition-colors"
+                    className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-5 py-2.5 text-sm rounded-md transition-colors"
                   >
                     {settings.button_text || "Book Now"} →
                   </Button>
