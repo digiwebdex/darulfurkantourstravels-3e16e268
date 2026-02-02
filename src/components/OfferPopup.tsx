@@ -101,7 +101,7 @@ const OfferPopup = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+            className="fixed inset-0 bg-black/70 z-[100]"
           />
 
           {/* Popup - Centered */}
@@ -110,23 +110,20 @@ const OfferPopup = () => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[92%] sm:w-[85%] md:w-[70%] lg:w-[480px] max-w-[500px]"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[90%] max-w-lg"
           >
-            <div className="relative rounded-xl shadow-2xl overflow-hidden">
-              {/* Header - Dark Green matching the reference */}
-              <div className="bg-primary px-4 py-3 sm:py-3.5 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-destructive" />
-                  <span className="font-semibold text-primary-foreground text-sm sm:text-base">
-                    Special Offer
-                  </span>
-                </div>
+            <div className="relative rounded-2xl shadow-2xl overflow-hidden border-4 border-white bg-white">
+              {/* Header - Dark Green */}
+              <div className="bg-primary px-5 py-3 flex items-center justify-between">
+                <h2 className="font-semibold text-primary-foreground flex items-center gap-2 text-base">
+                  🔥 Special Offer
+                </h2>
                 <button
                   onClick={handleClose}
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-transparent border-2 border-primary-foreground/60 hover:border-primary-foreground hover:bg-primary-foreground/10 transition-all flex items-center justify-center"
+                  className="w-8 h-8 rounded-full border-2 border-primary-foreground/70 hover:border-primary-foreground hover:bg-primary-foreground/10 transition-all flex items-center justify-center"
                   aria-label="Close popup"
                 >
-                  <X className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
+                  <X className="w-4 h-4 text-primary-foreground" />
                 </button>
               </div>
 
@@ -136,62 +133,58 @@ const OfferPopup = () => {
                   <img
                     src={settings.image_url}
                     alt="Offer Banner"
-                    className="w-full h-40 sm:h-48 md:h-56 object-cover"
+                    className="w-full h-56 sm:h-64 object-cover"
                   />
                 </div>
               )}
 
               {/* Content Section - Green */}
               <div
-                className="p-5 sm:p-6 md:p-7 text-center"
+                className="px-6 py-8 text-center"
                 style={{
-                  backgroundColor: settings.background_color || "#0d7a5f",
+                  backgroundColor: settings.background_color || "#166534",
                   color: settings.text_color || "#ffffff",
                 }}
               >
-                {/* Title with Sparkles - Gold/Yellow */}
-                <h2 className="text-lg sm:text-xl md:text-2xl font-bold font-heading flex items-center justify-center gap-2">
-                  <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-secondary flex-shrink-0 animate-pulse" />
-                  <span className="text-secondary">{settings.title}</span>
-                  <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-secondary flex-shrink-0 animate-pulse" />
-                </h2>
+                {/* Title with Sparkles */}
+                <h3 className="text-2xl sm:text-3xl font-bold mb-2 text-amber-400">
+                  ✨ {settings.title} ✨
+                </h3>
 
                 {/* Subtitle */}
                 {settings.subtitle && (
-                  <p className="text-sm sm:text-base font-semibold mt-2 text-primary-foreground">
+                  <p className="text-sm mb-4 opacity-90">
                     {settings.subtitle}
                   </p>
                 )}
 
                 {/* Description */}
                 {settings.description && (
-                  <p className="text-xs sm:text-sm opacity-90 mt-3 leading-relaxed px-2 sm:px-6">
+                  <p className="text-sm mb-6 opacity-90 leading-relaxed">
                     {settings.description}
                   </p>
                 )}
 
-                {/* Discount Badge - Darker/muted green background */}
-                <div className="mt-4 sm:mt-5">
-                  <span className="inline-block bg-primary/40 px-6 sm:px-8 py-2 sm:py-2.5 rounded-full text-sm sm:text-base font-semibold text-primary-foreground shadow-inner">
+                {/* Discount Badge */}
+                <div className="mb-6">
+                  <span className="inline-block bg-white text-primary font-semibold px-6 py-2 rounded-full text-sm shadow-md">
                     Save up to 20%
                   </span>
                 </div>
 
-                {/* CTA Buttons - Gold/Secondary */}
-                <div className="mt-5 sm:mt-6 flex flex-col xs:flex-row gap-3 sm:gap-4 justify-center px-2 sm:px-4">
+                {/* CTA Buttons */}
+                <div className="flex flex-col sm:flex-row justify-center gap-3">
                   <Button
                     onClick={() => handleButtonClick("#hajj-packages")}
-                    className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold px-5 sm:px-6 py-2.5 sm:py-3 text-sm rounded-md gap-1.5 shadow-md border-2 border-secondary"
+                    className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-6 py-3 text-sm rounded-lg transition-colors"
                   >
-                    Explore Packages
-                    <ArrowRight className="w-4 h-4" />
+                    Explore Packages →
                   </Button>
                   <Button
                     onClick={() => handleButtonClick(settings.button_link)}
-                    className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold px-5 sm:px-6 py-2.5 sm:py-3 text-sm rounded-md gap-1.5 shadow-md border-2 border-secondary"
+                    className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-6 py-3 text-sm rounded-lg transition-colors"
                   >
-                    {settings.button_text || "Book Now"}
-                    <ArrowRight className="w-4 h-4" />
+                    {settings.button_text || "Book Now"} →
                   </Button>
                 </div>
               </div>
