@@ -123,18 +123,18 @@ const HotelSection = () => {
       {/* Page Header */}
       <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent py-12 mt-16">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
+          <div className="flex flex-col md:flex-row md:items-center gap-4">
+            <Button variant="outline" onClick={() => navigate("/")} className="gap-2 w-fit">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Home
+            </Button>
+            <div className="flex-1">
               <h1 className="text-3xl md:text-4xl font-bold text-foreground flex items-center gap-3">
                 <Home className="h-8 w-8 text-primary" />
                 {settings.title}
               </h1>
               <p className="text-muted-foreground mt-2">{settings.subtitle}</p>
             </div>
-            <Button variant="outline" onClick={() => navigate("/")} className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Home
-            </Button>
           </div>
         </div>
       </div>
