@@ -2644,6 +2644,7 @@ export type Database = {
       team_members: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           board_type: string
           created_at: string
           id: string
@@ -2658,6 +2659,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           board_type?: string
           created_at?: string
           id?: string
@@ -2672,6 +2674,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           board_type?: string
           created_at?: string
           id?: string
