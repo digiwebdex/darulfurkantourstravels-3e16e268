@@ -168,7 +168,7 @@ const OfferPopup = () => {
 
                 {/* Discount Badge */}
                 <div className="mb-5">
-                  <span className="inline-block bg-primary/60 text-white font-semibold px-6 py-2 rounded-full text-sm">
+                  <span className="inline-block bg-gray-200/90 text-gray-800 font-semibold px-6 py-2 rounded-full text-sm">
                     Save up to 20%
                   </span>
                 </div>
