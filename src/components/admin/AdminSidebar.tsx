@@ -29,6 +29,7 @@ import {
   TrendingUp,
   Receipt,
   Home,
+  Gift,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -146,6 +147,7 @@ const menuGroups = [
       { value: "section-headers", label: "Section Headers", icon: FileText },
       { value: "menu", label: "Menu", icon: Menu },
       { value: "hero", label: "Hero", icon: Image },
+      { value: "offer-popup", label: "Offer Popup", icon: Gift },
       { value: "why-choose-us", label: "Why Choose Us", icon: Shield },
       { value: "quick-packages", label: "Quick Packages", icon: Package },
       { value: "cta", label: "CTA Section", icon: Megaphone },
