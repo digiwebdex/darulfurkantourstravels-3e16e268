@@ -94,15 +94,24 @@ const DEMO_HOTELS: Record<string, Record<string, { name: string; city: string; p
   }
 };
 
-const COUNTRY_FLAGS: Record<string, string> = {
-  "Saudi Arabia": "🇸🇦",
-  "Dubai": "🇦🇪",
-  "Turkey": "🇹🇷",
-  "Malaysia": "🇲🇾",
-  "Thailand": "🇹🇭",
-  "Singapore": "🇸🇬",
-  "Indonesia": "🇮🇩",
-  "Egypt": "🇪🇬",
+// Country codes for flag images (using flagcdn.com)
+const COUNTRY_CODES: Record<string, string> = {
+  "Saudi Arabia": "sa",
+  "Dubai": "ae",
+  "Turkey": "tr",
+  "Malaysia": "my",
+  "Thailand": "th",
+  "Singapore": "sg",
+  "Indonesia": "id",
+  "Egypt": "eg",
+};
+
+const getFlagUrl = (country: string) => {
+  const code = COUNTRY_CODES[country];
+  if (code) {
+    return `https://flagcdn.com/w80/${code}.png`;
+  }
+  return null;
 };
 
 const HotelSection = () => {
@@ -260,16 +269,27 @@ const HotelSection = () => {
             >
               <h2 className="text-2xl font-semibold mb-6 text-center">Select Destination Country</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-                {countries.map((country) => (
-                  <button
-                    key={country}
-                    onClick={() => setSelectedCountry(country)}
-                    className="bg-card p-6 shadow-md rounded-xl hover:bg-primary/10 transition-all hover:shadow-lg hover:scale-105 text-left border flex flex-col items-center gap-2"
-                  >
-                    <span className="text-4xl">{COUNTRY_FLAGS[country] || "🌍"}</span>
-                    <span className="font-medium text-center">{country}</span>
-                  </button>
-                ))}
+                {countries.map((country) => {
+                  const flagUrl = getFlagUrl(country);
+                  return (
+                    <button
+                      key={country}
+                      onClick={() => setSelectedCountry(country)}
+                      className="bg-card p-5 shadow-md rounded-xl hover:bg-primary/10 transition-all hover:shadow-lg hover:scale-105 text-left border flex flex-col items-start gap-3"
+                    >
+                      {flagUrl ? (
+                        <img 
+                          src={flagUrl} 
+                          alt={`${country} flag`} 
+                          className="w-16 h-auto rounded shadow-sm"
+                        />
+                      ) : (
+                        <span className="text-4xl">🌍</span>
+                      )}
+                      <span className="font-medium">{country}</span>
+                    </button>
+                  );
+                })}
               </div>
             </motion.div>
           )}
@@ -288,8 +308,15 @@ const HotelSection = () => {
               >
                 <ArrowLeft className="h-4 w-4" /> Back
               </button>
-              <h2 className="text-2xl font-semibold mb-6 text-center">
-                {COUNTRY_FLAGS[selectedCountry]} {selectedCountry} - Select Category
+              <h2 className="text-2xl font-semibold mb-6 text-center flex items-center justify-center gap-3">
+                {getFlagUrl(selectedCountry) && (
+                  <img 
+                    src={getFlagUrl(selectedCountry)!} 
+                    alt={`${selectedCountry} flag`} 
+                    className="w-8 h-auto rounded shadow-sm"
+                  />
+                )}
+                {selectedCountry} - Select Category
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-2xl mx-auto">
                 {starRatings.map((rating) => (
