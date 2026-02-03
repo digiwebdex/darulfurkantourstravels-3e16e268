@@ -5,9 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Save, Eye, Gift, Loader2 } from "lucide-react";
+import { Save, Eye, Gift, Loader2, ImageIcon } from "lucide-react";
 import { useImageUpload } from "@/hooks/useImageUpload";
 
 interface PopupSettings {
@@ -23,6 +25,10 @@ interface PopupSettings {
   is_enabled: boolean;
   show_on_every_visit: boolean;
   delay_seconds: number | null;
+  image_position: string | null;
+  image_fit: string | null;
+  image_height: number | null;
+  image_scale: number | null;
 }
 
 const AdminOfferPopup = () => {
@@ -97,6 +103,10 @@ const AdminOfferPopup = () => {
           is_enabled: settings.is_enabled,
           show_on_every_visit: settings.show_on_every_visit,
           delay_seconds: settings.delay_seconds,
+          image_position: settings.image_position,
+          image_fit: settings.image_fit,
+          image_height: settings.image_height,
+          image_scale: settings.image_scale,
         })
         .eq("id", settings.id);
 
@@ -352,6 +362,104 @@ const AdminOfferPopup = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Image Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ImageIcon className="w-5 h-5" />
+                Image Settings
+              </CardTitle>
+              <CardDescription>
+                Adjust image position, size, and zoom
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Image Position</Label>
+                  <Select
+                    value={settings.image_position || "center"}
+                    onValueChange={(value) => updateField("image_position", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select position" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="center">Center</SelectItem>
+                      <SelectItem value="top">Top</SelectItem>
+                      <SelectItem value="bottom">Bottom</SelectItem>
+                      <SelectItem value="left">Left</SelectItem>
+                      <SelectItem value="right">Right</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Focus point of the image
+                  </p>
+                </div>
+                <div>
+                  <Label>Image Fit</Label>
+                  <Select
+                    value={settings.image_fit || "cover"}
+                    onValueChange={(value) => updateField("image_fit", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select fit mode" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="cover">Cover (fills area, may crop)</SelectItem>
+                      <SelectItem value="contain">Contain (fits entirely)</SelectItem>
+                      <SelectItem value="fill">Fill (stretches)</SelectItem>
+                      <SelectItem value="none">None (original size)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    How image fills the space
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label>Image Height</Label>
+                  <span className="text-sm text-muted-foreground font-medium">
+                    {settings.image_height || 224}px
+                  </span>
+                </div>
+                <Slider
+                  value={[settings.image_height || 224]}
+                  onValueChange={([value]) => updateField("image_height", value)}
+                  min={100}
+                  max={400}
+                  step={8}
+                  className="w-full"
+                />
+                <p className="text-sm text-muted-foreground mt-1">
+                  Height of the banner image (100px - 400px)
+                </p>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label>Image Zoom</Label>
+                  <span className="text-sm text-muted-foreground font-medium">
+                    {settings.image_scale || 100}%
+                  </span>
+                </div>
+                <Slider
+                  value={[settings.image_scale || 100]}
+                  onValueChange={([value]) => updateField("image_scale", value)}
+                  min={100}
+                  max={200}
+                  step={5}
+                  className="w-full"
+                />
+                <p className="text-sm text-muted-foreground mt-1">
+                  Zoom level (100% - 200%)
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Live Preview */}
@@ -392,7 +500,14 @@ const AdminOfferPopup = () => {
                           <img
                             src={settings.image_url}
                             alt="Preview"
-                            className="w-full h-32 object-cover"
+                            className="w-full transition-transform"
+                            style={{
+                              height: `${(settings.image_height || 224) / 2}px`,
+                              objectFit: (settings.image_fit as React.CSSProperties['objectFit']) || 'cover',
+                              objectPosition: settings.image_position || 'center',
+                              transform: `scale(${(settings.image_scale || 100) / 100})`,
+                              transformOrigin: settings.image_position || 'center',
+                            }}
                           />
                         </div>
                       )}

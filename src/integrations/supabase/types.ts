@@ -1819,6 +1819,10 @@ export type Database = {
           delay_seconds: number | null
           description: string | null
           id: string
+          image_fit: string | null
+          image_height: number | null
+          image_position: string | null
+          image_scale: number | null
           image_url: string | null
           is_enabled: boolean | null
           show_on_every_visit: boolean | null
@@ -1835,6 +1839,10 @@ export type Database = {
           delay_seconds?: number | null
           description?: string | null
           id?: string
+          image_fit?: string | null
+          image_height?: number | null
+          image_position?: string | null
+          image_scale?: number | null
           image_url?: string | null
           is_enabled?: boolean | null
           show_on_every_visit?: boolean | null
@@ -1851,6 +1859,10 @@ export type Database = {
           delay_seconds?: number | null
           description?: string | null
           id?: string
+          image_fit?: string | null
+          image_height?: number | null
+          image_position?: string | null
+          image_scale?: number | null
           image_url?: string | null
           is_enabled?: boolean | null
           show_on_every_visit?: boolean | null
