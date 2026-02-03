@@ -215,7 +215,7 @@ const OfferPopup = () => {
                   <Button
                     onClick={() => {
                       setIsOpen(false);
-                      const element = document.querySelector("#contact");
+                      const element = document.querySelector("#umrah");
                       if (element) element.scrollIntoView({ behavior: "smooth" });
                     }}
                     size="default"
