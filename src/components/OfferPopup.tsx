@@ -109,15 +109,15 @@ const OfferPopup = () => {
             className="fixed inset-0 bg-black/70 z-[100]"
           />
 
-          {/* Popup - Top Position */}
+          {/* Popup - Centered */}
           <motion.div
-            initial={{ opacity: 0, y: -50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -50 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed left-1/2 top-4 -translate-x-1/2 z-[101] w-[90%] max-w-lg"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[90%] max-w-md"
           >
-            <div className="relative rounded-2xl shadow-2xl overflow-hidden border-4 border-white bg-white">
+            <div className="relative rounded-2xl shadow-2xl overflow-hidden border border-gray-200 bg-white">
               {/* Header - Dark Green */}
               <div className="bg-primary px-5 py-3 flex items-center justify-between">
                 <h2 className="font-semibold text-primary-foreground flex items-center gap-2 text-base">
@@ -125,10 +125,10 @@ const OfferPopup = () => {
                 </h2>
                 <button
                   onClick={handleClose}
-                  className="w-9 h-9 rounded-full border-2 border-primary-foreground hover:bg-primary-foreground/10 transition-all flex items-center justify-center"
+                  className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 transition-all flex items-center justify-center"
                   aria-label="Close popup"
                 >
-                  <X className="w-5 h-5 text-primary-foreground" />
+                  <X className="w-4 h-4 text-white" />
                 </button>
               </div>
 
@@ -139,7 +139,7 @@ const OfferPopup = () => {
                   alt="Offer Banner"
                   className="w-full transition-transform"
                   style={{
-                    height: `${settings.image_height || 224}px`,
+                    height: `${settings.image_height || 200}px`,
                     objectFit: (settings.image_fit as React.CSSProperties['objectFit']) || 'cover',
                     objectPosition: settings.image_position || 'center',
                     transform: `scale(${(settings.image_scale || 100) / 100})`,
@@ -148,16 +148,10 @@ const OfferPopup = () => {
                 />
               </div>
 
-              {/* Content Section - Teal Green */}
-              <div
-                className="px-6 py-6 text-center"
-                style={{
-                  backgroundColor: settings.background_color || "#0d7a5f",
-                  color: settings.text_color || "#ffffff",
-                }}
-              >
+              {/* Content Section - Cream/Light Background */}
+              <div className="px-6 py-6 text-center bg-[#f5f0e8]">
                 {/* Title with Sparkles */}
-                <h3 className="text-xl sm:text-2xl font-bold mb-1 text-amber-400 flex items-center justify-center gap-2">
+                <h3 className="text-xl sm:text-2xl font-bold mb-2 text-amber-500 flex items-center justify-center gap-2">
                   <Sparkles className="w-5 h-5" />
                   <span>{settings.title}</span>
                   <Sparkles className="w-5 h-5" />
@@ -165,21 +159,21 @@ const OfferPopup = () => {
 
                 {/* Subtitle */}
                 {settings.subtitle && (
-                  <p className="text-sm font-medium mb-3">
+                  <p className="text-sm font-semibold text-gray-800 mb-3">
                     {settings.subtitle}
                   </p>
                 )}
 
                 {/* Description */}
                 {settings.description && (
-                  <p className="text-sm mb-5 opacity-90 leading-relaxed max-w-md mx-auto">
+                  <p className="text-sm text-gray-600 mb-5 leading-relaxed max-w-sm mx-auto">
                     {settings.description}
                   </p>
                 )}
 
                 {/* Discount Badge */}
                 <div className="mb-5">
-                  <span className="inline-block bg-gray-200/90 text-gray-800 font-semibold px-6 py-2 rounded-full text-sm">
+                  <span className="inline-block bg-amber-500 text-white font-semibold px-6 py-2.5 rounded-full text-sm shadow-md">
                     Save up to 20%
                   </span>
                 </div>
@@ -188,13 +182,13 @@ const OfferPopup = () => {
                 <div className="flex flex-col xs:flex-row justify-center gap-3">
                   <Button
                     onClick={() => handleButtonClick("#hajj-packages")}
-                    className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-5 py-2.5 text-sm rounded-md transition-colors"
+                    className="bg-amber-400 hover:bg-amber-500 text-gray-900 font-semibold px-6 py-2.5 text-sm rounded-full transition-colors border-0 shadow-sm"
                   >
                     Explore Packages →
                   </Button>
                   <Button
                     onClick={() => handleButtonClick(settings.button_link)}
-                    className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-5 py-2.5 text-sm rounded-md transition-colors"
+                    className="bg-amber-400 hover:bg-amber-500 text-gray-900 font-semibold px-6 py-2.5 text-sm rounded-full transition-colors border-0 shadow-sm"
                   >
                     {settings.button_text || "Book Now"} →
                   </Button>
