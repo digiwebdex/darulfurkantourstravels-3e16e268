@@ -1,119 +1,113 @@
 
+# Fix Offer Popup - Match Exact Reference Design
 
-# Offer Popup - Image Position, Resize & Crop Adjustment Plan
+## Problem
+The current popup has a cream/light background (`#f5f0e8`) for the content section, but the reference design shows a **dark green/teal background** that matches the header. The text colors also need to be adjusted for visibility on dark background.
 
-## Overview
-Add image positioning, sizing, and crop adjustment options to the Offer Popup settings in the admin panel so admins can control how the banner image displays.
+## Exact Design Specifications from Reference
 
-## New Features to Add
+### Structure
+- Centered modal with rounded corners
+- Dark green header bar
+- Large Kaaba image banner
+- Dark green content section (NOT cream)
 
-### 1. Image Position Control
-Dropdown to select how the image is positioned within the container:
-- Center (default)
-- Top
-- Bottom
-- Left
-- Right
+### Colors
+| Element | Current | Should Be |
+|---------|---------|-----------|
+| Content Background | `#f5f0e8` (cream) | Dark green/teal (`#0d4a3e` or similar) |
+| Title | `text-amber-500` | Gold/amber (keep) |
+| Subtitle | `text-gray-800` | White (`text-white`) |
+| Description | `text-gray-600` | Light gray (`text-gray-300`) |
+| Badge | `bg-amber-500 text-white` | Gold background, dark text |
+| Buttons | `bg-amber-400 text-gray-900` | Gold/amber, dark text (keep) |
 
-### 2. Image Fit/Size Control
-Dropdown to control how the image fills the space:
-- Cover (fills the area, may crop)
-- Contain (fits entirely, may show gaps)
-- Fill (stretches to fill)
-- None (original size)
+### Layout
+- Width: Slightly wider (`max-w-lg` instead of `max-w-md`)
+- Buttons: Side by side on mobile too
+- Proper spacing and padding
 
-### 3. Image Height Control
-Slider or input to adjust the banner image height:
-- Range: 100px - 400px
-- Default: 224px (current h-56)
+## Changes to Make
 
-### 4. Zoom/Scale Control
-Slider to zoom in/out on the image:
-- Range: 100% - 200%
-- Default: 100%
+### File: `src/components/OfferPopup.tsx`
 
-## Database Changes
+1. **Change content section background** from cream to dark teal/green:
+   ```tsx
+   // FROM:
+   <div className="px-6 py-6 text-center bg-[#f5f0e8]">
+   
+   // TO:
+   <div className="px-6 py-6 text-center bg-[#0d5a4c]">
+   ```
 
-Add 4 new columns to `offer_popup_settings` table:
+2. **Update subtitle color** to white for dark background:
+   ```tsx
+   // FROM:
+   <p className="text-sm font-semibold text-gray-800 mb-3">
+   
+   // TO:
+   <p className="text-sm font-semibold text-white mb-3">
+   ```
 
-```sql
-ALTER TABLE offer_popup_settings
-ADD COLUMN image_position TEXT DEFAULT 'center',
-ADD COLUMN image_fit TEXT DEFAULT 'cover',
-ADD COLUMN image_height INTEGER DEFAULT 224,
-ADD COLUMN image_scale INTEGER DEFAULT 100;
-```
+3. **Update description color** to light gray:
+   ```tsx
+   // FROM:
+   <p className="text-sm text-gray-600 mb-5 leading-relaxed">
+   
+   // TO:
+   <p className="text-sm text-gray-300 mb-5 leading-relaxed">
+   ```
 
-## Admin Panel Changes (AdminOfferPopup.tsx)
+4. **Update discount badge** styling:
+   ```tsx
+   // FROM:
+   <span className="inline-block bg-amber-500 text-white ...">
+   
+   // TO:
+   <span className="inline-block bg-[#d4a84b] text-gray-900 ...">
+   ```
 
-### New UI Elements in Appearance Card:
-1. **Image Position** - Select dropdown with options: Center, Top, Bottom, Left, Right
-2. **Image Fit** - Select dropdown with options: Cover, Contain, Fill, None
-3. **Image Height** - Slider/input (100-400px)
-4. **Image Zoom** - Slider (100-200%)
-5. **Live preview** updates in real-time as settings change
+5. **Increase popup width** to match reference:
+   ```tsx
+   // FROM:
+   className="... w-[90%] max-w-md"
+   
+   // TO:
+   className="... w-[90%] max-w-lg"
+   ```
 
-### Updated Interface:
-```typescript
-interface PopupSettings {
-  // ... existing fields
-  image_position: string | null;
-  image_fit: string | null;
-  image_height: number | null;
-  image_scale: number | null;
-}
-```
+6. **Make buttons always side by side**:
+   ```tsx
+   // FROM:
+   <div className="flex flex-col xs:flex-row justify-center gap-3">
+   
+   // TO:
+   <div className="flex flex-row justify-center gap-3">
+   ```
 
-## Frontend Changes (OfferPopup.tsx)
+7. **Remove white border** on container:
+   ```tsx
+   // FROM:
+   <div className="relative rounded-2xl shadow-2xl overflow-hidden border border-gray-200 bg-white">
+   
+   // TO:
+   <div className="relative rounded-2xl shadow-2xl overflow-hidden border-0 bg-primary">
+   ```
 
-Update the image styling to apply the settings dynamically:
+## Visual Comparison
 
-```tsx
-<img
-  src={settings.image_url || makkahImage}
-  alt="Offer Banner"
-  style={{
-    height: `${settings.image_height || 224}px`,
-    objectFit: settings.image_fit || 'cover',
-    objectPosition: settings.image_position || 'center',
-    transform: `scale(${(settings.image_scale || 100) / 100})`,
-  }}
-  className="w-full"
-/>
-```
+### Current (Wrong)
+- Cream/light content background
+- Dark text on light background
+- Smaller width
+
+### After Fix (Correct)
+- Dark green/teal content background matching header
+- Light/gold text on dark background
+- Wider popup
+- Seamless design flow from header to content
 
 ## Files to Modify
-
 | File | Changes |
 |------|---------|
-| Database Migration | Add 4 new columns |
-| `src/components/admin/AdminOfferPopup.tsx` | Add new controls for image settings |
-| `src/components/OfferPopup.tsx` | Apply dynamic image styles |
-
-## UI Preview (Admin Panel)
-
-```text
-┌─────────────────────────────────────────┐
-│ Image Settings                           │
-├─────────────────────────────────────────┤
-│ Position: [Center ▼]  Fit: [Cover ▼]    │
-│                                          │
-│ Height: [==●=========] 224px            │
-│                                          │
-│ Zoom:   [●===========] 100%             │
-└─────────────────────────────────────────┘
-```
-
-## Implementation Steps
-
-1. Create database migration to add new columns
-2. Update `AdminOfferPopup.tsx`:
-   - Add new fields to interface
-   - Add Select dropdowns for position and fit
-   - Add Slider components for height and zoom
-   - Update save function to include new fields
-   - Update live preview to reflect changes
-3. Update `OfferPopup.tsx`:
-   - Update interface to include new fields
-   - Apply inline styles based on settings
-
+| `src/components/OfferPopup.tsx` | Update background colors, text colors, width, and layout |
