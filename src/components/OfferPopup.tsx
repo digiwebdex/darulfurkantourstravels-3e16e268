@@ -19,6 +19,7 @@ interface OfferPopupSettings {
   background_color: string;
   text_color: string;
   overlay_opacity: number;
+  full_view_image_url?: string;
 }
 
 const STORAGE_KEY = "offer_popup_shown";
@@ -106,101 +107,126 @@ const OfferPopup = () => {
           />
 
           {/* Popup Content */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-md rounded-2xl overflow-hidden shadow-2xl"
-            style={{ backgroundColor: settings.background_color || "#0d4a3e" }}
-          >
-            {/* Close Button */}
-            <button
-              onClick={handleClose}
-              className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+          {settings.full_view_image_url ? (
+            /* Full-View Image Mode - Only show the promotional flyer */
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative max-w-lg rounded-2xl overflow-hidden shadow-2xl"
             >
-              <X className="w-4 h-4 text-white" />
-            </button>
-
-            {/* Badge */}
-            {settings.badge_text && (
-              <div className="absolute top-3 left-3 z-10">
-                <span className="bg-secondary text-secondary-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                  {settings.badge_text}
-                </span>
-              </div>
-            )}
-
-            {/* Image Banner */}
-            {settings.image_url && (
-              <div className="w-full h-48 overflow-hidden">
-                <img
-                  src={settings.image_url}
-                  alt="Offer Banner"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            )}
-
-            {/* Content Section */}
-            <div
-              className="p-6 text-center"
+              {/* Close Button */}
+              <button
+                onClick={handleClose}
+                className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-black/30 hover:bg-black/50 transition-colors"
+              >
+                <X className="w-5 h-5 text-white" />
+              </button>
+              <img
+                src={settings.full_view_image_url}
+                alt="Promotional Offer"
+                className="w-full h-auto max-h-[90vh] object-contain"
+              />
+            </motion.div>
+          ) : (
+            /* Standard Mode - Show full popup with text and buttons */
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-md rounded-2xl overflow-hidden shadow-2xl"
               style={{ backgroundColor: settings.background_color || "#0d4a3e" }}
             >
-              {/* Title */}
-              <h3
-                className="text-2xl font-bold mb-2"
-                style={{ color: settings.text_color || "#d4a84b" }}
+              {/* Close Button */}
+              <button
+                onClick={handleClose}
+                className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors"
               >
-                ✨ {settings.title} ✨
-              </h3>
+                <X className="w-4 h-4 text-white" />
+              </button>
 
-              {/* Subtitle */}
-              {settings.subtitle && (
-                <p className="text-white font-semibold text-sm mb-3">
-                  {settings.subtitle}
-                </p>
-              )}
-
-              {/* Description */}
-              {settings.description && (
-                <p className="text-gray-300 text-sm mb-4 leading-relaxed max-w-sm mx-auto">
-                  {settings.description}
-                </p>
-              )}
-
-              {/* Discount Badge */}
-              {settings.discount_text && (
-                <div className="mb-5">
-                  <span className="inline-block bg-secondary text-secondary-foreground font-bold px-6 py-2.5 rounded-full text-sm shadow-lg">
-                    {settings.discount_text}
+              {/* Badge */}
+              {settings.badge_text && (
+                <div className="absolute top-3 left-3 z-10">
+                  <span className="bg-secondary text-secondary-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                    {settings.badge_text}
                   </span>
                 </div>
               )}
 
-              {/* CTA Buttons */}
-              <div className="flex flex-row justify-center gap-3">
-                <Button
-                  onClick={handleButtonClick}
-                  size="default"
-                  className="font-semibold px-6 py-5 text-sm rounded-xl bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-lg hover:shadow-xl transition-all"
+              {/* Image Banner */}
+              {settings.image_url && (
+                <div className="w-full h-48 overflow-hidden">
+                  <img
+                    src={settings.image_url}
+                    alt="Offer Banner"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+
+              {/* Content Section */}
+              <div
+                className="p-6 text-center"
+                style={{ backgroundColor: settings.background_color || "#0d4a3e" }}
+              >
+                {/* Title */}
+                <h3
+                  className="text-2xl font-bold mb-2"
+                  style={{ color: settings.text_color || "#d4a84b" }}
                 >
-                  {settings.button_text} →
-                </Button>
-                <Button
-                  onClick={() => {
-                    setIsOpen(false);
-                    const element = document.querySelector("#contact");
-                    if (element) element.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  size="default"
-                  className="font-semibold px-6 py-5 text-sm rounded-xl bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-lg hover:shadow-xl transition-all"
-                >
-                  Book Now →
-                </Button>
+                  ✨ {settings.title} ✨
+                </h3>
+
+                {/* Subtitle */}
+                {settings.subtitle && (
+                  <p className="text-white font-semibold text-sm mb-3">
+                    {settings.subtitle}
+                  </p>
+                )}
+
+                {/* Description */}
+                {settings.description && (
+                  <p className="text-gray-300 text-sm mb-4 leading-relaxed max-w-sm mx-auto">
+                    {settings.description}
+                  </p>
+                )}
+
+                {/* Discount Badge */}
+                {settings.discount_text && (
+                  <div className="mb-5">
+                    <span className="inline-block bg-secondary text-secondary-foreground font-bold px-6 py-2.5 rounded-full text-sm shadow-lg">
+                      {settings.discount_text}
+                    </span>
+                  </div>
+                )}
+
+                {/* CTA Buttons */}
+                <div className="flex flex-row justify-center gap-3">
+                  <Button
+                    onClick={handleButtonClick}
+                    size="default"
+                    className="font-semibold px-6 py-5 text-sm rounded-xl bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-lg hover:shadow-xl transition-all"
+                  >
+                    {settings.button_text} →
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setIsOpen(false);
+                      const element = document.querySelector("#contact");
+                      if (element) element.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    size="default"
+                    className="font-semibold px-6 py-5 text-sm rounded-xl bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-lg hover:shadow-xl transition-all"
+                  >
+                    Book Now →
+                  </Button>
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          )}
         </motion.div>
       )}
     </AnimatePresence>

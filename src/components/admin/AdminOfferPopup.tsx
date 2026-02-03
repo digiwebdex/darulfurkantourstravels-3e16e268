@@ -29,6 +29,7 @@ interface PopupSettings {
   image_fit: string | null;
   image_height: number | null;
   image_scale: number | null;
+  full_view_image_url: string | null;
 }
 
 const AdminOfferPopup = () => {
@@ -107,6 +108,7 @@ const AdminOfferPopup = () => {
           image_fit: settings.image_fit,
           image_height: settings.image_height,
           image_scale: settings.image_scale,
+          full_view_image_url: settings.full_view_image_url,
         })
         .eq("id", settings.id);
 
@@ -357,6 +359,62 @@ const AdminOfferPopup = () => {
                   </div>
                   {settings.image_url && (
                     <img src={settings.image_url} alt="Preview" className="w-full h-32 object-cover rounded-lg" />
+                  )}
+                </div>
+              </div>
+
+              {/* Full-View Promotional Image */}
+              <div className="border-t pt-4">
+                <Label>Full-View Promotional Image</Label>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Upload a complete promotional flyer. When set, this image will be shown 
+                  as the entire popup content (no title, buttons, etc.)
+                </p>
+                <div className="mt-2 space-y-2">
+                  <div className="flex gap-2">
+                    <Input
+                      value={settings.full_view_image_url || ""}
+                      onChange={(e) => updateField("full_view_image_url", e.target.value)}
+                      placeholder="Enter image URL or upload"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={uploading}
+                      onClick={async () => {
+                        const input = document.createElement("input");
+                        input.type = "file";
+                        input.accept = "image/*";
+                        input.onchange = async (e) => {
+                          const file = (e.target as HTMLInputElement).files?.[0];
+                          if (file) {
+                            const url = await uploadImage(file);
+                            if (url) updateField("full_view_image_url", url);
+                          }
+                        };
+                        input.click();
+                      }}
+                    >
+                      {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Upload"}
+                    </Button>
+                  </div>
+                  {settings.full_view_image_url && (
+                    <div className="relative">
+                      <img 
+                        src={settings.full_view_image_url} 
+                        alt="Full-View Preview" 
+                        className="w-full rounded-lg border" 
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-2 right-2"
+                        onClick={() => updateField("full_view_image_url", null)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
                   )}
                 </div>
               </div>

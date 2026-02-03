@@ -1818,6 +1818,7 @@ export type Database = {
           created_at: string
           delay_seconds: number | null
           description: string | null
+          full_view_image_url: string | null
           id: string
           image_fit: string | null
           image_height: number | null
@@ -1838,6 +1839,7 @@ export type Database = {
           created_at?: string
           delay_seconds?: number | null
           description?: string | null
+          full_view_image_url?: string | null
           id?: string
           image_fit?: string | null
           image_height?: number | null
@@ -1858,6 +1860,7 @@ export type Database = {
           created_at?: string
           delay_seconds?: number | null
           description?: string | null
+          full_view_image_url?: string | null
           id?: string
           image_fit?: string | null
           image_height?: number | null
