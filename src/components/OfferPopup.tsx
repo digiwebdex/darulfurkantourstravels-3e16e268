@@ -21,6 +21,10 @@ interface PopupSettings {
   is_enabled: boolean;
   show_on_every_visit: boolean;
   delay_seconds: number | null;
+  image_position: string | null;
+  image_fit: string | null;
+  image_height: number | null;
+  image_scale: number | null;
 }
 
 const OfferPopup = () => {
@@ -129,11 +133,18 @@ const OfferPopup = () => {
               </div>
 
               {/* Image Banner */}
-              <div className="w-full">
+              <div className="w-full overflow-hidden">
                 <img
                   src={settings.image_url || makkahImage}
                   alt="Offer Banner"
-                  className="w-full h-48 sm:h-56 object-cover"
+                  className="w-full transition-transform"
+                  style={{
+                    height: `${settings.image_height || 224}px`,
+                    objectFit: (settings.image_fit as React.CSSProperties['objectFit']) || 'cover',
+                    objectPosition: settings.image_position || 'center',
+                    transform: `scale(${(settings.image_scale || 100) / 100})`,
+                    transformOrigin: settings.image_position || 'center',
+                  }}
                 />
               </div>
 
