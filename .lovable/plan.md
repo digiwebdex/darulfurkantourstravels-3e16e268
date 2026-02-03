@@ -1,113 +1,111 @@
 
-# Fix Offer Popup - Match Exact Reference Design
+# Add Full-View Image Mode to Offer Popup
 
-## Problem
-The current popup has a cream/light background (`#f5f0e8`) for the content section, but the reference design shows a **dark green/teal background** that matches the header. The text colors also need to be adjusted for visibility on dark background.
+## Overview
+Add a new field in the Admin Offer Popup settings to upload a "full-view" promotional image (like the complete flyer design). When this image is set, the popup will show ONLY that image with no text overlays or buttons - just the full promotional image and a close button.
 
-## Exact Design Specifications from Reference
+## Current vs New Behavior
 
-### Structure
-- Centered modal with rounded corners
-- Dark green header bar
-- Large Kaaba image banner
-- Dark green content section (NOT cream)
+| Mode | What Shows |
+|------|------------|
+| Current (Banner Image) | Image + Title + Subtitle + Description + Buttons |
+| NEW (Full-View Image) | Only the full promotional image + Close button |
 
-### Colors
-| Element | Current | Should Be |
-|---------|---------|-----------|
-| Content Background | `#f5f0e8` (cream) | Dark green/teal (`#0d4a3e` or similar) |
-| Title | `text-amber-500` | Gold/amber (keep) |
-| Subtitle | `text-gray-800` | White (`text-white`) |
-| Description | `text-gray-600` | Light gray (`text-gray-300`) |
-| Badge | `bg-amber-500 text-white` | Gold background, dark text |
-| Buttons | `bg-amber-400 text-gray-900` | Gold/amber, dark text (keep) |
+## Changes Required
 
-### Layout
-- Width: Slightly wider (`max-w-lg` instead of `max-w-md`)
-- Buttons: Side by side on mobile too
-- Proper spacing and padding
+### 1. Database Schema Update
+Add new field to store the full-view image URL:
 
-## Changes to Make
+```sql
+-- Add full_view_image_url column to offer_popup_settings table
+ALTER TABLE offer_popup_settings 
+ADD COLUMN full_view_image_url TEXT;
+```
 
-### File: `src/components/OfferPopup.tsx`
+### 2. Admin Panel Changes (`src/components/admin/AdminOfferPopup.tsx`)
 
-1. **Change content section background** from cream to dark teal/green:
-   ```tsx
-   // FROM:
-   <div className="px-6 py-6 text-center bg-[#f5f0e8]">
-   
-   // TO:
-   <div className="px-6 py-6 text-center bg-[#0d5a4c]">
-   ```
+Add a new upload field in the Appearance section:
 
-2. **Update subtitle color** to white for dark background:
-   ```tsx
-   // FROM:
-   <p className="text-sm font-semibold text-gray-800 mb-3">
-   
-   // TO:
-   <p className="text-sm font-semibold text-white mb-3">
-   ```
+```tsx
+{/* Full-View Image (New Section) */}
+<div className="border-t pt-4">
+  <Label>Full-View Promotional Image</Label>
+  <p className="text-sm text-muted-foreground mb-2">
+    Upload a complete promotional flyer. When set, this image will be shown 
+    as the entire popup content (no title, buttons, etc.)
+  </p>
+  <div className="mt-2 space-y-2">
+    <div className="flex gap-2">
+      <Input
+        value={settings.full_view_image_url || ""}
+        onChange={(e) => updateField("full_view_image_url", e.target.value)}
+        placeholder="Enter image URL or upload"
+      />
+      <Button variant="outline" onClick={...}>
+        Upload
+      </Button>
+    </div>
+    {settings.full_view_image_url && (
+      <div className="relative">
+        <img src={settings.full_view_image_url} className="w-full rounded-lg" />
+        <Button variant="destructive" size="sm" onClick={...}>
+          Remove
+        </Button>
+      </div>
+    )}
+  </div>
+</div>
+```
 
-3. **Update description color** to light gray:
-   ```tsx
-   // FROM:
-   <p className="text-sm text-gray-600 mb-5 leading-relaxed">
-   
-   // TO:
-   <p className="text-sm text-gray-300 mb-5 leading-relaxed">
-   ```
+Update the `PopupSettings` interface and `handleSave` function to include `full_view_image_url`.
 
-4. **Update discount badge** styling:
-   ```tsx
-   // FROM:
-   <span className="inline-block bg-amber-500 text-white ...">
-   
-   // TO:
-   <span className="inline-block bg-[#d4a84b] text-gray-900 ...">
-   ```
+### 3. Frontend Popup Changes (`src/components/OfferPopup.tsx`)
 
-5. **Increase popup width** to match reference:
-   ```tsx
-   // FROM:
-   className="... w-[90%] max-w-md"
-   
-   // TO:
-   className="... w-[90%] max-w-lg"
-   ```
+Add conditional rendering based on whether `full_view_image_url` is set:
 
-6. **Make buttons always side by side**:
-   ```tsx
-   // FROM:
-   <div className="flex flex-col xs:flex-row justify-center gap-3">
-   
-   // TO:
-   <div className="flex flex-row justify-center gap-3">
-   ```
+```tsx
+{/* If full-view image is set, show ONLY that image */}
+{settings.full_view_image_url ? (
+  <motion.div className="relative max-w-lg rounded-2xl overflow-hidden">
+    <button onClick={handleClose} className="absolute top-3 right-3 z-10 ...">
+      <X className="w-5 h-5 text-white" />
+    </button>
+    <img 
+      src={settings.full_view_image_url} 
+      alt="Promotional Offer"
+      className="w-full h-auto max-h-[90vh] object-contain"
+    />
+  </motion.div>
+) : (
+  /* Existing popup with title, buttons, etc. */
+)}
+```
 
-7. **Remove white border** on container:
-   ```tsx
-   // FROM:
-   <div className="relative rounded-2xl shadow-2xl overflow-hidden border border-gray-200 bg-white">
-   
-   // TO:
-   <div className="relative rounded-2xl shadow-2xl overflow-hidden border-0 bg-primary">
-   ```
+### 4. Update site_settings Data Structure
 
-## Visual Comparison
+Update the OfferPopupSettings interface to include the new field:
 
-### Current (Wrong)
-- Cream/light content background
-- Dark text on light background
-- Smaller width
+```tsx
+interface OfferPopupSettings {
+  // ... existing fields
+  full_view_image_url?: string;
+}
+```
 
-### After Fix (Correct)
-- Dark green/teal content background matching header
-- Light/gold text on dark background
-- Wider popup
-- Seamless design flow from header to content
+## Visual Result
+
+**When Full-View Image is NOT set:**
+- Shows current design with banner image, title, description, buttons
+
+**When Full-View Image IS set:**
+- Shows only the uploaded promotional flyer (like the Umrah package image)
+- Close button in top-right corner
+- No text overlays, no buttons - just the complete promotional image
 
 ## Files to Modify
+
 | File | Changes |
 |------|---------|
-| `src/components/OfferPopup.tsx` | Update background colors, text colors, width, and layout |
+| `src/components/admin/AdminOfferPopup.tsx` | Add full-view image upload field, update interface, save logic |
+| `src/components/OfferPopup.tsx` | Add conditional rendering for full-view mode |
+| Database Migration | Add `full_view_image_url` column to `offer_popup_settings` |
