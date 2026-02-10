@@ -1,111 +1,102 @@
 
-# Add Full-View Image Mode to Offer Popup
+# DarulFurkanPackages সেকশনের সব কনটেন্ট এডমিন থেকে এডিট করার পরিকল্পনা
 
-## Overview
-Add a new field in the Admin Offer Popup settings to upload a "full-view" promotional image (like the complete flyer design). When this image is set, the popup will show ONLY that image with no text overlays or buttons - just the full promotional image and a close button.
+## সমস্যা
+`DarulFurkanPackages.tsx` কম্পোনেন্টে সব লেখা (লটারি ব্যানার, প্যাকেজের অন্তর্ভুক্ত তালিকা, ট্রানজিট/ডিরেক্ট ফ্লাইটের দাম ও তারিখ, ইতেকাফ প্যাকেজ, যোগাযোগ তথ্য) হার্ডকোড করা আছে। এগুলো এডমিন প্যানেল থেকে এডিট করার সুবিধা নেই।
 
-## Current vs New Behavior
+## সমাধান
+একটি নতুন ডাটাবেস টেবিল `darul_furkan_content` তৈরি করে সব কনটেন্ট সেখানে রাখা হবে এবং এডমিন প্যানেলের Packages সেকশনে একটি নতুন সাব-সেকশন "Darul Furkan Content" যোগ করা হবে।
 
-| Mode | What Shows |
-|------|------------|
-| Current (Banner Image) | Image + Title + Subtitle + Description + Buttons |
-| NEW (Full-View Image) | Only the full promotional image + Close button |
+## ধাপসমূহ
 
-## Changes Required
+### ধাপ ১: ডাটাবেস টেবিল তৈরি
+`darul_furkan_content` নামে একটি টেবিল তৈরি হবে যেখানে থাকবে:
+- **লটারি ব্যানার**: শিরোনাম, সাবটাইটেল, অফারের তারিখ
+- **প্যাকেজ অন্তর্ভুক্ত তালিকা**: JSON array (ভিসা, এয়ার টিকেট, হোটেল ইত্যাদি)
+- **ফ্লাইট প্যাকেজ**: ট্রানজিট ও ডিরেক্ট ফ্লাইটের নাম, দাম, তারিখ (JSON array)
+- **ইতেকাফ প্যাকেজ**: দিন, দাম, লেবেল (JSON array)
+- **যোগাযোগ তথ্য**: ঠিকানা, ফোন নম্বর
+- **সেকশন হেডার**: ব্যাজ, টাইটেল, সাবটাইটেল
 
-### 1. Database Schema Update
-Add new field to store the full-view image URL:
+### ধাপ ২: এডমিন প্যানেলে সাব-সেকশন যোগ
+`AdminPackages.tsx` ফাইলে একটি নতুন ট্যাব/সেকশন "দারুল ফুরকান কনটেন্ট" যোগ হবে যেখানে এডিট করা যাবে:
 
-```sql
--- Add full_view_image_url column to offer_popup_settings table
-ALTER TABLE offer_popup_settings 
-ADD COLUMN full_view_image_url TEXT;
+- **লটারি ব্যানার সেটিংস**: শিরোনাম, সাবটাইটেল, অফারের শুরু ও শেষ তারিখ
+- **প্যাকেজ ইনক্লুশন**: ডায়নামিক ফিল্ড (যোগ/মুছে ফেলা যাবে)
+- **ফ্লাইট প্যাকেজ**: প্রতিটি ফ্লাইটের জন্য নাম, দাম, তারিখ, highlighted কিনা
+- **ইতেকাফ প্যাকেজ**: প্রতিটির দিন, দাম, লেবেল
+- **যোগাযোগ তথ্য**: ঠিকানা, ফোন নম্বর
+
+### ধাপ ৩: ফ্রন্টএন্ড আপডেট
+`DarulFurkanPackages.tsx` কম্পোনেন্ট আপডেট হবে যাতে হার্ডকোড কনটেন্টের বদলে ডাটাবেস থেকে ডাটা লোড করে।
+
+## টেকনিক্যাল ডিটেইলস
+
+### ডাটাবেস স্কিমা
+```text
+darul_furkan_content (single-row settings table)
++---------------------------+------------------+
+| Column                    | Type             |
++---------------------------+------------------+
+| id                        | uuid (PK)        |
+| section_badge             | text             |
+| section_title             | text             |
+| section_title_highlight   | text             |
+| section_subtitle          | text             |
+| lottery_title             | text             |
+| lottery_subtitle          | text             |
+| special_offer_label       | text             |
+| offer_dates               | text             |
+| includes_title            | text             |
+| includes_subtitle         | text             |
+| package_inclusions        | jsonb            |
+| flight_packages           | jsonb            |
+| itikaf_badge              | text             |
+| itikaf_title              | text             |
+| itikaf_packages           | jsonb            |
+| contact_title             | text             |
+| contact_subtitle          | text             |
+| contact_address           | text             |
+| contact_phones            | jsonb            |
+| discount_text             | text             |
+| book_now_text             | text             |
+| select_package_text       | text             |
+| created_at / updated_at   | timestamptz      |
++---------------------------+------------------+
 ```
 
-### 2. Admin Panel Changes (`src/components/admin/AdminOfferPopup.tsx`)
-
-Add a new upload field in the Appearance section:
-
-```tsx
-{/* Full-View Image (New Section) */}
-<div className="border-t pt-4">
-  <Label>Full-View Promotional Image</Label>
-  <p className="text-sm text-muted-foreground mb-2">
-    Upload a complete promotional flyer. When set, this image will be shown 
-    as the entire popup content (no title, buttons, etc.)
-  </p>
-  <div className="mt-2 space-y-2">
-    <div className="flex gap-2">
-      <Input
-        value={settings.full_view_image_url || ""}
-        onChange={(e) => updateField("full_view_image_url", e.target.value)}
-        placeholder="Enter image URL or upload"
-      />
-      <Button variant="outline" onClick={...}>
-        Upload
-      </Button>
-    </div>
-    {settings.full_view_image_url && (
-      <div className="relative">
-        <img src={settings.full_view_image_url} className="w-full rounded-lg" />
-        <Button variant="destructive" size="sm" onClick={...}>
-          Remove
-        </Button>
-      </div>
-    )}
-  </div>
-</div>
+### JSON ফরম্যাট উদাহরণ
+**flight_packages:**
+```text
+[
+  { "type": "Transit Flight", "typeBn": "ট্রানজিট ফ্লাইট",
+    "price": 135000, "flightDate": "১০ জুন ২০২৬", "highlight": false },
+  { "type": "Direct Flight", "typeBn": "ডিরেক্ট ফ্লাইট",
+    "price": 145000, "flightDate": "১৫ জুন ২০২৬", "highlight": true }
+]
 ```
 
-Update the `PopupSettings` interface and `handleSave` function to include `full_view_image_url`.
-
-### 3. Frontend Popup Changes (`src/components/OfferPopup.tsx`)
-
-Add conditional rendering based on whether `full_view_image_url` is set:
-
-```tsx
-{/* If full-view image is set, show ONLY that image */}
-{settings.full_view_image_url ? (
-  <motion.div className="relative max-w-lg rounded-2xl overflow-hidden">
-    <button onClick={handleClose} className="absolute top-3 right-3 z-10 ...">
-      <X className="w-5 h-5 text-white" />
-    </button>
-    <img 
-      src={settings.full_view_image_url} 
-      alt="Promotional Offer"
-      className="w-full h-auto max-h-[90vh] object-contain"
-    />
-  </motion.div>
-) : (
-  /* Existing popup with title, buttons, etc. */
-)}
+**itikaf_packages:**
+```text
+[
+  { "days": 15, "daysBn": "১৫ দিন", "price": 165000, "labelBn": "১৫ দিনের ইতেকাফ" },
+  ...
+]
 ```
 
-### 4. Update site_settings Data Structure
+### এডমিন UI লেআউট
+AdminPackages কম্পোনেন্টে Tabs ব্যবহার করে দুটি ট্যাব থাকবে:
+1. **Packages** (বর্তমান প্যাকেজ ম্যানেজমেন্ট)
+2. **Darul Furkan Content** (নতুন সাব-সেকশন)
 
-Update the OfferPopupSettings interface to include the new field:
+নতুন সাব-সেকশনে Card ভিত্তিক গ্রুপিং থাকবে:
+- লটারি ব্যানার সেটিংস কার্ড
+- প্যাকেজ ইনক্লুশন কার্ড (ডায়নামিক add/remove)
+- ফ্লাইট প্যাকেজ কার্ড (ডায়নামিক add/remove)
+- ইতেকাফ প্যাকেজ কার্ড (ডায়নামিক add/remove)
+- যোগাযোগ তথ্য কার্ড
 
-```tsx
-interface OfferPopupSettings {
-  // ... existing fields
-  full_view_image_url?: string;
-}
-```
-
-## Visual Result
-
-**When Full-View Image is NOT set:**
-- Shows current design with banner image, title, description, buttons
-
-**When Full-View Image IS set:**
-- Shows only the uploaded promotional flyer (like the Umrah package image)
-- Close button in top-right corner
-- No text overlays, no buttons - just the complete promotional image
-
-## Files to Modify
-
-| File | Changes |
-|------|---------|
-| `src/components/admin/AdminOfferPopup.tsx` | Add full-view image upload field, update interface, save logic |
-| `src/components/OfferPopup.tsx` | Add conditional rendering for full-view mode |
-| Database Migration | Add `full_view_image_url` column to `offer_popup_settings` |
+### ফাইল পরিবর্তন
+1. **নতুন মাইগ্রেশন**: `darul_furkan_content` টেবিল তৈরি + ডিফল্ট ডাটা insert + RLS পলিসি
+2. **`src/components/admin/AdminPackages.tsx`**: Tabs যোগ এবং নতুন "Darul Furkan Content" সাব-সেকশন
+3. **`src/components/DarulFurkanPackages.tsx`**: ডাটাবেস থেকে কনটেন্ট ফেচ করে রেন্ডার
