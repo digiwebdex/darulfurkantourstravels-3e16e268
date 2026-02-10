@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -34,6 +35,7 @@ import { Plus, Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, CURRENCY } from "@/lib/currency";
 import ImageUpload from "./ImageUpload";
+import AdminDarulFurkanContent from "./AdminDarulFurkanContent";
 
 interface Package {
   id: string;
@@ -263,6 +265,12 @@ const AdminPackages = ({ onUpdate }: AdminPackagesProps) => {
   }
 
   return (
+    <Tabs defaultValue="packages" className="space-y-4">
+      <TabsList>
+        <TabsTrigger value="packages">Packages</TabsTrigger>
+        <TabsTrigger value="darul-furkan">Darul Furkan Content</TabsTrigger>
+      </TabsList>
+      <TabsContent value="packages">
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
@@ -588,6 +596,11 @@ const AdminPackages = ({ onUpdate }: AdminPackagesProps) => {
         </div>
       </CardContent>
     </Card>
+      </TabsContent>
+      <TabsContent value="darul-furkan">
+        <AdminDarulFurkanContent />
+      </TabsContent>
+    </Tabs>
   );
 };
 

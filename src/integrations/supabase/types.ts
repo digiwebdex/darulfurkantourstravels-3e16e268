@@ -712,6 +712,90 @@ export type Database = {
         }
         Relationships: []
       }
+      darul_furkan_content: {
+        Row: {
+          book_now_text: string | null
+          contact_address: string | null
+          contact_phones: Json | null
+          contact_subtitle: string | null
+          contact_title: string | null
+          created_at: string
+          discount_text: string | null
+          flight_packages: Json | null
+          id: string
+          includes_subtitle: string | null
+          includes_title: string | null
+          itikaf_badge: string | null
+          itikaf_packages: Json | null
+          itikaf_title: string | null
+          lottery_subtitle: string | null
+          lottery_title: string | null
+          offer_dates: string | null
+          package_inclusions: Json | null
+          section_badge: string | null
+          section_subtitle: string | null
+          section_title: string | null
+          section_title_highlight: string | null
+          select_package_text: string | null
+          special_offer_label: string | null
+          updated_at: string
+        }
+        Insert: {
+          book_now_text?: string | null
+          contact_address?: string | null
+          contact_phones?: Json | null
+          contact_subtitle?: string | null
+          contact_title?: string | null
+          created_at?: string
+          discount_text?: string | null
+          flight_packages?: Json | null
+          id?: string
+          includes_subtitle?: string | null
+          includes_title?: string | null
+          itikaf_badge?: string | null
+          itikaf_packages?: Json | null
+          itikaf_title?: string | null
+          lottery_subtitle?: string | null
+          lottery_title?: string | null
+          offer_dates?: string | null
+          package_inclusions?: Json | null
+          section_badge?: string | null
+          section_subtitle?: string | null
+          section_title?: string | null
+          section_title_highlight?: string | null
+          select_package_text?: string | null
+          special_offer_label?: string | null
+          updated_at?: string
+        }
+        Update: {
+          book_now_text?: string | null
+          contact_address?: string | null
+          contact_phones?: Json | null
+          contact_subtitle?: string | null
+          contact_title?: string | null
+          created_at?: string
+          discount_text?: string | null
+          flight_packages?: Json | null
+          id?: string
+          includes_subtitle?: string | null
+          includes_title?: string | null
+          itikaf_badge?: string | null
+          itikaf_packages?: Json | null
+          itikaf_title?: string | null
+          lottery_subtitle?: string | null
+          lottery_title?: string | null
+          offer_dates?: string | null
+          package_inclusions?: Json | null
+          section_badge?: string | null
+          section_subtitle?: string | null
+          section_title?: string | null
+          section_title_highlight?: string | null
+          select_package_text?: string | null
+          special_offer_label?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       downloadable_resources: {
         Row: {
           created_at: string
