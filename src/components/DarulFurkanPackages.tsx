@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { motion } from "framer-motion";
 import { 
   Plane, Hotel, Bus, UtensilsCrossed, Gift, Star, Calendar, 
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/hooks/useTranslation";
 import { formatCurrency } from "@/lib/currency";
+import { supabase } from "@/integrations/supabase/client";
 import MakkahIcon from "./icons/MakkahIcon";
 
 const BookingModal = lazy(() => import("@/components/BookingModal"));
@@ -15,39 +16,54 @@ const BookingModal = lazy(() => import("@/components/BookingModal"));
 const DarulFurkanPackages = () => {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<any>(null);
+  const [dbContent, setDbContent] = useState<any>(null);
   const { t, language, isRTL } = useTranslation();
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      const { data } = await supabase
+        .from("darul_furkan_content" as any)
+        .select("*")
+        .limit(1)
+        .single();
+      if (data) setDbContent(data);
+    };
+    fetchContent();
+  }, []);
 
   const handleBookNow = (pkg: any) => {
     setSelectedPackage(pkg);
     setIsBookingModalOpen(true);
   };
 
-  // Localized content
+  // Use DB content with hardcoded fallbacks
+  const db = dbContent as any;
+
   const content = {
     bn: {
-      sectionBadge: "২০২৬ হজ্জ পরবর্তী উমরাহ প্যাকেজ",
-      sectionTitle: "উমরাহ প্যাকেজ",
-      sectionTitleHighlight: "২০২৬",
-      sectionSubtitle: "হজ্জ পরবর্তী উমরাহ প্যাকেজ - সম্পূর্ণ সেবা সহ পবিত্র ভূমিতে আপনার যাত্রা",
-      lotteryTitle: "লটারির মাধ্যমে ফ্রি উমরাহ!",
-      lotterySubtitle: "প্রতি ৫০ জনে একজন সুযোগ পাবেন",
-      specialOffer: "বিশেষ অফারের সময়সীমা",
-      offerDates: "২৪ জানুয়ারি - ১০ ফেব্রুয়ারি",
-      includesTitle: "প্যাকেজের অন্তর্ভুক্ত",
-      includesSubtitle: "যা যা অন্তর্ভুক্ত",
+      sectionBadge: db?.section_badge || "২০২৬ হজ্জ পরবর্তী উমরাহ প্যাকেজ",
+      sectionTitle: db?.section_title || "উমরাহ প্যাকেজ",
+      sectionTitleHighlight: db?.section_title_highlight || "২০২৬",
+      sectionSubtitle: db?.section_subtitle || "হজ্জ পরবর্তী উমরাহ প্যাকেজ - সম্পূর্ণ সেবা সহ পবিত্র ভূমিতে আপনার যাত্রা",
+      lotteryTitle: db?.lottery_title || "লটারির মাধ্যমে ফ্রি উমরাহ!",
+      lotterySubtitle: db?.lottery_subtitle || "প্রতি ৫০ জনে একজন সুযোগ পাবেন",
+      specialOffer: db?.special_offer_label || "বিশেষ অফারের সময়সীমা",
+      offerDates: db?.offer_dates || "২৪ জানুয়ারি - ১০ ফেব্রুয়ারি",
+      includesTitle: db?.includes_title || "প্যাকেজের অন্তর্ভুক্ত",
+      includesSubtitle: db?.includes_subtitle || "যা যা অন্তর্ভুক্ত",
       packagePrice: "প্যাকেজ মূল্য",
       flightDate: "ফ্লাইটের তারিখ",
-      bookNow: "এখনই বুক করুন",
-      selectPackage: "প্যাকেজ নির্বাচন করুন",
-      itikafBadge: "পবিত্র রমজানে ইতেকাফ",
-      itikafTitle: "ইতেকাফ প্যাকেজ",
-      contactTitle: "দারুল ফুরকান ট্যুরস এন্ড ট্রাভেলস",
-      contactSubtitle: "যোগাযোগ করুন",
+      bookNow: db?.book_now_text || "এখনই বুক করুন",
+      selectPackage: db?.select_package_text || "প্যাকেজ নির্বাচন করুন",
+      itikafBadge: db?.itikaf_badge || "পবিত্র রমজানে ইতেকাফ",
+      itikafTitle: db?.itikaf_title || "ইতেকাফ প্যাকেজ",
+      contactTitle: db?.contact_title || "দারুল ফুরকান ট্যুরস এন্ড ট্রাভেলস",
+      contactSubtitle: db?.contact_subtitle || "যোগাযোগ করুন",
       address: "ঠিকানা",
-      addressText: "৩৮২, বাগানবাড়ী, স্বাধীনতা সরণি,\nউত্তর বাড্ডা, ঢাকা ১২১২",
+      addressText: db?.contact_address || "৩৮২, বাগানবাড়ী, স্বাধীনতা সরণি,\nউত্তর বাড্ডা, ঢাকা ১২১২",
       phone: "ফোন",
       specialOfferLabel: "বিশেষ অফার",
-      discountText: "বিশেষ ছাড় চলছে!",
+      discountText: db?.discount_text || "বিশেষ ছাড় চলছে!",
     },
     en: {
       sectionBadge: "Umrah Package After Hajj 2026",
@@ -57,7 +73,7 @@ const DarulFurkanPackages = () => {
       lotteryTitle: "Free Umrah via Lottery!",
       lotterySubtitle: "1 in every 50 gets the opportunity",
       specialOffer: "Special Offer Period",
-      offerDates: "24 January - 10 February",
+      offerDates: db?.offer_dates || "24 January - 10 February",
       includesTitle: "Package Includes",
       includesSubtitle: "What's Included",
       packagePrice: "Package Price",
@@ -103,60 +119,31 @@ const DarulFurkanPackages = () => {
 
   const c = content[language as keyof typeof content] || content.bn;
 
-  const packageInclusions = language === "bn" ? [
-    "ভিসা (Visa)",
-    "এয়ার টিকেট (Air Ticket)",
-    "রিয়াজুল জান্নাহ (Riyazul Jannah)",
-    "হোটেল (Hotel)",
-    "ট্রান্সপোর্ট (Transport)",
-    "জিয়ারাহ (Ziyarah)",
-    "৩ বেলা খাবার (3 Meals/Day)",
+  // Use DB data for dynamic arrays
+  const dbInclusions = db?.package_inclusions as string[] | undefined;
+  const packageInclusions = dbInclusions || (language === "bn" ? [
+    "ভিসা (Visa)", "এয়ার টিকেট (Air Ticket)", "রিয়াজুল জান্নাহ (Riyazul Jannah)",
+    "হোটেল (Hotel)", "ট্রান্সপোর্ট (Transport)", "জিয়ারাহ (Ziyarah)", "৩ বেলা খাবার (3 Meals/Day)",
   ] : language === "ar" ? [
-    "تأشيرة",
-    "تذكرة طيران",
-    "رياض الجنة",
-    "فندق",
-    "مواصلات",
-    "زيارة",
-    "٣ وجبات يومياً",
+    "تأشيرة", "تذكرة طيران", "رياض الجنة", "فندق", "مواصلات", "زيارة", "٣ وجبات يومياً",
   ] : [
-    "Visa",
-    "Air Ticket",
-    "Riyazul Jannah",
-    "Hotel",
-    "Transport",
-    "Ziyarah",
-    "3 Meals/Day",
-  ];
+    "Visa", "Air Ticket", "Riyazul Jannah", "Hotel", "Transport", "Ziyarah", "3 Meals/Day",
+  ]);
 
-  const flightPackages = [
-    {
-      type: "Transit Flight",
-      typeBn: "ট্রানজিট ফ্লাইট",
-      typeAr: "رحلة ترانزيت",
-      price: 135000,
-      flightDate: "10 June 2026",
-      flightDateBn: "১০ জুন ২০২৬",
-      flightDateAr: "١٠ يونيو ٢٠٢٦",
-      highlight: false,
-    },
-    {
-      type: "Direct Flight",
-      typeBn: "ডিরেক্ট ফ্লাইট",
-      typeAr: "رحلة مباشرة",
-      price: 145000,
-      flightDate: "15 June 2026",
-      flightDateBn: "১৫ জুন ২০২৬",
-      flightDateAr: "١٥ يونيو ٢٠٢٦",
-      highlight: true,
-    },
+  const defaultFlightPackages = [
+    { type: "Transit Flight", typeBn: "ট্রানজিট ফ্লাইট", typeAr: "رحلة ترانزيت", price: 135000, flightDate: "10 June 2026", flightDateBn: "১০ জুন ২০২৬", flightDateAr: "١٠ يونيو ٢٠٢٦", highlight: false },
+    { type: "Direct Flight", typeBn: "ডিরেক্ট ফ্লাইট", typeAr: "رحلة مباشرة", price: 145000, flightDate: "15 June 2026", flightDateBn: "১৫ জুন ২০২৬", flightDateAr: "١٥ يونيو ٢٠٢٦", highlight: true },
   ];
+  const flightPackages = (db?.flight_packages as typeof defaultFlightPackages) || defaultFlightPackages;
 
-  const itikafPackages = [
+  const defaultItikafPackages = [
     { days: 15, daysBn: "১৫ দিন", daysAr: "١٥ يوم", daysEn: "15 Days", price: 165000, label: "15 Days Itikaf", labelBn: "১৫ দিনের ইতেকাফ", labelAr: "اعتكاف ١٥ يوم" },
     { days: 20, daysBn: "২০ দিন", daysAr: "٢٠ يوم", daysEn: "20 Days", price: 170000, label: "20 Days Itikaf", labelBn: "২০ দিনের ইতেকাফ", labelAr: "اعتكاف ٢٠ يوم" },
     { days: 30, daysBn: "৩০ দিন", daysAr: "٣٠ يوم", daysEn: "30 Days", price: 192000, label: "30 Days Itikaf", labelBn: "৩০ দিনের ইতেকাফ", labelAr: "اعتكاف ٣٠ يوم" },
   ];
+  const itikafPackages = (db?.itikaf_packages as typeof defaultItikafPackages) || defaultItikafPackages;
+
+  const contactPhones = (db?.contact_phones as string[]) || ["01741-719932", "01339-080532"];
 
   const getFlightType = (pkg: typeof flightPackages[0]) => {
     if (language === "bn") return pkg.typeBn;
@@ -480,12 +467,11 @@ const DarulFurkanPackages = () => {
               </div>
               <div>
                 <p className="text-sm text-primary-foreground/70 mb-1">{c.phone}</p>
-                <a href="tel:+8801741719932" className="block font-bold text-xl hover:text-secondary transition-colors">
-                  01741-719932
-                </a>
-                <a href="tel:+8801339080532" className="block font-bold text-xl hover:text-secondary transition-colors">
-                  01339-080532
-                </a>
+                {contactPhones.map((phone, idx) => (
+                  <a key={idx} href={`tel:+88${phone.replace(/-/g, '')}`} className="block font-bold text-xl hover:text-secondary transition-colors">
+                    {phone}
+                  </a>
+                ))}
               </div>
             </div>
 
