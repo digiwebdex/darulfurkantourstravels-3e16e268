@@ -15,8 +15,9 @@ serve(async (req: Request) => {
   try {
     const { email, password, secret_key, role = "admin" } = await req.json();
 
-    // Simple secret key to prevent unauthorized access
-    if (secret_key !== "DARUL_FURKAN_SETUP_2024") {
+    // Validate secret key from environment variable
+    const expectedSecret = Deno.env.get("SETUP_ADMIN_SECRET");
+    if (!expectedSecret || secret_key !== expectedSecret) {
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
