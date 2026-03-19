@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useFinancialData } from "@/hooks/useFinancialData";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -79,6 +80,7 @@ interface BookingPayment {
 }
 
 const AdminPaymentReconciliation = () => {
+  const { summary: financialSummary } = useFinancialData();
   const [bookings, setBookings] = useState<BookingPayment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
