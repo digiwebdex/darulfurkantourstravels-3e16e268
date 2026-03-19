@@ -80,6 +80,7 @@ interface BookingPayment {
 }
 
 const AdminPaymentReconciliation = () => {
+  const { summary: financialSummary } = useFinancialData();
   const [bookings, setBookings] = useState<BookingPayment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
