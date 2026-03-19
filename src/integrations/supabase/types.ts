@@ -68,6 +68,62 @@ export type Database = {
         }
         Relationships: []
       }
+      accounting_entries: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          created_at: string
+          created_by: string | null
+          credit_account: string
+          debit_account: string
+          description: string
+          entry_date: string
+          entry_type: string
+          id: string
+          notes: string | null
+          reference_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          booking_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          credit_account: string
+          debit_account: string
+          description: string
+          entry_date?: string
+          entry_type: string
+          id?: string
+          notes?: string | null
+          reference_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          credit_account?: string
+          debit_account?: string
+          description?: string
+          entry_date?: string
+          entry_type?: string
+          id?: string
+          notes?: string | null
+          reference_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accounting_entries_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_leads: {
         Row: {
           agent_id: string
@@ -2739,6 +2795,53 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      supplier_costs: {
+        Row: {
+          amount: number
+          cost_type: string
+          created_at: string
+          id: string
+          is_active: boolean
+          notes: string | null
+          package_id: string | null
+          per_person: boolean
+          supplier_name: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          cost_type: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          package_id?: string | null
+          per_person?: boolean
+          supplier_name: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          cost_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          package_id?: string | null
+          per_person?: boolean
+          supplier_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_costs_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "packages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       team_members: {
         Row: {
